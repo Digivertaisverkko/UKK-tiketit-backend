@@ -1,5 +1,6 @@
 
 var mysql = require('mysql');
+const { use } = require('.');
 
 
 module.exports = {
@@ -81,6 +82,34 @@ module.exports = {
         }
         resolve(rows);
       });
+    });
+  },
+
+
+
+
+  createTicket: function(courseid, userid, title) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      INSERT INTO Ketju (kurssi, aloittaja, otsikko, aikaleima) \
+      VALUES (?, ?, ?, NOW())';
+      con.query(query, [courseid, userid, title], function (err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows);
+      });
+    }).then((rows) => {
+      const query = '\
+      INSERT INTO KetjunTila (ketju, tila, aikaleima) \
+      VALUES (?, 1, NOW())';
+      console.log(rows);
+      con.query(query, [rows[0].insertId], function (err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows);
+      })
     });
   }
 
