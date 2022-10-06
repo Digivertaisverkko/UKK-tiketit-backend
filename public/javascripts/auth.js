@@ -20,7 +20,7 @@ module.exports = {
 
     },
 
-    authenticate: function(authCode) {
+    createSession: function(authCode) {
         //TODO: Hae oikeat authit serveriltä.
         return new Promise(function(resolve, reject) {
             let sessionId = crypto.randomUUID();

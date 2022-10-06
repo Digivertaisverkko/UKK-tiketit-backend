@@ -31,11 +31,20 @@ function hasAccess(req, res) {
   }
 }
 
+
 router.get('/api/echoheaders/', function(req, res, next) {
   res.json(req.headers);
 });
 
+router.post('/api/echoheaders/', function(req, res) {
+  res.json(req.headers);
+});
+
 router.get('/api/echobody', function(req, res, next) {
+  res.json(req.body);
+});
+
+router.post('/api/echobody', function(req, res) {
   res.json(req.body);
 });
 
@@ -65,8 +74,8 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
   }
 });
 
-router.get('/api/kurssi/kaikki', function(req, res, next) {
-  sql.getCourses().then((data) =>
+router.get('/api/kurssit/', function(req, res, next) {
+  sql.getAllCourses().then((data) =>
     res.send(data)
   );
 });
@@ -83,6 +92,12 @@ router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
 
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   sql.getComments(req.params.ticketid).then((data) => res.send(data));
+});
+
+
+
+router.get('/api/tiketti/uusi/:courseid/:userid/:title', function (req, res, next) {
+  sql.createTicket(req.params.courseid, req.params.userid, req.params.title).then((data) => res.send(data));
 });
 
 module.exports = router;
