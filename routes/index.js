@@ -32,7 +32,7 @@ function hasAccess(req, res) {
 }
 
 router.get('/api/echoheaders/', function(req, res, next) {
-  res.json(req.headers['session-id']);
+  res.json(req.headers);
 });
 
 router.get('/api/echobody', function(req, res, next) {
