@@ -16,7 +16,7 @@ module.exports = {
     });
   },
 
-  getAllMessages: function(courseId, userId) {
+  getAllMyTickets: function(courseId, userId) {
     return new Promise(function(resolve, reject) {
       const query = 'SELECT * FROM Ketju WHERE aloittaja=? AND kurssi=?';
       con.query(query, [userId, courseId], function (err, rows, fields) {
@@ -28,7 +28,19 @@ module.exports = {
     });
   },
 
-  getMessage: function(messageId) {
+  getAllTickets: function(courseId) {
+    return new Promise(function(resolve, reject) {
+      const query = 'SELECT * FROM Ketju WHERE kurssi=?';
+      con.query(query, [courseId], function (err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows);
+      });
+    });
+  },
+
+  getTicket: function(messageId) {
     return new Promise(function(resolve, reject) {
       const query = '\
         SELECT * FROM Ketju k \
@@ -44,18 +56,13 @@ module.exports = {
     });
   },
 
-  getMessageState: function(messageId) {
+  getFieldsOfTicket: function(messageId) {
     return new Promise(function(resolve, reject) {
       const query = '\
-      select t.ketju, t.tila, t.aikaleima \
-      from KetjunTila t \
-      inner join ( \
-          select ketju, max(aikaleima) as MaxDate \
-          from KetjunTila \
-          group by ketju \
-      ) tm \
-      on t.ketju = tm.ketju and t.aikaleima = tm.MaxDate \
-      where t.ketju=?';
+        SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM KetjunKentat kk \
+        INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM KenttaPohja) pohja \
+        ON kk.kentta = pohja.id \
+        WHERE kk.ketju=?';
       con.query(query, [messageId], function (err, rows, fields) {
         if (err) {
           return reject(err);
@@ -67,7 +74,7 @@ module.exports = {
 
   getComments: function(messageId) {
     return new Promise(function(resolve, reject) {
-      const query = 'SELECT * FROM Kommentti WHERE Ketju=? ORDER BY aikaleima';
+      const query = 'SELECT viesti, lahettaja, aikaleima FROM Kommentti WHERE Ketju=? ORDER BY aikaleima';
       con.query(query, [messageId], function (err, rows, fields) {
         if (err) {
           return reject(err);
