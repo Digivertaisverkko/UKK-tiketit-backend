@@ -46,7 +46,11 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
-  sql.getAllMessages(courseId, '2').then((data) => res.send(data));
+  sql.getAllMyTickets(req.params.courseid, '1').then((data) => res.send(data));
+});
+
+router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
+  sql.getAllTickets(req.params.courseid).then((data) => res.send(data));
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
@@ -67,22 +71,18 @@ router.get('/api/kurssi/kaikki', function(req, res, next) {
   );
 });
 
-router.get('/api/viesti/:messageid', function(req, res, next) {
-  sql.getMessage(req.params.messageid).then((data) => res.send(data));
+
+router.get('/api/tiketti/:ticketid', function(req, res, next) {
+  sql.getTicket(req.params.ticketid).then((data) => res.send(data));
 });
 
 
-router.get('/api/viesti/kentat/:messageid', function(req, res, next) {
-  sql.getMessage(req.params.messageid).then((data) => res.send(data));
-
+router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
+  sql.getFieldsOfTicket(req.params.ticketid).then((data) => res.send(data));
 });
 
-router.get('/api/viesti/tila/:messageid', function(req, res, next) {
-  sql.getMessageState(req.params.messageid).then((data) => res.send(data));
-});
-
-router.get('/api/viesti/kommentit/:messageid', function(req, res, next) {
-  sql.getComments(req.params.messageid).then((data) => res.send(data));
+router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
+  sql.getComments(req.params.ticketid).then((data) => res.send(data));
 });
 
 module.exports = router;
