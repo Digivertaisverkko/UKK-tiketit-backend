@@ -17,7 +17,11 @@ module.exports = {
     },
 
     login: function(username, password) {
-
+        return new Promise(function(resolve, reject) {
+            let sessionId = crypto.randomUUID();
+            authsBySession[sessionId] = authCode;
+            resolve(json({ idtoken: '', sessionid: sessionId}))
+        });
     },
 
     createSession: function(authCode) {
@@ -27,6 +31,10 @@ module.exports = {
             authsBySession[sessionId] = authCode;
             resolve(json({ idtoken: '', sessionid: sessionId}))
         });
+    },
+
+    createAccount: function(username, passwork) {
+
     },
 
     hasAuth: function(sessionId) {
