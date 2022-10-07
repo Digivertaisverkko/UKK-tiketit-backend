@@ -3,32 +3,32 @@
 Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen MySQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
 
-#REST-rajapinnan määriltemä
+# REST-rajapinnan määriltemä
 
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 
-##Sisäänkirjautumisen rajapinta 
+## Sisäänkirjautumisen rajapinta 
 
-###/api/login/ 
-####POST 
-#####Lähetä:
+### /api/login/ 
+#### POST 
+##### Lähetä:
 ```  
 {  
   login-type: $string
   code-challenge: $string
 } 
 ```
-#####Vastaus:  
+##### Vastaus:  
 ```
 { 
   login-url: $URL (sisältää generoidun login-id)
 }
 ```
 
-###/api/authtoken/ 
-####GET
-#####Lähetä:  
+### /api/authtoken/ 
+#### GET
+##### Lähetä:  
 ```
 {
   code-verifier: $string
@@ -36,7 +36,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 }
 ```
 
-#####Vastaus:  
+##### Vastaus:  
 ```
 {
   success: $bool
@@ -46,9 +46,9 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ```
 
 
-###/api/luotili/ 
-####POST 
-#####Lähetä: 
+### /api/luotili/ 
+#### POST 
+##### Lähetä: 
 ```
 {
   tili: $string
@@ -56,7 +56,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 }
 ```
 
-#####Vastaus: 
+##### Vastaus: 
 ```
 {
   success: $bool
@@ -65,9 +65,9 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ```
 
 
-###/api/omalogin/ 
-####POST 
-#####Lähetä: 
+### /api/omalogin/ 
+#### POST 
+##### Lähetä: 
 ```
 {
   ktunnus: $string
@@ -76,7 +76,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 } 
 ```
 
-#####Vastaus: 
+##### Vastaus: 
 ```
 {
   success: $bool
@@ -85,7 +85,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ```
  
 
-##Kurssien rajapinta 
+## Kurssien rajapinta 
 Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty auth-token ei ole oikein, niin silloin näistä tulee vastauksena 
 ```
 {
@@ -95,16 +95,16 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 ```
 
-###/api/kirjaudu-ulos/
-####POST
-#####Lähetä:
+### /api/kirjaudu-ulos/
+#### POST
+##### Lähetä:
 ```
 {
   session-id: $UUID
 }
 ```
 
-#####Vastaus: 
+##### Vastaus: 
 ```
 {
   success: $bool
@@ -112,9 +112,9 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-###/api/kurssit
-####GET
-#####Lähetä:
+### /api/kurssit
+#### GET
+##### Lähetä:
 ```
 -header-
 {
@@ -122,7 +122,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 ```
 
-#####Vasstaus: 
+##### Vasstaus: 
 ```
 [{
   nimi: $string
@@ -130,16 +130,16 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-###/api/kurssi/:kurssi-id
-####GET
-#####Lähetä:
+### /api/kurssi/:kurssi-id
+#### GET
+##### Lähetä:
 ```
 {
   auth-token: $UUID
 }
 ``` 
 
-#####Vastaus: 
+##### Vastaus: 
 ```
 {
   kurssi-nimi: $string
@@ -147,16 +147,16 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-###/api/kurssi/:kurssi-id/omat
-####GET
-#####Lähetä:
+### /api/kurssi/:kurssi-id/omat
+#### GET
+##### Lähetä:
 ```
 {
    session-id: $UUID
 }
 ``
 
-#####Vastaus:
+##### Vastaus:
 ```
 [{
   id: $string
@@ -178,9 +178,9 @@ Tila on numeerinen tunnus viestin tilalle:
   6 - arkistoitu 
 
 
-###/api/kurssi/:kurssi-id/ukk
-####GET
-#####Lähetä:
+### /api/kurssi/:kurssi-id/ukk
+#### GET
+##### Lähetä:
 ```
 {
    session-id: $UUID
@@ -188,7 +188,7 @@ Tila on numeerinen tunnus viestin tilalle:
 ```
  
 
-#####Vastaus:
+##### Vastaus:
 ```
 [{
   id: $string
@@ -201,8 +201,8 @@ Tila on numeerinen tunnus viestin tilalle:
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
  
 
-####POST //TODO
-#####Lähetä:
+#### POST //TODO
+##### Lähetä:
 ```
 -header- 
 {
@@ -216,7 +216,7 @@ Tila on numeerinen tunnus viestin tilalle:
 } 
 ```
 
-#####Vastaus:
+##### Vastaus:
 ```
 {
   success: $bool
@@ -225,9 +225,9 @@ Tila on numeerinen tunnus viestin tilalle:
 ```
 
  
-###/api/luokurssi/
-####POST
-#####Lähetä:
+### /api/luokurssi/
+#### POST
+##### Lähetä:
 ```
 -header-
 {
@@ -247,7 +247,7 @@ Tila on numeerinen tunnus viestin tilalle:
 }
 ```
 
-#####Vastaus:
+##### Vastaus:
 ```
 {
   success: $bool
@@ -256,11 +256,11 @@ Tila on numeerinen tunnus viestin tilalle:
 ```
 
 
-###/api/kurssi/:kurssi-id/uusitiketti
+### /api/kurssi/:kurssi-id/uusitiketti
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
 
-####POST
-#####Lähetä:
+#### POST
+##### Lähetä:
 ```
 -header-
 {
@@ -280,22 +280,22 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 TODO: Miten liitteet? 
 
 
-####GET 
+#### GET 
 Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/luoviesti/kentät/:kurssi-id *. 
 
 
-###/api/kurssi/:kurssi-id/uusitiketti/kentat/
+### /api/kurssi/:kurssi-id/uusitiketti/kentat/
 Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti. 
 
-####GET
-#####Lähetä:
+#### GET
+##### Lähetä:
 ```
 {
    session-id: $UUID
 }
 ```
 
-#####Vastaus:
+##### Vastaus:
 ```
 [{
   id: $string
@@ -307,16 +307,16 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 
-###/api/tiketti/:tiketti-id
-####GET 
-#####Lähetä:  
+### /api/tiketti/:tiketti-id
+#### GET 
+##### Lähetä:  
 ```
 {
    session-id: $UUID 
 }
 ```
 
-#####Vastaus:
+##### Vastaus:
 ```
 {
   otsikko: $string
@@ -328,16 +328,16 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 TODO: Liiteet? 
 
 
-###/api/tiketti/:tiketti-id/kentat
-####GET
-#####Lähetä:
+### /api/tiketti/:tiketti-id/kentat
+#### GET
+##### Lähetä:
 ```
 {
    session-id: $UUID 
 } 
 ```
 
-#####Vastaus:
+##### Vastaus:
 ```
 [{
   nimi: $string 
@@ -347,9 +347,9 @@ TODO: Liiteet?
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 
-###/api/tiketti/:tiketti-id/kommentit
-####GET
-#####Lähetä:
+### /api/tiketti/:tiketti-id/kommentit
+#### GET
+##### Lähetä:
 ```
 { 
   session-id: $UUID 
@@ -357,7 +357,7 @@ TODO: Liiteet?
 ```
 
 
-#####Vastaus:
+##### Vastaus:
 ```
 [{
   kirjoittaja-id: $string 
