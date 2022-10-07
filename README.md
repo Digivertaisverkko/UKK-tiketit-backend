@@ -169,13 +169,13 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 Tila on numeerinen tunnus viestin tilalle: 
-0. virhetila 
-1. lähetty 
-2. luettu 
-3. lisätietoa pyydetty 
-4. kommentoitu 
-5. ratkaistu 
-6. arkistoitu 
+- 0 virhetila 
+- 1 lähetty 
+- 2 luettu 
+- 3 lisätietoa pyydetty 
+- 4 kommentoitu 
+- 5 ratkaistu 
+- 6 arkistoitu 
 
 
 ### /api/kurssi/:kurssi-id/ukk
