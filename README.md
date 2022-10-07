@@ -168,7 +168,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
-Tila on numeerinen tunnus viestin tilalle: 
+*Tila* on numeerinen tunnus viestin tilalle: 
 - 0 virhetila 
 - 1 lähetty 
 - 2 luettu 
@@ -281,7 +281,7 @@ TODO: Miten liitteet?
 
 
 #### GET 
-Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/luoviesti/kentät/:kurssi-id *. 
+Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/luoviesti/kentät/:kurssi-id*. 
 
 
 ### /api/kurssi/:kurssi-id/uusitiketti/kentat/
