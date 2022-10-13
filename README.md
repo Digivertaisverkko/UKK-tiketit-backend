@@ -3,7 +3,7 @@
 Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen MySQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
 
-# REST-rajapinnan määriltemä
+# REST-rajapinnan määritelmä
 
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
@@ -31,6 +31,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ##### Lähetä:  
 ```
 {
+  login-type: $string
   code-verifier: $string
   login-code $string
 }
@@ -86,7 +87,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
  
 
 ## Kurssien rajapinta 
-Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty auth-token ei ole oikein, niin silloin näistä tulee vastauksena 
+Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty session-id ei ole oikein, niin silloin näistä tulee vastauksena 
 ```
 {
   success: false
@@ -112,7 +113,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-### /api/kurssit
+### /api/kurssit/
 #### GET
 ##### Lähetä:
 ```
@@ -130,12 +131,12 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-### /api/kurssi/:kurssi-id
+### /api/kurssi/:kurssi-id/
 #### GET
 ##### Lähetä:
 ```
 {
-  auth-token: $UUID
+  session-id: $UUID
 }
 ``` 
 
@@ -147,7 +148,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-### /api/kurssi/:kurssi-id/omat
+### /api/kurssi/:kurssi-id/omat/
 #### GET
 ##### Lähetä:
 ```
@@ -178,7 +179,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 - 6 arkistoitu 
 
 
-### /api/kurssi/:kurssi-id/ukk
+### /api/kurssi/:kurssi-id/ukk/
 #### GET
 ##### Lähetä:
 ```
@@ -201,7 +202,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
  
 
-#### POST //TODO
+#### POST
 ##### Lähetä:
 ```
 -header- 
@@ -256,7 +257,29 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-### /api/kurssi/:kurssi-id/uusitiketti
+### /api/kurssi/:kurssi-id/oikeudet/
+#### GET
+##### Lähetä:
+```
+-header-
+{
+  session-id: $UUID
+}
+```
+#### Vastaus:
+```
+-body-
+{
+  oikeudet: $string
+}
+```
+oikeudet-kentän arvoina voi olla:
+- opettaja
+- opiskelija
+- admin
+
+
+### /api/kurssi/:kurssi-id/uusitiketti/
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
 
 #### POST
@@ -277,11 +300,11 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 }
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.* 
-TODO: Miten liitteet? 
+**TODO:** Miten liitteet? 
 
 
 #### GET 
-Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/luoviesti/kentät/:kurssi-id*. 
+Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/kurssi/:kurssi-id/uusitiketti/kentat/*. 
 
 
 ### /api/kurssi/:kurssi-id/uusitiketti/kentat/
@@ -307,7 +330,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 
-### /api/tiketti/:tiketti-id
+### /api/tiketti/:tiketti-id/
 #### GET 
 ##### Lähetä:  
 ```
@@ -325,10 +348,10 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   tila: $string
 }
 ```
-TODO: Liiteet? 
+**TODO:** Liiteet? 
 
 
-### /api/tiketti/:tiketti-id/kentat
+### /api/tiketti/:tiketti-id/kentat/
 #### GET
 ##### Lähetä:
 ```
@@ -347,7 +370,7 @@ TODO: Liiteet?
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 
-### /api/tiketti/:tiketti-id/kommentit
+### /api/tiketti/:tiketti-id/kommentit/
 #### GET
 ##### Lähetä:
 ```

@@ -1,5 +1,6 @@
 const { json } = require('express');
 var express = require('express');
+const auth = require('../public/javascripts/auth.js');
 var router = express.Router();
 var sql = require('./sql.js');
 
@@ -13,10 +14,19 @@ router.get('/api/', function(req, res, next) {
 });
 
 router.get('/api/login/', function(req, res, next) {
-  
+  let logintype = req.header['session-id'];
+  let codeChallenge = req.header['code-challenge'];
+  auth.startLogin(logintype, codeChallenge).then((data) => res.send(data));
 });
 
 router.get('/api/api-key/', function(req, res, next) {
+  
+});
+
+router.get('/api/omalogin/', function(req, res, next) {
+  let username = req.header['ktunnus'];
+  let password = req.header['salasana'];
+  let loginid = req.header['login-id'];
   
 });
 
