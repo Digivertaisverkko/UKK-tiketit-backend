@@ -13,21 +13,32 @@ router.get('/api/', function(req, res, next) {
   res.send('Hello World!');
 });
 
-router.get('/api/login/', function(req, res, next) {
-  let logintype = req.header['session-id'];
-  let codeChallenge = req.header['code-challenge'];
-  auth.startLogin(logintype, codeChallenge).then((data) => res.send(data));
+router.post('/api/login/', function(req, res, next) {
+  let logintype = req.header('login-type');
+  let codeChallenge = req.header('code-challenge');
+  auth.startLogin(codeChallenge, logintype).then((data) => res.send('data: ' + data)).catch((error) => res.send('error: ' + error));
 });
 
-router.get('/api/api-key/', function(req, res, next) {
-  
+router.get('/api/authtoken/', function(req, res, next) {
+  let logintype = req.header('login-type');
+  let codeVerify = req.header('code-verifier');
+  let logincode = req.header('login-code');
+  if (logintype === 'own') {
+    auth.requestAccess(logincode, codeVerify).then((data) => {
+      res.send({success: true, 'session-id': data.sessionid});
+    }).catch((error) => {
+      res.send({success: false, error: error});
+    });
+  }
 });
 
-router.get('/api/omalogin/', function(req, res, next) {
-  let username = req.header['ktunnus'];
-  let password = req.header['salasana'];
-  let loginid = req.header['login-id'];
-  
+router.post('/api/omalogin/', function(req, res, next) {
+  let username = req.header('ktunnus');
+  let password = req.header('salasana');
+  let loginid = req.header('login-id');
+  auth.login(username, password, loginid)
+  .then((data) => res.send(data))
+  .catch((error) => res.send({ success: false, error: error}));
 });
 
 

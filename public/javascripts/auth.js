@@ -1,50 +1,64 @@
 
 const crypto = require('crypto');
-const sql = require('mysql');
+const sql = require('../../routes/sql');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
 
 module.exports = {
 
-    sqlLoginStart: function(codeChallenge) {
-        return new Promise(function(resolve, reject) {
-            let loginid = crypto.randomUUID();
-            let fronttunnus = crypto.randomUUID();
-            sql.createLoginUrl(loginid, codeChallenge, fronttunnus).then((data) => {
-                resolve(data);
-            });
-        });
-    },
-
     startLogin: function(codeChallenge, logintype) {
         return new Promise(function(resolve, reject) {
-            if (logintype == 'own') {
-                return sqlLoginStart(codeChallenge).then((data) => {resolve(data)});
+            if (logintype === 'own') {
+                let loginid = crypto.randomUUID();
+                let fronttunnus = crypto.randomUUID();
+                resolve({cc: codeChallenge, lid: loginid, fcode: fronttunnus})
+            } else {
+                reject(500);
             }
-        });        
+        }).then((data) => {
+            return sql.createLoginUrl(data.lid, data.cc, data.fcode);
+        });
     },
 
     login: function(username, password, loginid) {
         return new Promise(function(resolve, reject) {
             sql.getSalt(username).then((saltData) => {
-
-                let hash = crypto.createHash('sha256', password).update(salt).digest('hex');
-
-                sql.checkUserAccount(username, hash).then((accountData) => {
-                    if (data2 != null) {
-                        sql.updateLoginAttemptWithAccount(loginid, accountData.tili).then((updateData) => {
-                            sql.getLoginAttemptWithId(loginid).then((attemptData) => {
-                                resolve(json({success: true, 'login-code': attemptData.fronttunnus}));
+                if (saltData.length === 1) {
+                    let hash = crypto.createHash('sha256', password).update(saltData[0].salt).digest('hex');
+                    sql.checkUserAccount(username, hash).then((accountData) => {
+                        if (accountData.length === 1) {
+                            sql.updateLoginAttemptWithAccount(loginid, accountData[0].tili).then((updateData) => {
+                                sql.getLoginAttemptWithId(loginid).then((attemptData) => {
+                                    resolve({success: true, 'login-code': attemptData[0].fronttunnus});
+                                });
                             });
-                        });
-                    }
-                });
+                        } else {
+                            reject(403)
+                        }
+                    });
+                } else {
+                    reject(500);
+                }
             });
         });
     },
 
-    createSession: function(authCode) {
+    requestAccess: function(accessCode, codeVerify) {
+        return new Promise(function(resolve, reject) {
+            sql.getLoginAttemptWithAccessCode(accessCode).then((loginData) => {
+                if (loginData != null) {
+                    sql.createSessio(data.tili).then((sessionData) => {
+                        resolve(sessionData);
+                    });
+                } else {
+                    reject();
+                }
+            });
+        });
+    },
+
+    createSession: function(accessCode) {
         //TODO: Hae oikeat authit serveriltä.
         return new Promise(function(resolve, reject) {
             let sessionId = crypto.randomUUID();
