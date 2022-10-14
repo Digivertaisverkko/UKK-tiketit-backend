@@ -47,28 +47,24 @@ module.exports = {
     requestAccess: function(accessCode, codeVerify) {
         return new Promise(function(resolve, reject) {
             sql.getLoginAttemptWithAccessCode(accessCode).then((loginData) => {
-                if (loginData != null) {
-                    sql.createSessio(data.tili).then((sessionData) => {
+                if (loginData.length > 0) {
+                    sql.createSession(loginData[0].tili).then((sessionData) => {
                         resolve(sessionData);
                     });
                 } else {
-                    reject();
+                    reject(403);
                 }
             });
         });
     },
 
-    createSession: function(accessCode) {
-        //TODO: Hae oikeat authit serveriltä.
-        return new Promise(function(resolve, reject) {
-            let sessionId = crypto.randomUUID();
-            authsBySession[sessionId] = authCode;
-            resolve(json({ idtoken: '', sessionid: sessionId}))
+    createAccount: function(username, password) {
+        return sql.createEmptyUser()
+        .then((newuserId) => {
+            let salt = crypto.randomBytes(8).toString('hex');
+            let hash = crypto.createHash('sha256', password).update(salt).digest('hex');
+            return sql.createAccount(username, hash, salt, newuserId);
         });
-    },
-
-    createAccount: function(username, passwork) {
-
     },
 
     hasAuth: function(sessionId) {

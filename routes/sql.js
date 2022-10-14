@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 var mysql = require('mysql');
 const { use } = require('.');
 
@@ -54,7 +55,7 @@ module.exports = {
   createSession: function(userid) {
     const sessionid = crypto.randomUUID();
     return new Promise( function (resolve, reject) {
-      const query = 'INSERT INTO Sessio (sessioid, vanhenee, tili) VALUES (?, NOW()+1, ?)'
+      const query = 'INSERT INTO Sessio (sessionid, vanhenee, tili) VALUES (?, NOW()+1, ?)'
       con.query(query, [sessionid, userid], function(err, rows, fields) {
         if (err) {
           return reject(err);
@@ -63,11 +64,15 @@ module.exports = {
       });
     }).then(() => {
       const query = 'SELECT * FROM Sessio WHERE sessionid=?';
-      con.query(query, [sessionid], function(err, rows, fields) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(rows);
+      return new Promise(function (resolve, reject) {
+        con.query(query, [sessionid], function(err, rows, fields) {
+          if (err) {
+            return reject(err);
+          } else if (rows.length == 0) {
+            return reject(404);
+          }
+          resolve(rows);
+        });
       });
     });
   },
@@ -96,10 +101,35 @@ module.exports = {
     });
   },
 
-  createAccount: function(username, passwordhash, salt) {
+  removeLoginAttempt: function(frontcode) {
     return new Promise(function(resolve, reject) {
-      const query = 'INSERT INTO Login (ktunnus, salasana, salt) VALUES (?, ?, ?)';
-      con.query(query, [username, passwordhash, salt], function(err, rows, fields) {
+      const query = 'DELETE FROM LoginYritys WHERE fronttunnus=?';
+      con.query(query, [frontcode], function(err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows);
+      });
+    });  
+  },
+
+
+  createEmptyUser: function() {
+    return new Promise(function(resolve, reject) {
+      const query = 'INSERT INTO Tili (nimi, sposti) VALUES ("", "")';
+      con.query(query, [], function(err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows.insertId);
+      });
+    });
+  },
+
+  createAccount: function(username, passwordhash, salt, userid) {
+    return new Promise(function(resolve, reject) {
+      const query = 'INSERT INTO Login (ktunnus, salasana, salt, tili) VALUES (?, ?, ?, ?)';
+      con.query(query, [username, passwordhash, salt, userid], function(err, rows, fields) {
         if (err) {
           return reject(err);
         }
