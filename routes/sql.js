@@ -5,10 +5,10 @@ module.exports = {
 
   createLoginUrl: function(loginid, codeChallenge, frontcode) {
     return new Promise(function (resolve, reject) {
-      const query = 'INSERT INTO LoginYritys (loginid, codeChallenge, fronttunnus) VALUES (?, ?, ?)';
+      const query = 'INSERT INTO LoginYritys (loginid, codeChallenge, fronttunnus, tili) VALUES (?, ?, ?, NULL)';
       con.query(query, [loginid, codeChallenge, frontcode], function(err, rows, fields) {
         if (err) {
-          return reject(err);
+          reject('createLogin: ' + err + ' loginid: ' + loginid);
         }
         resolve('/login?loginid=' + loginid);
       });
@@ -31,6 +31,39 @@ module.exports = {
     return new Promise( function (resolve, reject) {
       const query = 'SELECT * FROM LoginYritys WHERE loginid=?';
       con.query(query, [loginid], function(err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows);
+      });
+    });
+  },
+
+  getLoginAttemptWithAccessCode: function(accessCode) {
+    return new Promise( function (resolve, reject) {
+      const query = 'SELECT * FROM LoginYritys WHERE fronttunnus=? AND tili IS NOT NULL';
+      con.query(query, [accessCode], function(err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows);
+      });
+    });
+  },
+
+  createSession: function(userid) {
+    const sessionid = crypto.randomUUID();
+    return new Promise( function (resolve, reject) {
+      const query = 'INSERT INTO Sessio (sessioid, vanhenee, tili) VALUES (?, NOW()+1, ?)'
+      con.query(query, [sessionid, userid], function(err, rows, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(rows);
+      });
+    }).then(() => {
+      const query = 'SELECT * FROM Sessio WHERE sessionid=?';
+      con.query(query, [sessionid], function(err, rows, fields) {
         if (err) {
           return reject(err);
         }
