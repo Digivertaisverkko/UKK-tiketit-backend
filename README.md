@@ -52,7 +52,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ##### Lähetä: 
 ```
 {
-  tili: $string
+  ktunnus: $string
   salasana: $string
 }
 ```

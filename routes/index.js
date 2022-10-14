@@ -1,8 +1,11 @@
 const { json } = require('express');
 var express = require('express');
+const { login } = require('../public/javascripts/auth.js');
 const auth = require('../public/javascripts/auth.js');
 var router = express.Router();
 var sql = require('./sql.js');
+const crypto = require('crypto');
+const { setFlagsFromString } = require('v8');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -16,7 +19,11 @@ router.get('/api/', function(req, res, next) {
 router.post('/api/login/', function(req, res, next) {
   let logintype = req.header('login-type');
   let codeChallenge = req.header('code-challenge');
-  auth.startLogin(codeChallenge, logintype).then((data) => res.send('data: ' + data)).catch((error) => res.send('error: ' + error));
+  if (logintype != undefined && codeChallenge != undefined) {
+    auth.startLogin(codeChallenge, logintype).then((data) => res.send(data)).catch((error) => res.send('error: ' + error));
+  } else {
+    res.send({success: false, error: 400});
+  }
 });
 
 router.get('/api/authtoken/', function(req, res, next) {
@@ -25,7 +32,11 @@ router.get('/api/authtoken/', function(req, res, next) {
   let logincode = req.header('login-code');
   if (logintype === 'own') {
     auth.requestAccess(logincode, codeVerify).then((data) => {
-      res.send({success: true, 'session-id': data.sessionid});
+      //res.send({'success': true, 'session-id': data[0].sessionid});
+      return data;
+    }).then((data) => {
+      res.send({'success': true, 'login-id': data});
+      return sql.removeLoginAttempt(logincode);
     }).catch((error) => {
       res.send({success: false, error: error});
     });
@@ -39,6 +50,21 @@ router.post('/api/omalogin/', function(req, res, next) {
   auth.login(username, password, loginid)
   .then((data) => res.send(data))
   .catch((error) => res.send({ success: false, error: error}));
+});
+
+router.post('/api/luotili/', function(req, res, next) {
+  let username = req.header('ktunnus');
+  let password = req.header('salasana');
+  if (username != null && password != null) {
+    auth.createAccount(username, password)
+    .then((data) => {
+      res.send({success: true});
+    }).catch((error) => {
+      res.send({success: false, error: error});
+    });
+  } else {
+    res.send({success: false, error: 400});
+  }
 });
 
 
