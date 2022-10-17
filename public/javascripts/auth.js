@@ -18,6 +18,8 @@ module.exports = {
             }
         }).then((data) => {
             return sql.createLoginUrl(data.lid, data.cc, data.fcode);
+        }).then((data) => {
+            return {'login-url': data};
         });
     },
 
