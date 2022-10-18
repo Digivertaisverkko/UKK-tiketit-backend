@@ -32,10 +32,9 @@ router.get('/api/authtoken/', function(req, res, next) {
   let logincode = req.header('login-code');
   if (logintype === 'own') {
     auth.requestAccess(logincode, codeVerify).then((data) => {
-      //res.send({'success': true, 'session-id': data[0].sessionid});
+      res.send({'success': true, 'session-id': data[0].sessionid});
       return data;
     }).then((data) => {
-      res.send({'success': true, 'login-id': data});
       return sql.removeLoginAttempt(logincode);
     }).catch((error) => {
       res.send({success: false, error: error});
