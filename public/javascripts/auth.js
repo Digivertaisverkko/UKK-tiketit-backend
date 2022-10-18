@@ -27,7 +27,7 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             sql.getSalt(username).then((saltData) => {
                 if (saltData.length === 1) {
-                    let hash = crypto.createHash('sha256', password).update(saltData[0].salt).digest('hex');
+                    let hash = module.exports.hash(password, saltData[0].salt);
                     sql.checkUserAccount(username, hash).then((accountData) => {
                         if (accountData.length === 1) {
                             sql.updateLoginAttemptWithAccount(loginid, accountData[0].tili).then((updateData) => {
@@ -64,9 +64,13 @@ module.exports = {
         return sql.createEmptyUser()
         .then((newuserId) => {
             let salt = crypto.randomBytes(8).toString('hex');
-            let hash = crypto.createHash('sha256', password).update(salt).digest('hex');
+            let hash = module.exports.hash(password, salt);
             return sql.createAccount(username, hash, salt, newuserId);
         });
+    },
+
+    hash: function(hashable, salt) {
+        return crypto.createHash('sha256', hashable).update(salt).digest('hex');
     },
 
     hasAuth: function(sessionId) {

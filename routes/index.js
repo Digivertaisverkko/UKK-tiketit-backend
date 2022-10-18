@@ -49,7 +49,7 @@ router.post('/api/omalogin/', function(req, res, next) {
   let loginid = req.header('login-id');
   auth.login(username, password, loginid)
   .then((data) => res.send(data))
-  .catch((error) => res.send({ success: false, error: error}));
+  .catch((error) => res.send({ success: false, error: error }));
 });
 
 router.post('/api/luotili/', function(req, res, next) {
@@ -93,6 +93,12 @@ router.get('/api/echobody', function(req, res, next) {
 
 router.post('/api/echobody', function(req, res) {
   res.json(req.body);
+});
+
+router.get('/api/hash/:password', function(req, res) {
+  let salt = crypto.randomBytes(8).toString('hex');
+  let hash = auth.hash(req.params.password, salt);
+  res.send({ salasana: req.params.password, hash: hash, salt: salt });
 });
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
