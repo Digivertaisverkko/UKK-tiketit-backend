@@ -32,7 +32,11 @@ module.exports = {
                         if (accountData.length === 1) {
                             sql.updateLoginAttemptWithAccount(loginid, accountData[0].tili).then((updateData) => {
                                 sql.getLoginAttemptWithId(loginid).then((attemptData) => {
-                                    resolve({success: true, 'login-code': attemptData[0].fronttunnus});
+                                    if (attemptData.length === 1) {
+                                        resolve({success: true, 'login-code': attemptData[0].fronttunnus});
+                                    } else {
+                                        reject(403);
+                                    }
                                 });
                             });
                         } else {
@@ -70,7 +74,7 @@ module.exports = {
     },
 
     hash: function(hashable, salt) {
-        return crypto.createHash('sha256', hashable).update(salt).digest('hex');
+        return crypto.createHash('sha256').update(hashable).update(salt).digest('hex');
     },
 
     hasAuth: function(sessionId) {
