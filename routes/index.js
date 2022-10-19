@@ -95,9 +95,20 @@ router.post('/api/echobody', function(req, res) {
 });
 
 router.get('/api/hash/:password', function(req, res) {
-  let salt = crypto.randomBytes(8).toString('hex');
-  let hash = auth.hash(req.params.password, salt);
-  res.send({ salasana: req.params.password, hash: hash, salt: salt });
+  var array = [];
+  var i=0;
+  var salt;
+  for (i=0; i<2; ++i) {
+    salt = crypto.randomBytes(8).toString('hex');
+    let hash = auth.hash(req.params.password, salt);
+    array[i] = {salasana: req.params.password, hash: hash, salt: salt};
+  }
+
+  let pass2 = req.params.password + 'asd';
+  let hash = auth.hash(pass2, salt);
+  array[i] = {salasana: pass2, hash: hash, salt: salt};
+
+  res.send(array);
 });
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
