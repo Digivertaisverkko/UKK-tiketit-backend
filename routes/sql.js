@@ -54,7 +54,7 @@ module.exports = {
   createSession: function(userid) {
     const sessionid = crypto.randomUUID();
     return new Promise( function (resolve, reject) {
-      const query = 'INSERT INTO core.sessio (sessionid, vanhenee, tili) VALUES ($1, NOW()+1, $2)'
+      const query = 'INSERT INTO core.sessio (sessionid, vanhenee, tili) VALUES ($1, NOW()+interval \'1 days\', $2)'
       con.query(query, [sessionid, userid], function(err, res) {
         if (err) {
           return reject(err);
