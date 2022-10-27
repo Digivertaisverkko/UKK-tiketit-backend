@@ -138,8 +138,8 @@ module.exports = {
   },
 
   userIdForSession: function(sessionid) {
-    new Promise(function(resolve, reject) {
-      const query = 'SELECT tili FROM core.sessio WHERE sessionid=$1';
+    return new Promise(function(resolve, reject) {
+      const query = 'SELECT tili FROM core.sessio WHERE sessionid=$1 AND vanhenee>NOW()';
       con.query(query, [sessionid], function(err, res) {
         if (err) {
           return reject(err);
@@ -164,6 +164,18 @@ module.exports = {
               return reject(err);
           }
           resolve(res.rows);
+      });
+    });
+  },
+
+  getCourseInfo: function(courseId) {
+    return new Promise(function(resolve, reject) {
+      const query = 'SELECT nimi FROM core.kurssi WHERE id=$1';
+      con.query(query, [courseId], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
       });
     });
   },

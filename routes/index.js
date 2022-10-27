@@ -23,7 +23,7 @@ router.post('/api/login/', function(req, res, next) {
   if (logintype != undefined && codeChallenge != undefined) {
     auth.startLogin(codeChallenge, logintype).then((data) => res.send(data)).catch((error) => res.send('error: ' + error));
   } else {
-    res.send({success: false, error: errorFactory(300)});
+    res.send({success: false, error: errorFactory.createError(300)});
   }
 });
 
@@ -38,7 +38,7 @@ router.get('/api/authtoken/', function(req, res, next) {
     }).then((data) => {
       return sql.removeLoginAttempt(logincode);
     }).catch((error) => {
-      res.send({success: false, error: errorFactory(error)});
+      res.send({success: false, error: errorFactory.createError(error)});
     });
   }
 });
@@ -49,7 +49,7 @@ router.post('/api/omalogin/', function(req, res, next) {
   let loginid = req.header('login-id');
   auth.login(username, password, loginid)
   .then((data) => res.send(data))
-  .catch((error) => res.send({ success: false, error: errorFactory(error) }));
+  .catch((error) => res.send({ success: false, error: errorFactory.createError(error) }));
 });
 
 router.post('/api/luotili/', function(req, res, next) {
@@ -60,10 +60,10 @@ router.post('/api/luotili/', function(req, res, next) {
     .then((data) => {
       res.send({success: true});
     }).catch((error) => {
-      res.send({success: false, error: errorFactory(error)});
+      res.send({success: false, error: errorFactory.createError(error)});
     });
   } else {
-    res.send({success: false, error: errorFactory(300)});
+    res.send({success: false, error: errorFactory.createError(300)});
   }
 });
 
@@ -104,7 +104,16 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
-    res.json({'kurssi-nimi': 'Ohjelmistomatematiikan perusteet.'});
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getCourseInfo(req.params.courseid);
+  })
+  .then((sqldata) => {
+    res.send(sqldata);
+  })
+  .catch((error) => {
+    res.send({success: false, error: errorFactory.createError(error)});
+  });
 });
 
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
