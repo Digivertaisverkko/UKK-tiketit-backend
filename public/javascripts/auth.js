@@ -81,18 +81,15 @@ module.exports = {
     authenticatedUser: function(httpRequest) {
         var sessionid = httpRequest.header('session-id');
         if (sessionid == undefined) {
-            return new Promise.reject(300);
+            return Promise.reject(300);
         }
 
-        new Promise(function(resolve, reject) {
-            const query = 'SELECT tili FROM core.sessio WHERE sessionid=$1 AND vanhenee > NOW()';
-            return sql.userIdForSession(sessionid);
-        })
+        return sql.userIdForSession(sessionid)
         .then((userids) => {
-            if (userids.length === 1) {
+            if (userids.length == 1) {
                 return userids[0];
             } else {
-                return new Promise.reject(100);
+                return Promise.reject(100);
             }
         });
     }
