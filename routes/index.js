@@ -127,10 +127,12 @@ router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
+  //TODO: Lisää authin tarkistus ja tarkistus sille, että hakija on opettaja
   sql.getAllTickets(req.params.courseid).then((data) => res.send(data));
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
+  //TODO: ukk-toteutus
     var array = [4];
     array[0] = {nimi: '”Index out of bounds”?', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '16.9.2023'};
     array[1] = {nimi: 'Ohjelma tulostaa numeroita kirjainten sijasta!', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '17.9.2023'};
@@ -141,23 +143,39 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
 });
 
 router.get('/api/kurssit/', function(req, res, next) {
-  sql.getAllCourses().then((data) =>
-    res.send(data)
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getAllCourses();
+  })
+  .then((sqldata) =>
+    res.send(sqldata)
   );
 });
 
 
 router.get('/api/tiketti/:ticketid', function(req, res, next) {
-  sql.getTicket(req.params.ticketid).then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getTicket(req.params.ticketid);
+  })
+  .then((sqldata) => res.send(sqldata));
 });
 
 
 router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
-  sql.getFieldsOfTicket(req.params.ticketid).then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getFieldsOfTicket(req.params.ticketid);
+  })
+  .then((sqldata) => res.send(sqldata));
 });
 
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
-  sql.getComments(req.params.ticketid).then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getComments(req.params.ticketid);
+  })
+  .then((data) => res.send(data));
 });
 
 
