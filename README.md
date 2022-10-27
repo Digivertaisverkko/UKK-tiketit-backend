@@ -41,7 +41,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
   session-id: $uuid
 }
 ```
@@ -61,7 +61,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
 } 
 ```
 
@@ -221,7 +221,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
 } 
 ```
 
@@ -252,7 +252,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
 }
 ```
 
@@ -389,4 +389,43 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   teksti: $string 
 }] 
 ```
-Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin. 
+Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.
+
+# Virhetilat
+## Error-olio
+### Muoto
+virhetilojen sattuessa tietokanta lähettää viestin, jossa on success=false ja error=$error-olio. Error olio on seuraavanlainen json-objecti:
+```
+{
+  tunnus: $int
+  virheilmoitus: $string
+}
+```
+
+tunnus on numeraalinen kuvaus tavatusta ongelmasta, ja virheilmoitus on ihmisymmärrettävä ja helpommin luettava teksti samasta asiasta. Virheilmoitus on aina sama per tunnus.
+
+### Tunnukset
+
+Rakenne samanlainen kuin HTTP:ssä, eli koodin on muotoa ABB.
+A - ylätason tunniste
+BB - tarkentava koodi
+
+#### A-luokat:
+##### 1 - Kirjautumisongelmat
+``` 
+100 - Et ole kirjautunut
+101 - Kirjautumispalveluun ei saatu yhteyttä
+102 - Väärä käyttäjätunnus tai salasana
+```
+
+
+##### 2 - SQL-ongelmat
+```
+
+```
+
+
+##### 3 - Liikenneongelmat
+```
+300 - Väärä parametrit
+```

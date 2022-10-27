@@ -6,6 +6,7 @@ var router = express.Router();
 var sql = require('./sql.js');
 const crypto = require('crypto');
 const { setFlagsFromString } = require('v8');
+const errorFactory = require('../public/javascripts/error.js')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -22,7 +23,7 @@ router.post('/api/login/', function(req, res, next) {
   if (logintype != undefined && codeChallenge != undefined) {
     auth.startLogin(codeChallenge, logintype).then((data) => res.send(data)).catch((error) => res.send('error: ' + error));
   } else {
-    res.send({success: false, error: 400});
+    res.send({success: false, error: errorFactory(300)});
   }
 });
 
@@ -37,7 +38,7 @@ router.get('/api/authtoken/', function(req, res, next) {
     }).then((data) => {
       return sql.removeLoginAttempt(logincode);
     }).catch((error) => {
-      res.send({success: false, error: error});
+      res.send({success: false, error: errorFactory(error)});
     });
   }
 });
@@ -48,7 +49,7 @@ router.post('/api/omalogin/', function(req, res, next) {
   let loginid = req.header('login-id');
   auth.login(username, password, loginid)
   .then((data) => res.send(data))
-  .catch((error) => res.send({ success: false, error: error }));
+  .catch((error) => res.send({ success: false, error: errorFactory(error) }));
 });
 
 router.post('/api/luotili/', function(req, res, next) {
@@ -59,23 +60,14 @@ router.post('/api/luotili/', function(req, res, next) {
     .then((data) => {
       res.send({success: true});
     }).catch((error) => {
-      res.send({success: false, error: error});
+      res.send({success: false, error: errorFactory(error)});
     });
   } else {
-    res.send({success: false, error: 400});
+    res.send({success: false, error: errorFactory(300)});
   }
 });
 
 
-
-function hasAccess(req, res) {
-  if (req.header['session-id']) {
-    return true;
-  } else {
-    res.json({success: false, error: 'no authorization', 'login-url': 'none'});
-    return false;
-  }
-}
 
 
 router.get('/api/echoheaders/', function(req, res, next) {
@@ -112,9 +104,7 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
-  if (hasAccess(req, res)) {
     res.json({'kurssi-nimi': 'Ohjelmistomatematiikan perusteet.'});
-  }
 });
 
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
@@ -126,7 +116,6 @@ router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
-  if (hasAccess(req, res)) {
     var array = [4];
     array[0] = {nimi: '”Index out of bounds”?', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '16.9.2023'};
     array[1] = {nimi: 'Ohjelma tulostaa numeroita kirjainten sijasta!', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '17.9.2023'};
@@ -134,11 +123,9 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
     array[3] = {nimi: '”} Expected”?', tyyppi: "Ongelma", tehtava: "Tehtävä 4", pvm: '30.9.2023'};
   
     res.json(array);
-  }
 });
 
 router.get('/api/kurssit/', function(req, res, next) {
-  auth.authenticatedUser(req.he)
   sql.getAllCourses().then((data) =>
     res.send(data)
   );

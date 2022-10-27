@@ -81,7 +81,7 @@ module.exports = {
     authenticatedUser: function(httpRequest) {
         var sessionid = httpRequest.header('session-id');
         if (sessionid == undefined) {
-            return new Promise.reject(error(300));
+            return new Promise.reject(300);
         }
 
         new Promise(function(resolve, reject) {
@@ -92,7 +92,7 @@ module.exports = {
             if (userids.length === 1) {
                 return userids[0];
             } else {
-                return new Promise.reject(error(100));
+                return new Promise.reject(100);
             }
         });
     }
