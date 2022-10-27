@@ -1,7 +1,5 @@
 const crypto = require('crypto');
-//var mysql = require('mysql');
 const { Pool, Client } = require('pg');
-//const { use } = require('.');
 
 module.exports = {
 
@@ -253,7 +251,6 @@ module.exports = {
       })
     });
   }
-
 
 };
 
