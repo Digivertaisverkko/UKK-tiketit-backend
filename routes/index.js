@@ -117,7 +117,13 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
-  sql.getAllMyTickets(req.params.courseid, '1').then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getAllMyTickets(req.params.courseid, userid);
+  })
+  .then((sqldata) => {
+    res.send(sqldata);
+  });
 });
 
 router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
