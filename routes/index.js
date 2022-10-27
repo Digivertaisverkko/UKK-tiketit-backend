@@ -138,6 +138,7 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
 });
 
 router.get('/api/kurssit/', function(req, res, next) {
+  auth.authenticatedUser(req.he)
   sql.getAllCourses().then((data) =>
     res.send(data)
   );

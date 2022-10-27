@@ -137,6 +137,18 @@ module.exports = {
     });
   },
 
+  userIdForSession: function(sessionid) {
+    new Promise(function(resolve, reject) {
+      const query = 'SELECT tili FROM core.sessio WHERE sessionid=$1';
+      con.query(query, [sessionid], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
+      });
+  });
+  },
+
 
 
 
