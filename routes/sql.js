@@ -159,7 +159,7 @@ module.exports = {
 
   getAllCourses: function() {
     return new Promise(function(resolve, reject) {
-      con.query('SELECT * FROM core.kurssi', function (err, res) {
+      con.query('SELECT id, nimi FROM core.kurssi', function (err, res) {
           if (err) {
               return reject(err);
           }
@@ -170,7 +170,7 @@ module.exports = {
 
   getCourseInfo: function(courseId) {
     return new Promise(function(resolve, reject) {
-      const query = 'SELECT nimi FROM core.kurssi WHERE id=$1';
+      const query = 'SELECT id, nimi FROM core.kurssi WHERE id=$1';
       con.query(query, [courseId], function(err, res) {
         if (err) {
           return reject(err);
@@ -249,6 +249,9 @@ module.exports = {
   },
 
 
+  createCourse: function() {
+    
+  },
 
 
   createTicket: function(courseid, userid, title) {
@@ -273,7 +276,13 @@ module.exports = {
         }
         resolve(res.rows);
       })
+    }).then((data) => {
+      //TODO: Laita kentät paikalleen
     });
+  },
+
+  createComment: function(ticketid, userid, content) {
+      //TODO: Toteuta
   }
 
 };
