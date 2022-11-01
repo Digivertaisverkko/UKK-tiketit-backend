@@ -130,6 +130,9 @@ router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
   })
   .then((sqldata) => {
     res.send(sqldata);
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
   });
 });
 

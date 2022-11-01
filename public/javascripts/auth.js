@@ -87,7 +87,7 @@ module.exports = {
         return sql.userIdForSession(sessionid)
         .then((userids) => {
             if (userids.length == 1) {
-                return userids[0];
+                return userids[0].tili;
             } else {
                 return Promise.reject(100);
             }
