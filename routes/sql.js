@@ -54,7 +54,7 @@ module.exports = {
   createSession: function(userid) {
     const sessionid = crypto.randomUUID();
     return new Promise( function (resolve, reject) {
-      const query = 'INSERT INTO core.sessio (sessionid, vanhenee, tili) VALUES ($1, NOW()+1, $2)'
+      const query = 'INSERT INTO core.sessio (sessionid, vanhenee, tili) VALUES ($1, NOW()+interval \'1 days\', $2)'
       con.query(query, [sessionid, userid], function(err, res) {
         if (err) {
           return reject(err);
@@ -137,6 +137,18 @@ module.exports = {
     });
   },
 
+  userIdForSession: function(sessionid) {
+    return new Promise(function(resolve, reject) {
+      const query = 'SELECT tili FROM core.sessio WHERE sessionid=$1 AND vanhenee>NOW()';
+      con.query(query, [sessionid], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
+      });
+  });
+  },
+
 
 
 
@@ -147,11 +159,23 @@ module.exports = {
 
   getAllCourses: function() {
     return new Promise(function(resolve, reject) {
-      con.query('SELECT * FROM core.kurssi', function (err, res) {
+      con.query('SELECT id, nimi FROM core.kurssi', function (err, res) {
           if (err) {
               return reject(err);
           }
           resolve(res.rows);
+      });
+    });
+  },
+
+  getCourseInfo: function(courseId) {
+    return new Promise(function(resolve, reject) {
+      const query = 'SELECT id, nimi FROM core.kurssi WHERE id=$1';
+      con.query(query, [courseId], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
       });
     });
   },
@@ -225,31 +249,106 @@ module.exports = {
   },
 
 
+  createCourse: function(name) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      INSERT INTO core.kurssi (nimi) \
+      VALUES ($1) \
+      RETURNING id';
+      con.query(query, [name], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows[0].id);
+      });
+    });
+  },
+
+  createTicketBase: function(description, courseid) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      INSERT INTO core.tikettipohja (kurssi, kuvaus) \
+      VALUES ($1, $2) \
+      RETURNING id'
+      con.query(query, [courseid, description], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows[0].id);
+      });
+    });
+  },
+
+  addUserToCourse: function(courseid, userid, isTeacher) {
+    return new Promise(function(resolve, reject) {
+      const position = isTeacher ? 'opettaja' : 'opiskelija';
+      const query = '\
+      INSERT INTO core.kurssinosallistujat (kurssi, tili, asema) \
+      VALUES ($1, $2, $3)';
+      con.query(query, [courseid, userid, position], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve({});
+      });
+    });
+  },
 
 
   createTicket: function(courseid, userid, title) {
     return new Promise(function(resolve, reject) {
       const query = '\
       INSERT INTO core.ketju (kurssi, aloittaja, otsikko, aikaleima) \
-      VALUES ($1, $2, $3, NOW())';
+      VALUES ($1, $2, $3, NOW()) \
+      RETURNING id';
       con.query(query, [courseid, userid, title], function (err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows[0].id);
+      });
+    }).then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        const query = '\
+        INSERT INTO core.ketjuntila (ketju, tila, aikaleima) \
+        VALUES ($1, 1, NOW())';
+        con.query(query, [ticketid], function (err, res) {
+          if (err) {
+            return reject(err);
+          }
+          resolve(ticketid);
+        });
+      });
+    });
+  },
+
+  addFieldToTicket: function(ticketid, fieldid, value) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      INSERT INTO core.ketjunkentat (ketju, kentta, arvo) \
+      VALUES ($1, $2, $3)';
+      console.log(rows);
+      con.query(query, [ticketid, fieldid, value], function (err, res) {
         if (err) {
           return reject(err);
         }
         resolve(res.rows);
       });
-    }).then((rows) => {
-      const query = '\
-      INSERT INTO core.ketjuntila (ketju, tila, aikaleima) \
-      VALUES ($1, 1, NOW())';
-      console.log(rows);
-      con.query(query, [rows[0].insertId], function (err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows);
-      })
     });
+  },
+
+  createComment: function(ticketid, userid, content) {
+      return new Promise(function(resolve, reject) {
+        const query = '\
+        INSERT INTO core.kommentti (ketju, lahettaja, viesti, aikaleima) \
+        VALUES ($1, $2, $3, NOW())';
+        con.query(query, [ticketid, userid, content], function(err, res) {
+          if (err) {
+            return reject(err);
+          }
+          resolve(res.rows);
+        });
+      });
   }
 
 };

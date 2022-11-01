@@ -1,6 +1,7 @@
 
 const crypto = require('crypto');
 const sql = require('../../routes/sql');
+const error = require('./error.js');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -77,12 +78,18 @@ module.exports = {
         return crypto.createHash('sha256').update(hashable).update(salt).digest('hex');
     },
 
-    hasAuth: function(sessionId) {
-        return new Promise(function(resolve, reject) {
-            if (sessionId in authsBySession) {
-                resolve(true);
+    authenticatedUser: function(httpRequest) {
+        var sessionid = httpRequest.header('session-id');
+        if (sessionid == undefined) {
+            return Promise.reject(300);
+        }
+
+        return sql.userIdForSession(sessionid)
+        .then((userids) => {
+            if (userids.length == 1) {
+                return userids[0].tili;
             } else {
-                reject(403);
+                return Promise.reject(100);
             }
         });
     }
