@@ -21,9 +21,11 @@ router.post('/api/login/', function(req, res, next) {
   let logintype = req.header('login-type');
   let codeChallenge = req.header('code-challenge');
   if (logintype != undefined && codeChallenge != undefined) {
-    auth.startLogin(codeChallenge, logintype).then((data) => res.send(data)).catch((error) => res.send('error: ' + error));
+    auth.startLogin(codeChallenge, logintype)
+    .then((data) => res.send(data))
+    .catch((error) => res.send('error: ' + error));
   } else {
-    res.send({success: false, error: errorFactory.createError(300)});
+    res.send(errorFactory.createError(300));
   }
 });
 
@@ -32,13 +34,14 @@ router.get('/api/authtoken/', function(req, res, next) {
   let codeVerify = req.header('code-verifier');
   let logincode = req.header('login-code');
   if (logintype === 'own') {
-    auth.requestAccess(logincode, codeVerify).then((data) => {
+    auth.requestAccess(logincode, codeVerify)
+    .then((data) => {
       res.send({'success': true, 'session-id': data[0].sessionid});
       return data;
     }).then((data) => {
       return sql.removeLoginAttempt(logincode);
     }).catch((error) => {
-      res.send({success: false, error: errorFactory.createError(error)});
+      res.send(errorFactory.createError(error));
     });
   }
 });
@@ -49,7 +52,7 @@ router.post('/api/omalogin/', function(req, res, next) {
   let loginid = req.header('login-id');
   auth.login(username, password, loginid)
   .then((data) => res.send(data))
-  .catch((error) => res.send({ success: false, error: errorFactory.createError(error) }));
+  .catch((error) => res.send(errorFactory.createError(error) ));
 });
 
 router.post('/api/luotili/', function(req, res, next) {
@@ -60,10 +63,10 @@ router.post('/api/luotili/', function(req, res, next) {
     .then((data) => {
       res.send({success: true});
     }).catch((error) => {
-      res.send({success: false, error: errorFactory.createError(error)});
+      res.send(errorFactory.createError(error));
     });
   } else {
-    res.send({success: false, error: errorFactory.createError(300)});
+    res.send(errorFactory.createError(300));
   }
 });
 
@@ -109,10 +112,14 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
     return sql.getCourseInfo(req.params.courseid);
   })
   .then((sqldata) => {
-    res.send(sqldata);
+    if (sqldata.length == 1) {
+      res.send(sqldata[0]);
+    } else {
+      res.send(errorFactory.createError(200));
+    }
   })
   .catch((error) => {
-    res.send({success: false, error: errorFactory.createError(error)});
+    res.send(errorFactory.createError(error));
   });
 });
 
@@ -158,7 +165,15 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   .then((userid) => {
     return sql.getTicket(req.params.ticketid);
   })
-  .then((sqldata) => res.send(sqldata));
+  .then((sqldata) => {
+    if (sqldata.length == 1) {
+      res.send(sqldata);
+    } else {
+      res.send(errorFactory.createError(200));
+    }
+  }).catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 
