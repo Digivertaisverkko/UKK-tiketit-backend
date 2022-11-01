@@ -170,7 +170,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   })
   .then((sqldata) => {
     if (sqldata.length == 1) {
-      res.send(sqldata);
+      res.send({'kirjoittaja-id': sqldata.lahettaja, 'teksti': sqldata.viesti, 'aikaleima': sqldata.aikaleima});
     } else {
       res.send(errorFactory.createError(200));
     }
@@ -197,9 +197,47 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
 });
 
 
+router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
 
-router.get('/api/tiketti/uusi/:courseid/:userid/:title', function (req, res, next) {
-  sql.createTicket(req.params.courseid, req.params.userid, req.params.title).then((data) => res.send(data));
+});
+
+router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
+
+});
+
+router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
+  let title = req.body.otsikko;
+  let message = req.body.viesti;
+  let fields = req.body.kentat;
+  if (title != undefined && fields != undefined) {
+    auth.authenticatedUser(req)
+    .then((userid) => {
+      return sql.createTicket(req.params.courseid, userid, title);
+    })
+    .then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        var promises = [];
+        fields.forEach(kvp => {
+          promises.push(sql.addFieldToTicket(ticketid, kvp.id, kvp.teksti));
+        });
+        resolve(promises);
+        Promise.all(promises)
+        .then(() => resolve(ticketid))
+        .catch(() => reject(304));
+      });
+    })
+    .then((ticketid) => {
+      return sql.createComment(ticketid, userid, message);
+    })
+    .then(() => {
+      res.send({success: true});
+    })
+    .catch((error) => {
+      res.send(errorFactory.createError(error));
+    });
+  } else {
+    res.send(errorFactory.createError(300));
+  }
 });
 
 module.exports = router;

@@ -263,36 +263,65 @@ module.exports = {
     });
   },
 
-
-  createTicket: function(courseid, userid, title) {
+  addUserToCourse: function(courseid, userid, isTeacher) {
     return new Promise(function(resolve, reject) {
+      const position = isTeacher ? 'opettaja' : 'opiskelija';
       const query = '\
-      INSERT INTO core.ketju (kurssi, aloittaja, otsikko, aikaleima) \
-      VALUES ($1, $2, $3, NOW())';
-      con.query(query, [courseid, userid, title], function (err, res) {
+      INSERT INTO core.kurssinosallistujat (kurssi, tili, asema) \
+      VALUES ($1, $2, $3)';
+      con.query(query, [courseid, userid, position], function(err, res) {
         if (err) {
           return reject(err);
         }
         resolve(res.rows);
       });
-    }).then((rows) => {
+    });
+  },
+
+
+  createTicket: function(courseid, userid, title) {
+    return new Promise(function(resolve, reject) {
       const query = '\
-      INSERT INTO core.ketjuntila (ketju, tila, aikaleima) \
-      VALUES ($1, 1, NOW())';
+      INSERT INTO core.ketju (kurssi, aloittaja, otsikko, aikaleima) \
+      VALUES ($1, $2, $3, NOW()) \
+      RETURNING id';
+      con.query(query, [courseid, userid, title], function (err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows[0].id);
+      });
+    }).then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        const query = '\
+        INSERT INTO core.ketjuntila (ketju, tila, aikaleima) \
+        VALUES ($1, 1, NOW())';
+        con.query(query, [ticketid], function (err, res) {
+          if (err) {
+            return reject(err);
+          }
+          resolve(ticketid);
+        });
+      });
+    });
+  },
+
+  addFieldToTicket: function(ticketid, fieldid, value) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      INSERT INTO core.ketjunkentat (ketju, kentta, arvo) \
+      VALUES ($1, $2, $3)';
       console.log(rows);
-      con.query(query, [rows[0].insertId], function (err, res) {
+      con.query(query, [ticketid, fieldid, value], function (err, res) {
         if (err) {
           return reject(err);
         }
         resolve(res.rows);
-      })
-    }).then((data) => {
-      //TODO: Laita kentät paikalleen
+      });
     });
   },
 
   createComment: function(ticketid, userid, content) {
-      //TODO: Toteuta
       return new Promise(function(resolve, reject) {
         const query = '\
         INSERT INTO core.kommentti (ketju, lahettaja, viesti, aikaleima) \

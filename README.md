@@ -288,18 +288,26 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 -header-
 {
   session-id: $UUID
-{
--body- 
 }
-  otsikko: $string 
-  kentät: 
+-body- 
+{
+  otsikko: $string
+  viesti: $string
+  kentat: 
   [{
     id: $string
     teksti: $strings
   }]
 }
 ```
-*Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.* 
+##### Vastaus:
+```
+-body-
+{
+  success: true
+}
+```
+
 **TODO:** Miten liitteet? 
 
 
@@ -384,7 +392,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 ```
 [{
   kirjoittaja-id: $string 
-  pvm: $string 
+  aikaleima: $string 
   tila: $int 
   teksti: $string 
 }] 
@@ -427,5 +435,6 @@ BB - tarkentava koodi
 
 ##### 3 - Liikenneongelmat
 ```
-300 - Väärä parametrit
+300 - Väärät parametrit
+304 - Joku meni vikaan
 ```

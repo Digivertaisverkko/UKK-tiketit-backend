@@ -20,7 +20,8 @@ A-luokat:
 
 
 3 - Liikenneongelmat
-300 - Väärä parametrit
+300 - Väärät parametrit
+304 - Joku meni vikaan
 
 
 */
