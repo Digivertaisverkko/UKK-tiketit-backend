@@ -253,12 +253,28 @@ module.exports = {
     return new Promise(function(resolve, reject) {
       const query = '\
       INSERT INTO core.kurssi (nimi) \
-      VALUES ($1)';
+      VALUES ($1) \
+      RETURNING id';
       con.query(query, [name], function(err, res) {
         if (err) {
           return reject(err);
         }
-        resolve(res.rows);
+        resolve(res.rows[0].id);
+      });
+    });
+  },
+
+  createTicketBase: function(description, courseid) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      INSERT INTO core.tikettipohja (kurssi, kuvaus) \
+      VALUES ($1, $2) \
+      RETURNING id'
+      con.query(query, [courseid, description], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows[0].id);
       });
     });
   },
@@ -273,7 +289,7 @@ module.exports = {
         if (err) {
           return reject(err);
         }
-        resolve(res.rows);
+        resolve({});
       });
     });
   },

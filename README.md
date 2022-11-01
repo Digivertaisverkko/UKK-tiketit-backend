@@ -237,7 +237,12 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 -body-
 {
   nimi: $string
-  ohje-teksti: $string
+  ohjeteksti: $string
+}
+```
+Tulevaisuudessa lisäksi voi pitää lähettää:
+```
+{
   harjoitukset: [$string]
   lisäkentät:
   [{
