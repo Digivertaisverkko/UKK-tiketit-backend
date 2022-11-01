@@ -143,7 +143,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ##### Vastaus: 
 ```
 {
-  kurssi-nimi: $string
+  nimi: $string
 }
 ```
 
@@ -236,7 +236,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 -body-
 {
-  kurssi-nimi: $string
+  nimi: $string
   ohje-teksti: $string
   harjoitukset: [$string]
   lisäkentät:
@@ -421,7 +421,7 @@ BB - tarkentava koodi
 
 ##### 2 - SQL-ongelmat
 ```
-
+200 - Ei löytynyt.
 ```
 
 
