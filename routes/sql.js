@@ -249,8 +249,18 @@ module.exports = {
   },
 
 
-  createCourse: function() {
-    
+  createCourse: function(name) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      INSERT INTO core.kurssi (nimi) \
+      VALUES ($1)';
+      con.query(query, [name], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
+      });
+    });
   },
 
 
@@ -283,6 +293,17 @@ module.exports = {
 
   createComment: function(ticketid, userid, content) {
       //TODO: Toteuta
+      return new Promise(function(resolve, reject) {
+        const query = '\
+        INSERT INTO core.kommentti (ketju, lahettaja, viesti, aikaleima) \
+        VALUES ($1, $2, $3, NOW())';
+        con.query(query, [ticketid, userid, content], function(err, res) {
+          if (err) {
+            return reject(err);
+          }
+          resolve(res.rows);
+        });
+      });
   }
 
 };
