@@ -41,7 +41,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
   session-id: $uuid
 }
 ```
@@ -61,7 +61,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
 } 
 ```
 
@@ -143,7 +143,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ##### Vastaus: 
 ```
 {
-  kurssi-nimi: $string
+  nimi: $string
 }
 ```
 
@@ -221,7 +221,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
 } 
 ```
 
@@ -236,8 +236,13 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 -body-
 {
-  kurssi-nimi: $string
-  ohje-teksti: $string
+  nimi: $string
+  ohjeteksti: $string
+}
+```
+Tulevaisuudessa lisäksi voi pitää lähettää:
+```
+{
   harjoitukset: [$string]
   lisäkentät:
   [{
@@ -252,7 +257,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 {
   success: $bool
-  error: $string
+  error: $error-olio
 }
 ```
 
@@ -288,18 +293,26 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 -header-
 {
   session-id: $UUID
-{
--body- 
 }
-  otsikko: $string 
-  kentät: 
+-body- 
+{
+  otsikko: $string
+  viesti: $string
+  kentat: 
   [{
     id: $string
     teksti: $strings
   }]
 }
 ```
-*Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.* 
+##### Vastaus:
+```
+-body-
+{
+  success: true
+}
+```
+
 **TODO:** Miten liitteet? 
 
 
@@ -384,9 +397,49 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 ```
 [{
   kirjoittaja-id: $string 
-  pvm: $string 
+  aikaleima: $string 
   tila: $int 
   teksti: $string 
 }] 
 ```
-Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin. 
+Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.
+
+# Virhetilat
+## Error-olio
+### Muoto
+virhetilojen sattuessa tietokanta lähettää viestin, jossa on success=false ja error=$error-olio. Error olio on seuraavanlainen json-objecti:
+```
+{
+  tunnus: $int
+  virheilmoitus: $string
+}
+```
+
+tunnus on numeraalinen kuvaus tavatusta ongelmasta, ja virheilmoitus on ihmisymmärrettävä ja helpommin luettava teksti samasta asiasta. Virheilmoitus on aina sama per tunnus.
+
+### Tunnukset
+
+Rakenne samanlainen kuin HTTP:ssä, eli koodin on muotoa ABB.
+A - ylätason tunniste
+BB - tarkentava koodi
+
+#### A-luokat:
+##### 1 - Kirjautumisongelmat
+``` 
+100 - Et ole kirjautunut
+101 - Kirjautumispalveluun ei saatu yhteyttä
+102 - Väärä käyttäjätunnus tai salasana
+```
+
+
+##### 2 - SQL-ongelmat
+```
+200 - Ei löytynyt.
+```
+
+
+##### 3 - Liikenneongelmat
+```
+300 - Väärät parametrit
+304 - Joku meni vikaan
+```

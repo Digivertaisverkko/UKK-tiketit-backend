@@ -6,6 +6,7 @@ var router = express.Router();
 var sql = require('./sql.js');
 const crypto = require('crypto');
 const { setFlagsFromString } = require('v8');
+const errorFactory = require('../public/javascripts/error.js')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -20,9 +21,11 @@ router.post('/api/login/', function(req, res, next) {
   let logintype = req.header('login-type');
   let codeChallenge = req.header('code-challenge');
   if (logintype != undefined && codeChallenge != undefined) {
-    auth.startLogin(codeChallenge, logintype).then((data) => res.send(data)).catch((error) => res.send('error: ' + error));
+    auth.startLogin(codeChallenge, logintype)
+    .then((data) => res.send(data))
+    .catch((error) => res.send('error: ' + error));
   } else {
-    res.send({success: false, error: 400});
+    res.send(errorFactory.createError(300));
   }
 });
 
@@ -31,13 +34,14 @@ router.get('/api/authtoken/', function(req, res, next) {
   let codeVerify = req.header('code-verifier');
   let logincode = req.header('login-code');
   if (logintype === 'own') {
-    auth.requestAccess(logincode, codeVerify).then((data) => {
+    auth.requestAccess(logincode, codeVerify)
+    .then((data) => {
       res.send({'success': true, 'session-id': data[0].sessionid});
       return data;
     }).then((data) => {
       return sql.removeLoginAttempt(logincode);
     }).catch((error) => {
-      res.send({success: false, error: error});
+      res.send(errorFactory.createError(error));
     });
   }
 });
@@ -48,7 +52,7 @@ router.post('/api/omalogin/', function(req, res, next) {
   let loginid = req.header('login-id');
   auth.login(username, password, loginid)
   .then((data) => res.send(data))
-  .catch((error) => res.send({ success: false, error: error }));
+  .catch((error) => res.send(errorFactory.createError(error) ));
 });
 
 router.post('/api/luotili/', function(req, res, next) {
@@ -59,23 +63,14 @@ router.post('/api/luotili/', function(req, res, next) {
     .then((data) => {
       res.send({success: true});
     }).catch((error) => {
-      res.send({success: false, error: error});
+      res.send(errorFactory.createError(error));
     });
   } else {
-    res.send({success: false, error: 400});
+    res.send(errorFactory.createError(300));
   }
 });
 
 
-
-function hasAccess(req, res) {
-  if (req.header['session-id']) {
-    return true;
-  } else {
-    res.json({success: false, error: 'no authorization', 'login-url': 'none'});
-    return false;
-  }
-}
 
 
 router.get('/api/echoheaders/', function(req, res, next) {
@@ -112,21 +107,42 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
-  if (hasAccess(req, res)) {
-    res.json({'kurssi-nimi': 'Ohjelmistomatematiikan perusteet.'});
-  }
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getCourseInfo(req.params.courseid);
+  })
+  .then((sqldata) => {
+    if (sqldata.length == 1) {
+      res.send(sqldata[0]);
+    } else {
+      res.send(errorFactory.createError(200));
+    }
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
-  sql.getAllMyTickets(req.params.courseid, '1').then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getAllMyTickets(req.params.courseid, userid);
+  })
+  .then((sqldata) => {
+    res.send(sqldata);
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
+  //TODO: Lisää authin tarkistus ja tarkistus sille, että hakija on opettaja
   sql.getAllTickets(req.params.courseid).then((data) => res.send(data));
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
-  if (hasAccess(req, res)) {
+  //TODO: ukk-toteutus
     var array = [4];
     array[0] = {nimi: '”Index out of bounds”?', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '16.9.2023'};
     array[1] = {nimi: 'Ohjelma tulostaa numeroita kirjainten sijasta!', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '17.9.2023'};
@@ -134,33 +150,122 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
     array[3] = {nimi: '”} Expected”?', tyyppi: "Ongelma", tehtava: "Tehtävä 4", pvm: '30.9.2023'};
   
     res.json(array);
-  }
 });
 
 router.get('/api/kurssit/', function(req, res, next) {
-  sql.getAllCourses().then((data) =>
-    res.send(data)
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getAllCourses();
+  })
+  .then((sqldata) =>
+    res.send(sqldata)
   );
 });
 
 
 router.get('/api/tiketti/:ticketid', function(req, res, next) {
-  sql.getTicket(req.params.ticketid).then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getTicket(req.params.ticketid);
+  })
+  .then((sqldata) => {
+    if (sqldata.length == 1) {
+      res.send({'kirjoittaja-id': sqldata.lahettaja, 'teksti': sqldata.viesti, 'aikaleima': sqldata.aikaleima});
+    } else {
+      res.send(errorFactory.createError(200));
+    }
+  }).catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 
 router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
-  sql.getFieldsOfTicket(req.params.ticketid).then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getFieldsOfTicket(req.params.ticketid);
+  })
+  .then((sqldata) => res.send(sqldata));
 });
 
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
-  sql.getComments(req.params.ticketid).then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getComments(req.params.ticketid);
+  })
+  .then((data) => res.send(data));
 });
 
 
+router.post('/api/luokurssi', function(req, res, next) {
+  let name = req.body.nimi;
+  let description = req.body.ohjeteksti;
 
-router.get('/api/tiketti/uusi/:courseid/:userid/:title', function (req, res, next) {
-  sql.createTicket(req.params.courseid, req.params.userid, req.params.title).then((data) => res.send(data));
+  var storeduserid = null;
+  var storedcourseid = null;
+  if (name != undefined && description != undefined) {
+    auth.authenticatedUser(req)
+    .then((userid) => {
+      storeduserid = userid;
+      return sql.createCourse(name);
+    })
+    .then((courseid) => {
+      storedcourseid = courseid;
+      return sql.addUserToCourse(courseid, storeduserid, true);
+    })
+    .then(() => {
+      return sql.createTicketBase(description, storedcourseid);
+    })
+    .then(() => {
+      res.send({success: true});
+    });
+  } else {
+    res.send(errorFactory.createError(300));
+  }
+});
+
+
+router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
+
+});
+
+router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
+//TODO: Forwardoi /api/kurssi/:courseid/uusitiketti/kentat metodiin
+});
+
+router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
+  let title = req.body.otsikko;
+  let message = req.body.viesti;
+  let fields = req.body.kentat;
+  if (title != undefined && fields != undefined) {
+    auth.authenticatedUser(req)
+    .then((userid) => {
+      return sql.createTicket(req.params.courseid, userid, title);
+    })
+    .then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        var promises = [];
+        fields.forEach(kvp => {
+          promises.push(sql.addFieldToTicket(ticketid, kvp.id, kvp.teksti));
+        });
+        resolve(promises);
+        Promise.all(promises)
+        .then(() => resolve(ticketid))
+        .catch(() => reject(304));
+      });
+    })
+    .then((ticketid) => {
+      return sql.createComment(ticketid, userid, message);
+    })
+    .then(() => {
+      res.send({success: true});
+    })
+    .catch((error) => {
+      res.send(errorFactory.createError(error));
+    });
+  } else {
+    res.send(errorFactory.createError(300));
+  }
 });
 
 module.exports = router;
