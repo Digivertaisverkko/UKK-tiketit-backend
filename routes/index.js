@@ -197,12 +197,40 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
 });
 
 
+router.post('/api/luokurssi', function(req, res, next) {
+  let name = req.body.nimi;
+  let description = req.body.ohjeteksti;
+
+  var storeduserid = null;
+  var storedcourseid = null;
+  if (name != undefined && description != undefined) {
+    auth.authenticatedUser(req)
+    .then((userid) => {
+      storeduserid = userid;
+      return sql.createCourse(name);
+    })
+    .then((courseid) => {
+      storedcourseid = courseid;
+      return sql.addUserToCourse(courseid, storeduserid, true);
+    })
+    .then(() => {
+      return sql.createTicketBase(description, storedcourseid);
+    })
+    .then(() => {
+      res.send({success: true});
+    });
+  } else {
+    res.send(errorFactory.createError(300));
+  }
+});
+
+
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
 
 });
 
 router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
-
+//TODO: Forwardoi /api/kurssi/:courseid/uusitiketti/kentat metodiin
 });
 
 router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
