@@ -281,9 +281,11 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   let title = req.body.otsikko;
   let message = req.body.viesti;
   let fields = req.body.kentat;
+  var storeduserid = null;
   if (title != undefined && fields != undefined) {
     auth.authenticatedUser(req)
     .then((userid) => {
+      storeduserid = userid;
       return sql.createTicket(req.params.courseid, userid, title);
     })
     .then((ticketid) => {
@@ -292,14 +294,12 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
         fields.forEach(kvp => {
           promises.push(sql.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
         });
-        resolve(promises);
         Promise.all(promises)
         .then(() => resolve(ticketid))
         .catch(() => reject(304));
       });
-    })
-    .then((ticketid) => {
-      return sql.createComment(ticketid, userid, message);
+    }).then((ticketid) => {
+      return sql.createComment(ticketid, storeduserid, message);
     })
     .then(() => {
       res.send({success: true});

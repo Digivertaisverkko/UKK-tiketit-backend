@@ -354,16 +354,19 @@ module.exports = {
 
   addFieldToTicket: function(ticketid, fieldid, value) {
     return new Promise(function(resolve, reject) {
-      const query = '\
-      INSERT INTO core.ketjunkentat (ketju, kentta, arvo) \
-      VALUES ($1, $2, $3)';
-      console.log(rows);
-      con.query(query, [ticketid, fieldid, value], function (err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows);
-      });
+      if (ticketid != undefined && fieldid != undefined && value != undefined) {
+        const query = '\
+        INSERT INTO core.ketjunkentat (ketju, kentta, arvo) \
+        VALUES ($1, $2, $3)';
+        con.query(query, [ticketid, fieldid, value], function (err, res) {
+          if (err) {
+            return reject(err);
+          }
+          resolve({});
+        });
+      } else {
+        reject(300);
+      }
     });
   },
 
@@ -371,12 +374,13 @@ module.exports = {
       return new Promise(function(resolve, reject) {
         const query = '\
         INSERT INTO core.kommentti (ketju, lahettaja, viesti, aikaleima) \
-        VALUES ($1, $2, $3, NOW())';
+        VALUES ($1, $2, $3, NOW()) \
+        RETURNING id';
         con.query(query, [ticketid, userid, content], function(err, res) {
           if (err) {
             return reject(err);
           }
-          resolve(res.rows);
+          resolve(res.rows[0].id);
         });
       });
   }
