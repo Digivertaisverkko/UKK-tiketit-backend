@@ -262,8 +262,28 @@ Tulevaisuudessa lisäksi voi pitää lähettää:
 }
 ```
 
+### /api/kurssi/:kurssi-id/liity/
+Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi.
 
-### /api/kurssi/:kurssi-id/oikeudet/
+#### POST
+##### Lähetä
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+##### Vastaus:
+```
+- body - 
+{
+  success: true
+}
+```
+
+
+### /api/kurssi/:kurssi-id/oikeudet/:käyttäjä-id
+Tämä rajapinta toimii myös ilman käyttäjä-id:tä, jolloin käytetään kirjautuneen käyttäjän tunnusta.
 #### GET
 ##### Lähetä:
 ```
@@ -279,11 +299,31 @@ Tulevaisuudessa lisäksi voi pitää lähettää:
   oikeudet: $string
 }
 ```
+
+#### POST
+##### Lähetä
+```
+- header -
+{
+  session-id: $UUID
+}
+- body -
+{
+  oikeudet: $string
+}
+```
+##### Vastaus
+```
+- body -
+{
+  success: true
+}
+```
+
 oikeudet-kentän arvoina voi olla:
 - opettaja
 - opiskelija
 - admin
-
 
 ### /api/kurssi/:kurssi-id/uusitiketti/
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
