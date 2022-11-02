@@ -337,7 +337,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   id: $string
   otsikko: $string
   pakollinen: $bool
-  esitäytetty-vastaus: $string
+  esitäytettävä: $string
 }]
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
@@ -372,6 +372,8 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
    session-id: $UUID 
 } 
 ```
+
+### /api/tiketti/:tiketti-id/uusikommentti
 
 ##### Vastaus:
 ```

@@ -226,7 +226,23 @@ router.post('/api/luokurssi', function(req, res, next) {
 
 
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
-
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.getTicketBasesOfCourse(req.params.courseid);
+  })
+  .then((tickedIdRows) => {
+    if (tickedIdRows.length > 0) {
+      return sql.getFieldsOfTicketBase(tickedIdRows[0].id);
+    } else {
+      return Promise.reject(200);
+    }
+  })
+  .then((sqldata) => {
+    res.send(sqldata);
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
