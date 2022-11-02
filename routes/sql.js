@@ -279,6 +279,36 @@ module.exports = {
     });
   },
 
+  getTicketBasesOfCourse: function(courseid) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      SELECT id, kuvaus FROM tikettipohja \
+      WHERE kurssi=$1';
+      con.query(query, [courseid], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
+      });
+    });
+  },
+
+  getFieldsOfTicketBase: function(ticketbaseid) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      SELECT id, otsikko, pakollinen, esitaytettava FROM tiketinkentat tk \
+      INNER JOIN kenttapohja kp \
+      ON kp.id=tk.kentta \
+      WHERE tk.tikettipohja=$1';
+      con.query(query, [ticketbaseid], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
+      });
+    });
+  },
+
   addUserToCourse: function(courseid, userid, isTeacher) {
     return new Promise(function(resolve, reject) {
       const position = isTeacher ? 'opettaja' : 'opiskelija';
