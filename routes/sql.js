@@ -182,7 +182,7 @@ module.exports = {
 
   getAllMyTickets: function(courseId, userId) {
     return new Promise(function(resolve, reject) {
-      const query = 'SELECT * FROM core.ketju WHERE aloittaja=$1 AND kurssi=$2';
+      const query = 'SELECT id, otsikko, aikaleima, aloittaja FROM core.ketju WHERE aloittaja=$1 AND kurssi=$2';
       con.query(query, [userId, courseId], function (err, res) {
         if (err) {
           return reject(err);
@@ -207,7 +207,7 @@ module.exports = {
   getTicket: function(messageId) {
     return new Promise(function(resolve, reject) {
       const query = '\
-        SELECT * FROM Ketju k \
+        SELECT id, otsikko, aikaleima, aloittaja, tila FROM Ketju k \
         INNER JOIN (SELECT ketju, tila FROM core.ketjuntila WHERE ketju=$1 ORDER BY aikaleima DESC LIMIT 1) kt \
         ON k.id = kt.ketju \
         WHERE k.id=$1';
