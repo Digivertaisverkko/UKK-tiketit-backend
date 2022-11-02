@@ -342,7 +342,7 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
   kentat: 
   [{
     id: $string
-    teksti: $strings
+    arvo: $strings
   }]
 }
 ```

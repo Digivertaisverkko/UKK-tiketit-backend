@@ -290,7 +290,7 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
       return new Promise(function(resolve, reject) {
         var promises = [];
         fields.forEach(kvp => {
-          promises.push(sql.addFieldToTicket(ticketid, kvp.id, kvp.teksti));
+          promises.push(sql.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
         });
         resolve(promises);
         Promise.all(promises)
