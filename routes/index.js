@@ -170,7 +170,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   })
   .then((sqldata) => {
     if (sqldata.length == 1) {
-      res.send({'kirjoittaja-id': sqldata.lahettaja, 'teksti': sqldata.viesti, 'aikaleima': sqldata.aikaleima});
+      res.send(sqldata[0]);
     } else {
       res.send(errorFactory.createError(200));
     }
@@ -222,6 +222,20 @@ router.post('/api/luokurssi', function(req, res, next) {
   } else {
     res.send(errorFactory.createError(300));
   }
+});
+
+
+router.get('/api/kurssi/:courseid/liity', function(req, res, next) {
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    sql.addUserToCourse(req.params.courseid, userid, false);
+  })
+  .then((sqldata) => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 

@@ -162,12 +162,13 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 [{
   id: $string
   otsikko: $string
-  pvm: $string
-  tila: $int
-  tehtävä: $string
+  aikaleima: $string
+  aloittaja: $int
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+
+Tila voidaan toteuttaa myöhemmin.
 
 *Tila* on numeerinen tunnus viestin tilalle: 
 - 0 virhetila 
@@ -356,8 +357,8 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 ```
 {
   otsikko: $string
-  viesti: $string
-  aloittaja-id: $int (viite tili-tauluun)
+  aikaleima: $string
+  aloittaja: $int (viite tili-tauluun)
   tila: $string
 }
 ```
