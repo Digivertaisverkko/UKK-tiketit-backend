@@ -8,118 +8,67 @@ module.exports = {
  
 
   getAllCourses: function() {
-    return new Promise(function(resolve, reject) {
-      con.query('SELECT id, nimi FROM core.kurssi', function (err, res) {
-          if (err) {
-              return reject(err);
-          }
-          resolve(res.rows);
-      });
-    });
+    return connection.query('SELECT id, nimi FROM core.kurssi', []);
   },
 
   getCourseInfo: function(courseId) {
-    return new Promise(function(resolve, reject) {
-      const query = 'SELECT id, nimi FROM core.kurssi WHERE id=$1';
-      con.query(query, [courseId], function(err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows);
-      });
-    });
+    const query = 'SELECT id, nimi FROM core.kurssi WHERE id=$1';
+    return connection.queryOne(query, [courseId]);
   },
 
 
   createCourse: function(name) {
-    return new Promise(function(resolve, reject) {
-      const query = '\
-      INSERT INTO core.kurssi (nimi) \
-      VALUES ($1) \
-      RETURNING id';
-      con.query(query, [name], function(err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows[0].id);
-      });
-    });
+    const query = '\
+    INSERT INTO core.kurssi (nimi) \
+    VALUES ($1) \
+    RETURNING id';
+    return connection.queryOne(query, [name])
+    .then((sqldata) => { return sqldata.id });
   },
 
   createTicketBase: function(description, courseid) {
-    return new Promise(function(resolve, reject) {
-      const query = '\
-      INSERT INTO core.tikettipohja (kurssi, kuvaus) \
-      VALUES ($1, $2) \
-      RETURNING id'
-      con.query(query, [courseid, description], function(err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows[0].id);
-      });
-    });
+    const query = '\
+    INSERT INTO core.tikettipohja (kurssi, kuvaus) \
+    VALUES ($1, $2) \
+    RETURNING id'
+    return connection.queryOne(query, [courseid, description])
+    .then((data) => { return data.id });
+
   },
 
   getTicketBasesOfCourse: function(courseid) {
-    return new Promise(function(resolve, reject) {
-      const query = '\
-      SELECT id, kuvaus FROM tikettipohja \
-      WHERE kurssi=$1';
-      con.query(query, [courseid], function(err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows);
-      });
-    });
+    const query = '\
+    SELECT id, kuvaus FROM tikettipohja \
+    WHERE kurssi=$1';
+    return connection.queryAll(query, [courseid]);
   },
 
   getFieldsOfTicketBase: function(ticketbaseid) {
-    return new Promise(function(resolve, reject) {
-      const query = '\
-      SELECT id, otsikko, pakollinen, esitaytettava FROM tiketinkentat tk \
-      INNER JOIN kenttapohja kp \
-      ON kp.id=tk.kentta \
-      WHERE tk.tikettipohja=$1';
-      con.query(query, [ticketbaseid], function(err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows);
-      });
-    });
+    const query = '\
+    SELECT id, otsikko, pakollinen, esitaytettava FROM tiketinkentat tk \
+    INNER JOIN kenttapohja kp \
+    ON kp.id=tk.kentta \
+    WHERE tk.tikettipohja=$1';
+    return connection.queryAll(query, [ticketbaseid]);
   },
 
   addUserToCourse: function(courseid, userid, isTeacher) {
-    return new Promise(function(resolve, reject) {
-      const position = isTeacher ? 'opettaja' : 'opiskelija';
-      const query = '\
-      INSERT INTO core.kurssinosallistujat (kurssi, tili, asema) \
-      VALUES ($1, $2, $3)';
-      con.query(query, [courseid, userid, position], function(err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve({});
-      });
-    });
+    const position = isTeacher ? 'opettaja' : 'opiskelija';
+    const query = '\
+    INSERT INTO core.kurssinosallistujat (kurssi, tili, asema) \
+    VALUES ($1, $2, $3)';
+
+    return connection.queryNone(query, [courseid, userid, position]);
   },
 
   getUserInfoForCourse(userid, courseid) {
-    return new Promise(function(resolve, reject) {
-      const query = '\
-      SELECT id, nimi, sposti, asema FROM core.kurssinosallistujat ko \
-      INNER JOIN core.tili t \
-      ON t.id = ko.tili \
-      WHERE ko.kurssi=$1 AND t.id=userid';
-      con.query(query, [courseid, userid], function(err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res.rows);
-      });
-    });
+    const query = '\
+    SELECT t.id, t.nimi, t.sposti, ko.asema FROM core.kurssinosallistujat ko \
+    INNER JOIN core.tili t \
+    ON t.id = ko.tili \
+    WHERE ko.kurssi=$1 AND t.id=$2';
+
+    return connection.queryOne(query, [courseid, userid]);
   }
 
 };

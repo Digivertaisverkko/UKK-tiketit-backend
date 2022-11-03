@@ -171,12 +171,20 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
-  .then((sqldata) => {
-    if (sqldata.length == 1) {
-      res.send(sqldata[0]);
+  .then((ticketrows) => {
+    if (ticketrows.length == 1) {
+      let data = ticketrows[0];
+      return sql.courses.getUserInfoForCourse(data.aloittaja, data.kurssi)
+      .then((userdata) => {
+        data.aloittaja = userdata;
+        return data;
+      });
     } else {
       res.send(errorFactory.createError(200));
     }
+  })
+  .then((data) => {
+    res.send(data);
   })
   .catch((error) => {
     res.send(errorFactory.createError(error));

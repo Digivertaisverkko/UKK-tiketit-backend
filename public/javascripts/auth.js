@@ -52,14 +52,19 @@ module.exports = {
 
     requestAccess: function(accessCode, codeVerify) {
         return new Promise(function(resolve, reject) {
-            sql.users.getLoginAttemptWithAccessCode(accessCode).then((loginData) => {
+            sql.users.getLoginAttemptWithAccessCode(accessCode)
+            .then((loginData) => {
                 if (loginData.length > 0) {
-                    sql.users.createSession(loginData[0].tili).then((sessionData) => {
+                    sql.users.createSession(loginData[0].tili)
+                    .then((sessionData) => {
                         resolve(sessionData);
                     });
                 } else {
                     reject(403);
                 }
+            })
+            .catch((error) => {
+                reject(error);
             });
         });
     },
