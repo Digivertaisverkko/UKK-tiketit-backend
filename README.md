@@ -154,7 +154,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ##### Vastaus:
 ```
 [{
-  id: $string
+  id: $int
   otsikko: $string
   aikaleima: $string
   aloittaja: $int
@@ -186,7 +186,7 @@ Tila voidaan toteuttaa myöhemmin.
 ##### Vastaus:
 ```
 [{
-  id: $string
+  id: $int
   otsikko: $string
   pvm: $string
   tyyppi: $string
@@ -337,7 +337,7 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
   viesti: $string
   kentat: 
   [{
-    id: $string
+    id: $int
     arvo: $strings
   }]
 }
@@ -370,7 +370,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 ##### Vastaus:
 ```
 [{
-  id: $string
+  id: $int
   otsikko: $string
   pakollinen: $bool
   esitäytettävä: $string
@@ -453,7 +453,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 ##### Vastaus:
 ```
 [{
-  kirjoittaja-id: $string 
+  kirjoittaja-id: $int 
   aikaleima: $string 
   tila: $int 
   teksti: $string 
