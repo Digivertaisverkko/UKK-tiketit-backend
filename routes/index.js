@@ -174,7 +174,8 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     } else {
       res.send(errorFactory.createError(200));
     }
-  }).catch((error) => {
+  })
+  .catch((error) => {
     res.send(errorFactory.createError(error));
   });
 });
@@ -185,7 +186,10 @@ router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.getFieldsOfTicket(req.params.ticketid);
   })
-  .then((sqldata) => res.send(sqldata));
+  .then((sqldata) => res.send(sqldata))
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
@@ -193,7 +197,10 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.getComments(req.params.ticketid);
   })
-  .then((data) => res.send(data));
+  .then((data) => res.send(data))
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 router.get('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {

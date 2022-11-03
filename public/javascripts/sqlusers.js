@@ -116,10 +116,10 @@ module.exports = {
   },
 
 
-  createEmptyUser: function() {
+  createEmptyUser: function(name) {
     return new Promise(function(resolve, reject) {
-      const query = 'INSERT INTO core.tili (nimi, sposti) VALUES ("", "")';
-      con.query(query, [], function(err, res) {
+      const query = 'INSERT INTO core.tili (nimi, sposti) VALUES ($1, "")';
+      con.query(query, [name], function(err, res) {
         if (err) {
           return reject(err);
         }

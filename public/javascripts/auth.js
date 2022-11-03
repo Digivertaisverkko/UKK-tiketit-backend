@@ -65,7 +65,7 @@ module.exports = {
     },
 
     createAccount: function(username, password) {
-        return sql.users.createEmptyUser()
+        return sql.users.createEmptyUser(username)
         .then((newuserId) => {
             let salt = crypto.randomBytes(8).toString('hex');
             let hash = module.exports.hash(password, salt);
