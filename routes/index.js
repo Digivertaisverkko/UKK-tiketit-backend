@@ -159,7 +159,10 @@ router.get('/api/kurssit/', function(req, res, next) {
   })
   .then((sqldata) =>
     res.send(sqldata)
-  );
+  )
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 
@@ -212,6 +215,9 @@ router.get('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     })
     .then((commentId) => {
       res.send({success: true});
+    })
+    .catch((error) => {
+      res.send(errorFactory.createError(error));
     });
   } else {
     res.send(errorFactory.createError(300));
@@ -240,6 +246,9 @@ router.post('/api/luokurssi', function(req, res, next) {
     })
     .then(() => {
       res.send({success: true});
+    })
+    .catch((error) => {
+      res.send(errorFactory.createError(error));
     });
   } else {
     res.send(errorFactory.createError(300));
