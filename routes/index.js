@@ -39,7 +39,7 @@ router.get('/api/authtoken/', function(req, res, next) {
       res.send({'success': true, 'session-id': data[0].sessionid});
       return data;
     }).then((data) => {
-      return sql.removeLoginAttempt(logincode);
+      return sql.users.removeLoginAttempt(logincode);
     }).catch((error) => {
       res.send(errorFactory.createError(error));
     });
@@ -109,7 +109,7 @@ router.get('/api/hash/:password', function(req, res) {
 router.get('/api/kurssi/:courseid', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    return sql.getCourseInfo(req.params.courseid);
+    return sql.courses.getCourseInfo(req.params.courseid);
   })
   .then((sqldata) => {
     if (sqldata.length == 1) {
@@ -126,7 +126,7 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    return sql.getAllMyTickets(req.params.courseid, userid);
+    return sql.tickets.getAllMyTickets(req.params.courseid, userid);
   })
   .then((sqldata) => {
     res.send(sqldata);
@@ -138,7 +138,7 @@ router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
 
 router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
   //TODO: Lisää authin tarkistus ja tarkistus sille, että hakija on opettaja
-  sql.getAllTickets(req.params.courseid).then((data) => res.send(data));
+  sql.tickets.getAllTickets(req.params.courseid).then((data) => res.send(data));
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
@@ -155,7 +155,7 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
 router.get('/api/kurssit/', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    return sql.getAllCourses();
+    return sql.courses.getAllCourses();
   })
   .then((sqldata) =>
     res.send(sqldata)
@@ -166,7 +166,7 @@ router.get('/api/kurssit/', function(req, res, next) {
 router.get('/api/tiketti/:ticketid', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    return sql.getTicket(req.params.ticketid);
+    return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((sqldata) => {
     if (sqldata.length == 1) {
@@ -183,7 +183,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
 router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    return sql.getFieldsOfTicket(req.params.ticketid);
+    return sql.tickets.getFieldsOfTicket(req.params.ticketid);
   })
   .then((sqldata) => res.send(sqldata));
 });
@@ -191,9 +191,24 @@ router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    return sql.getComments(req.params.ticketid);
+    return sql.tickets.getComments(req.params.ticketid);
   })
   .then((data) => res.send(data));
+});
+
+router.get('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
+  let content = req.body.viesti;
+  if (content != undefined) {
+    auth.authenticatedUser(req)
+    .then((userid) => {
+      return sql.tickets.createComment(req.params.ticketid, userid, content);
+    })
+    .then((commentId) => {
+      res.send({success: true});
+    });
+  } else {
+    res.send(errorFactory.createError(300));
+  }
 });
 
 
@@ -207,14 +222,14 @@ router.post('/api/luokurssi', function(req, res, next) {
     auth.authenticatedUser(req)
     .then((userid) => {
       storeduserid = userid;
-      return sql.createCourse(name);
+      return sql.courses.createCourse(name);
     })
     .then((courseid) => {
       storedcourseid = courseid;
-      return sql.addUserToCourse(courseid, storeduserid, true);
+      return sql.courses.addUserToCourse(courseid, storeduserid, true);
     })
     .then(() => {
-      return sql.createTicketBase(description, storedcourseid);
+      return sql.courses.createTicketBase(description, storedcourseid);
     })
     .then(() => {
       res.send({success: true});
@@ -228,7 +243,7 @@ router.post('/api/luokurssi', function(req, res, next) {
 router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    sql.addUserToCourse(req.params.courseid, userid, false);
+    sql.courses.addUserToCourse(req.params.courseid, userid, false);
   })
   .then((sqldata) => {
     res.send({success: true});
@@ -256,11 +271,11 @@ router.post('/api/kurssi/:courseid/oikeudet/:userid', function(req, res, next) {
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    return sql.getTicketBasesOfCourse(req.params.courseid);
+    return sql.courses.getTicketBasesOfCourse(req.params.courseid);
   })
   .then((tickedIdRows) => {
     if (tickedIdRows.length > 0) {
-      return sql.getFieldsOfTicketBase(tickedIdRows[0].id);
+      return sql.courses.getFieldsOfTicketBase(tickedIdRows[0].id);
     } else {
       return Promise.reject(200);
     }
@@ -286,20 +301,20 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
     auth.authenticatedUser(req)
     .then((userid) => {
       storeduserid = userid;
-      return sql.createTicket(req.params.courseid, userid, title);
+      return sql.tickets.createTicket(req.params.courseid, userid, title);
     })
     .then((ticketid) => {
       return new Promise(function(resolve, reject) {
         var promises = [];
         fields.forEach(kvp => {
-          promises.push(sql.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+          promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
         });
         Promise.all(promises)
         .then(() => resolve(ticketid))
         .catch(() => reject(304));
       });
     }).then((ticketid) => {
-      return sql.createComment(ticketid, storeduserid, message);
+      return sql.tickets.createComment(ticketid, storeduserid, message);
     })
     .then(() => {
       res.send({success: true});

@@ -1,7 +1,6 @@
 
 const crypto = require('crypto');
 const sql = require('../../routes/sql');
-const error = require('./error.js');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -18,7 +17,7 @@ module.exports = {
                 reject(500);
             }
         }).then((data) => {
-            return sql.createLoginUrl(data.lid, data.cc, data.fcode);
+            return sql.users.createLoginUrl(data.lid, data.cc, data.fcode);
         }).then((data) => {
             return {'login-url': data};
         });
@@ -26,13 +25,13 @@ module.exports = {
 
     login: function(username, password, loginid) {
         return new Promise(function(resolve, reject) {
-            sql.getSalt(username).then((saltData) => {
+            sql.users.getSalt(username).then((saltData) => {
                 if (saltData.length === 1) {
                     let hash = module.exports.hash(password, saltData[0].salt);
-                    sql.checkUserAccount(username, hash).then((accountData) => {
+                    sql.users.checkUserAccount(username, hash).then((accountData) => {
                         if (accountData.length === 1) {
-                            sql.updateLoginAttemptWithAccount(loginid, accountData[0].tili).then((updateData) => {
-                                sql.getLoginAttemptWithId(loginid).then((attemptData) => {
+                            sql.users.updateLoginAttemptWithAccount(loginid, accountData[0].tili).then((updateData) => {
+                                sql.users.getLoginAttemptWithId(loginid).then((attemptData) => {
                                     if (attemptData.length === 1) {
                                         resolve({success: true, 'login-code': attemptData[0].fronttunnus});
                                     } else {
@@ -53,9 +52,9 @@ module.exports = {
 
     requestAccess: function(accessCode, codeVerify) {
         return new Promise(function(resolve, reject) {
-            sql.getLoginAttemptWithAccessCode(accessCode).then((loginData) => {
+            sql.users.getLoginAttemptWithAccessCode(accessCode).then((loginData) => {
                 if (loginData.length > 0) {
-                    sql.createSession(loginData[0].tili).then((sessionData) => {
+                    sql.users.createSession(loginData[0].tili).then((sessionData) => {
                         resolve(sessionData);
                     });
                 } else {
@@ -66,11 +65,11 @@ module.exports = {
     },
 
     createAccount: function(username, password) {
-        return sql.createEmptyUser()
+        return sql.users.createEmptyUser()
         .then((newuserId) => {
             let salt = crypto.randomBytes(8).toString('hex');
             let hash = module.exports.hash(password, salt);
-            return sql.createAccount(username, hash, salt, newuserId);
+            return sql.users.createAccount(username, hash, salt, newuserId);
         });
     },
 
@@ -84,7 +83,7 @@ module.exports = {
             return Promise.reject(300);
         }
 
-        return sql.userIdForSession(sessionid)
+        return sql.users.userIdForSession(sessionid)
         .then((userids) => {
             if (userids.length == 1) {
                 return userids[0].tili;

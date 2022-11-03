@@ -36,7 +36,6 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
   login-code $string
 }
 ```
-
 ##### Vastaus:  
 ```
 {
@@ -56,7 +55,6 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
   salasana: $string
 }
 ```
-
 ##### Vastaus: 
 ```
 {
@@ -76,7 +74,6 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
   login-id: $string
 } 
 ```
-
 ##### Vastaus: 
 ```
 {
@@ -96,6 +93,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 ```
 
+
 ### /api/kirjaudu-ulos/
 #### POST
 ##### Lähetä:
@@ -104,7 +102,6 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
   session-id: $UUID
 }
 ```
-
 ##### Vastaus: 
 ```
 {
@@ -122,7 +119,6 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
   session-id: $UUId
 }
 ```
-
 ##### Vasstaus: 
 ```
 [{
@@ -139,7 +135,6 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
   session-id: $UUID
 }
 ``` 
-
 ##### Vastaus: 
 ```
 {
@@ -156,7 +151,6 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
    session-id: $UUID
 }
 ```
-
 ##### Vastaus:
 ```
 [{
@@ -180,6 +174,7 @@ Tila voidaan toteuttaa myöhemmin.
 - 6 arkistoitu 
 
 
+
 ### /api/kurssi/:kurssi-id/ukk/
 #### GET
 ##### Lähetä:
@@ -188,8 +183,6 @@ Tila voidaan toteuttaa myöhemmin.
    session-id: $UUID
 } 
 ```
- 
-
 ##### Vastaus:
 ```
 [{
@@ -202,6 +195,7 @@ Tila voidaan toteuttaa myöhemmin.
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
  
+
 
 #### POST
 ##### Lähetä:
@@ -217,7 +211,6 @@ Tila voidaan toteuttaa myöhemmin.
   vastaus: $string
 } 
 ```
-
 ##### Vastaus:
 ```
 {
@@ -253,7 +246,6 @@ Tulevaisuudessa lisäksi voi pitää lähettää:
   }]
 }
 ```
-
 ##### Vastaus:
 ```
 {
@@ -262,9 +254,10 @@ Tulevaisuudessa lisäksi voi pitää lähettää:
 }
 ```
 
+
+
 ### /api/kurssi/:kurssi-id/liity/
 Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi.
-
 #### POST
 ##### Lähetä
 ```
@@ -300,6 +293,7 @@ Tämä rajapinta toimii myös ilman käyttäjä-id:tä, jolloin käytetään kir
 }
 ```
 
+
 #### POST
 ##### Lähetä
 ```
@@ -324,6 +318,8 @@ oikeudet-kentän arvoina voi olla:
 - opettaja
 - opiskelija
 - admin
+
+
 
 ### /api/kurssi/:kurssi-id/uusitiketti/
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
@@ -356,9 +352,9 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 
 **TODO:** Miten liitteet? 
 
-
 #### GET 
 Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/kurssi/:kurssi-id/uusitiketti/kentat/*. 
+
 
 
 ### /api/kurssi/:kurssi-id/uusitiketti/kentat/
@@ -371,7 +367,6 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
    session-id: $UUID
 }
 ```
-
 ##### Vastaus:
 ```
 [{
@@ -384,6 +379,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 
+
 ### /api/tiketti/:tiketti-id/
 #### GET 
 ##### Lähetä:  
@@ -392,7 +388,6 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
    session-id: $UUID 
 }
 ```
-
 ##### Vastaus:
 ```
 {
@@ -405,6 +400,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 **TODO:** Liiteet? 
 
 
+
 ### /api/tiketti/:tiketti-id/kentat/
 #### GET
 ##### Lähetä:
@@ -413,9 +409,6 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
    session-id: $UUID 
 } 
 ```
-
-### /api/tiketti/:tiketti-id/uusikommentti
-
 ##### Vastaus:
 ```
 [{
@@ -426,6 +419,29 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 
+
+### /api/tiketti/:tiketti-id/uusikommentti
+#### POST
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUDI
+}
+- body -
+{
+  viesti: $string
+}
+```
+##### Vastaus:
+```
+- body -
+{
+  success: true
+}
+```
+
+
 ### /api/tiketti/:tiketti-id/kommentit/
 #### GET
 ##### Lähetä:
@@ -434,8 +450,6 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   session-id: $UUID 
 }
 ```
-
-
 ##### Vastaus:
 ```
 [{
@@ -446,6 +460,11 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 }] 
 ```
 Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.
+
+
+
+
+
 
 # Virhetilat
 ## Error-olio
