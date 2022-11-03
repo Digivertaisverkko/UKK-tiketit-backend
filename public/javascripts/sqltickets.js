@@ -33,7 +33,7 @@ module.exports = {
       getTicket: function(messageId) {
         return new Promise(function(resolve, reject) {
           const query = '\
-            SELECT id, otsikko, aikaleima, aloittaja, tila FROM Ketju k \
+            SELECT id, otsikko, aikaleima, aloittaja, tila FROM core.ketju k \
             INNER JOIN (SELECT ketju, tila FROM core.ketjuntila WHERE ketju=$1 ORDER BY aikaleima DESC LIMIT 1) kt \
             ON k.id = kt.ketju \
             WHERE k.id=$1';

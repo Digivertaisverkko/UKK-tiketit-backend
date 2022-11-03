@@ -104,6 +104,22 @@ module.exports = {
         resolve({});
       });
     });
+  },
+
+  getUserInfoForCourse(userid, courseid) {
+    return new Promise(function(resolve, reject) {
+      const query = '\
+      SELECT id, nimi, sposti, asema FROM core.kurssinosallistujat ko \
+      INNER JOIN core.tili t \
+      ON t.id = ko.tili \
+      WHERE ko.kurssi=$1 AND t.id=userid';
+      con.query(query, [courseid, userid], function(err, res) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(res.rows);
+      });
+    });
   }
 
 };
