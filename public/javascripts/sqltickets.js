@@ -7,6 +7,7 @@ const con = connection.getConnection();
 module.exports = {
  
     hasAccess: function(userid, ticketid) {
+        //TODO: Yhdistä tietokantahaut.
         const query = 'SELECT aloittaja, kurssi \
         FROM core.ketju \
         WHERE id=$1';
@@ -19,7 +20,8 @@ module.exports = {
                 const query = '\
                 SELECT tili FROM core.kurssinosallistujat \
                 WHERE kurssi=$1 AND asema="opettaja" AND tili=$2';
-                return connection.queryOne(query, [data.kurssi, userid]);
+                return connection.queryOne(query, [data.kurssi, userid])
+                .then(() => { return userid });
             }
         })
         .catch(() => Promise.reject(103));
