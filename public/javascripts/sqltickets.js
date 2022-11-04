@@ -6,6 +6,25 @@ const con = connection.getConnection();
 
 module.exports = {
  
+    hasAccess: function(userid, ticketid) {
+        const query = 'SELECT aloittaja, kurssi \
+        FROM core.ketju \
+        WHERE id=$1';
+        return connection.queryOne(query, [ticketid])
+        .then((data) => {
+            if (data.aloittaja == userid) {
+                return Promise.resolve(data.aloittaja);
+            } else {
+                //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejeä.
+                const query = '\
+                SELECT tili FROM core.kurssinosallistujat \
+                WHERE kurssi=$1 AND asema="opettaja" AND tili=$2';
+                return connection.queryOne(query, [data.kurssi, userid]);
+            }
+        })
+        .catch(() => Promise.reject(103));
+    },
+
     getAllMyTickets: function(courseId, userId) {
         const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
         FROM core.ketju \

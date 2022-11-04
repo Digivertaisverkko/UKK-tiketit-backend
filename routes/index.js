@@ -9,6 +9,7 @@ const { setFlagsFromString } = require('v8');
 const errorFactory = require('../public/javascripts/error.js')
 const arrayTools = require('../public/javascripts/arrayTools.js');
 const splicer = require('../public/javascripts/sqlsplicer.js');
+const { use } = require('express/lib/application.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -188,13 +189,18 @@ router.get('/api/kurssit/', function(req, res, next) {
 router.get('/api/tiketti/:ticketid', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
+    return sql.tickets.hasAccess(userid, req.params.ticketid);
+  })
+  .then((userid) => {
+    return userid;
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticketdata) => {
+    return ticketdata;
     return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
   })
   .then((data) => {
-    res.send(data);
+    res.send({data: data});
   })
   .catch((error) => {
     res.send(errorFactory.createError(error));
@@ -216,6 +222,9 @@ router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   let courseid = null;
   auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.tickets.hasAccess(userid, req.params.ticketid);
+  })
   .then((userid) => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
