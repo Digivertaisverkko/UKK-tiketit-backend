@@ -161,6 +161,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+[Kurssilainen-olio](#kurssilainen-olio)
 
 Tila voidaan toteuttaa myöhemmin.
 
@@ -275,8 +276,8 @@ Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena la
 ```
 
 
-### /api/kurssi/:kurssi-id/oikeudet/:käyttäjä-id
-Tämä rajapinta toimii myös ilman käyttäjä-id:tä, jolloin käytetään kirjautuneen käyttäjän tunnusta.
+### /api/kurssi/:kurssi-id/oikeudet
+Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### GET
 ##### Lähetä:
 ```
@@ -286,38 +287,8 @@ Tämä rajapinta toimii myös ilman käyttäjä-id:tä, jolloin käytetään kir
 }
 ```
 #### Vastaus:
-```
--body-
-{
-  oikeudet: $string
-}
-```
+Vastauksena tulee [kurssilainen-olio](#kurssilainen-olio)
 
-
-#### POST
-##### Lähetä
-```
-- header -
-{
-  session-id: $UUID
-}
-- body -
-{
-  oikeudet: $string
-}
-```
-##### Vastaus
-```
-- body -
-{
-  success: true
-}
-```
-
-oikeudet-kentän arvoina voi olla:
-- opettaja
-- opiskelija
-- admin
 
 
 
@@ -397,6 +368,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   tila: $string
 }
 ```
+[Kurssilainen-olio](#kurssilainen-olio)
 **TODO:** Liiteet? 
 
 
@@ -460,6 +432,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 }] 
 ```
 Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.
+[Kurssilainen-olio](#kurssilainen-olio)
 
 
 
@@ -472,9 +445,14 @@ Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäj
   id: $int (viite tili-tauluun)
   nimi: $string
   sposti: $string
-  asema: $string (opettaja/opiskelija/admin)
+  asema: $string
 }
 ```
+
+asema-kentän arvoina voi olla:
+- opettaja
+- opiskelija
+- admin
 
 
 # Virhetilat

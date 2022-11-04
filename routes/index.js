@@ -305,20 +305,20 @@ router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
   });
 });
 
-router.get('/api/kurssi/:courseid/oikeudet/:userid', function(req, res, next) {
-//TODO: Toteutua
-});
 
 router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
-    //TODO: Toteuta
+    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
+  })
+  .then((sqldata) => {
+    res.send(sqldata);
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
   });
 });
 
-router.post('/api/kurssi/:courseid/oikeudet/:userid', function(req, res, next) {
-//TODO: Toteuta
-});
 
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
   auth.authenticatedUser(req)
