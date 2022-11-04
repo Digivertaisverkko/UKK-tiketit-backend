@@ -7,6 +7,8 @@ var sql = require('./sql.js');
 const crypto = require('crypto');
 const { setFlagsFromString } = require('v8');
 const errorFactory = require('../public/javascripts/error.js')
+const arrayTools = require('../public/javascripts/arrayTools.js');
+const splicer = require('../public/javascripts/sqlsplicer.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -128,6 +130,9 @@ router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.getAllMyTickets(req.params.courseid, userid);
   })
+  .then((ticketdata) => {
+    return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', req.params.courseid);
+  })
   .then((sqldata) => {
     res.send(sqldata);
   })
@@ -137,8 +142,22 @@ router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
-  //TODO: Lisää authin tarkistus ja tarkistus sille, että hakija on opettaja
-  sql.tickets.getAllTickets(req.params.courseid).then((data) => res.send(data));
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
+  })
+  .then((userdata) => {
+    if (userdata != undefined && userdata.asema === 'opettaja') {
+      return sql.tickets.getAllTickets(req.params.courseid)
+      .then((ticketdata) => {
+        return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', req.params.courseid);
+      });
+    } else {
+      return Promise.reject(103);
+    }
+  })
+  .then((data) => res.send(data))
+  .catch((error) => res.send(errorFactory.createError(error)));
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
@@ -172,16 +191,12 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticketrows) => {
-    if (ticketrows.length == 1) {
-      let data = ticketrows[0];
-      return sql.courses.getUserInfoForCourse(data.aloittaja, data.kurssi)
-      .then((userdata) => {
-        data.aloittaja = userdata;
-        return data;
-      });
-    } else {
-      res.send(errorFactory.createError(200));
-    }
+    let data = ticketrows[0];
+    return sql.courses.getUserInfoForCourse(data.aloittaja, data.kurssi)
+    .then((userdata) => {
+      data.aloittaja = userdata;
+      return data;
+    });
   })
   .then((data) => {
     res.send(data);

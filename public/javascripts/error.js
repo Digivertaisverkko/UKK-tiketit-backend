@@ -37,13 +37,16 @@ module.exports = {
 
         switch (errorid) {
             case 100:
-                e.error.virheilmoitus = "Et ole kirjautunut";
+                e.error.virheilmoitus = "Et ole kirjautunut.";
                 break;
             case 101:
                 e.error.virheilmoitus = "Kirjautumispalveluun ei saatu yhteyttä.";
                 break;
             case 102:
                 e.error.virheilmoitus = "Väärä käyttäjätunnus tai salasana."
+                break;
+            case 103:
+                e.error.virheilmoitus = "Ei tarvittavia oikeuksia.";
                 break;
             case 200:
                 e.error.virheilmoitus = "Tuloksia ei löytynyt.";

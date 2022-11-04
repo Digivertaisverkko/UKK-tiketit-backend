@@ -234,7 +234,7 @@ Tila voidaan toteuttaa myöhemmin.
   ohjeteksti: $string
 }
 ```
-Tulevaisuudessa lisäksi voi pitää lähettää:
+Tulevaisuudessa lisäksi pitää lähettää:
 ```
 {
   harjoitukset: [$string]
@@ -491,6 +491,7 @@ BB - tarkentava koodi
 100 - Et ole kirjautunut
 101 - Kirjautumispalveluun ei saatu yhteyttä
 102 - Väärä käyttäjätunnus tai salasana
+103 - Ei oikeuksia
 ```
 
 
