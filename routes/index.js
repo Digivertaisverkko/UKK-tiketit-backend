@@ -192,15 +192,13 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
   .then((userid) => {
-    return userid;
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticketdata) => {
-    return ticketdata;
     return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
   })
   .then((data) => {
-    res.send({data: data});
+    res.send(data);
   })
   .catch((error) => {
     res.send(errorFactory.createError(error));
