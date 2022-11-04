@@ -157,7 +157,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
   id: $int
   otsikko: $string
   aikaleima: $string
-  aloittaja: $int
+  aloittaja: $kurssilainen-olio
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
@@ -393,7 +393,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 {
   otsikko: $string
   aikaleima: $string
-  aloittaja: $int (viite tili-tauluun)
+  aloittaja: $kurssilainen-olio
   tila: $string
 }
 ```
@@ -453,7 +453,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 ##### Vastaus:
 ```
 [{
-  kirjoittaja-id: $int 
+  lahettaja: $kurssilainen-olio
   aikaleima: $string 
   tila: $int 
   teksti: $string 
@@ -463,7 +463,18 @@ Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirj
 
 
 
-
+# Erikoisoliot
+## Kurssilainen-olio
+Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäjän tietoja. Kaikki palauttavat samanlaisen.
+### Muoto
+```
+{
+  id: $int (viite tili-tauluun)
+  nimi: $string
+  sposti: $string
+  asema: $string (opettaja/opiskelija/admin)
+}
+```
 
 
 # Virhetilat
