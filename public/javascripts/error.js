@@ -50,6 +50,7 @@ module.exports = {
                 break;
             case 200:
                 e.error.virheilmoitus = "Tuloksia ei löytynyt.";
+                break;
             case 300:
                 e.error.virheilmoitus = "Virheelliset parametrit.";
                 break;
