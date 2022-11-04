@@ -244,6 +244,9 @@ router.get('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   if (content != undefined) {
     auth.authenticatedUser(req)
     .then((userid) => {
+      return sql.tickets.hasAccess(userid, req.params.ticketid);
+    })
+    .then((userid) => {
       return sql.tickets.createComment(req.params.ticketid, userid, content);
     })
     .then((commentId) => {
