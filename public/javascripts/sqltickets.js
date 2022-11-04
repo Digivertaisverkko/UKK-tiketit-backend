@@ -7,7 +7,9 @@ const con = connection.getConnection();
 module.exports = {
  
     getAllMyTickets: function(courseId, userId) {
-        const query = 'SELECT id, otsikko, aikaleima, aloittaja FROM core.ketju WHERE aloittaja=$1 AND kurssi=$2';
+        const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
+        FROM core.ketju \
+        WHERE aloittaja=$1 AND kurssi=$2';
         return connection.queryAll(query, [userId, courseId]);
       },
     
@@ -22,7 +24,7 @@ module.exports = {
         INNER JOIN (SELECT ketju, tila FROM core.ketjuntila WHERE ketju=$1 ORDER BY aikaleima DESC LIMIT 1) kt \
         ON k.id = kt.ketju \
         WHERE k.id=$1';
-        return connection.queryAll(query, [messageId]);
+        return connection.queryOne(query, [messageId]);
       },
     
       getFieldsOfTicket: function(messageId) {

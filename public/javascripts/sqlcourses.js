@@ -69,6 +69,16 @@ module.exports = {
     WHERE ko.kurssi=$1 AND t.id=$2';
 
     return connection.queryOne(query, [courseid, userid]);
+  },
+
+  getUserInfoListForCourse(useridList, courseid) {
+    const query = '\
+    SELECT t.id, t.nimi, t.sposti, ko.asema FROM core.kurssinosallistujat ko \
+    INNER JOIN core.tili t \
+    ON t.id = ko.tili \
+    WHERE ko.kurssi=$1 AND t.id = ANY ($2)'
+
+    return connection.queryAll(query, [courseid, useridList]);
   }
 
 };
