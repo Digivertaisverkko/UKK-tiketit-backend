@@ -16,7 +16,7 @@ module.exports = {
             if (data.aloittaja == userid) {
                 return Promise.resolve(data.aloittaja);
             } else {
-                //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejeä.
+                //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
                 const query = '\
                 SELECT tili FROM core.kurssinosallistujat \
                 WHERE kurssi=$1 AND asema="opettaja" AND tili=$2';
