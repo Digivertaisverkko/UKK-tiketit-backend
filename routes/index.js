@@ -7,7 +7,6 @@ var sql = require('./sql.js');
 const crypto = require('crypto');
 const { setFlagsFromString } = require('v8');
 const errorFactory = require('../public/javascripts/error.js')
-const arrayTools = require('../public/javascripts/arrayTools.js');
 const splicer = require('../public/javascripts/sqlsplicer.js');
 const { use } = require('express/lib/application.js');
 
@@ -239,7 +238,7 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   });
 });
 
-router.get('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
+router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   let content = req.body.viesti;
   if (content != undefined) {
     auth.authenticatedUser(req)
