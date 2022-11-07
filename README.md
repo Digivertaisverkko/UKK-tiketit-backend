@@ -36,7 +36,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
   login-code $string
 }
 ```
-##### Vastaus:  
+##### Vastaus:
 ```
 {
   success: $bool
