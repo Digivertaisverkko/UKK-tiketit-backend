@@ -197,7 +197,11 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
   })
   .then((data) => {
-    res.send(data);
+    if (data.length == 1) {
+      res.send(data[0]);
+    } else {
+      Promise.reject(304);
+    }
   })
   .catch((error) => {
     res.send(errorFactory.createError(error));
