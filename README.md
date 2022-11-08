@@ -142,13 +142,16 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 ```
 
-
+### /api/kurssi/:kurssi-id/kaikki/ ja
 ### /api/kurssi/:kurssi-id/omat/
+Näillä rajapinnoilla saadaan kurssille osoitetut tiketit. 
+* /omat lähettää kaikki kirjautuneen käyttäjän luomat tiketit. 
+* /kaikki lähettää kirjautuneen käyttäjän luomat tiketit, jos hän on kurssilla opiskelijana. Jos on kirjautunut opettajana, niin palautetaan kaikki kurssin tiketit.
 #### GET
 ##### Lähetä:
 ```
 {
-   session-id: $UUID
+  session-id: $UUID
 }
 ```
 ##### Vastaus:
@@ -158,8 +161,9 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
   otsikko: $string
   aikaleima: $string
   aloittaja: $kurssilainen-olio
-}]  
+}]
 ```
+
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 [Kurssilainen-olio](#kurssilainen-olio)
 
