@@ -149,12 +149,14 @@ router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
   .then((userdata) => {
     if (userdata != undefined && userdata.asema === 'opettaja') {
       return sql.tickets.getAllTickets(req.params.courseid)
-      .then((ticketdata) => {
-        return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', req.params.courseid);
-      });
+    } else if (userdata != undefined) {
+      return sql.tickets.getAllMyTickets(req.params.courseid, userdata.id);
     } else {
       return Promise.reject(103);
     }
+  })
+  .then((ticketdata) => {
+    return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', req.params.courseid);
   })
   .then((data) => res.send(data))
   .catch((error) => res.send(errorFactory.createError(error)));
