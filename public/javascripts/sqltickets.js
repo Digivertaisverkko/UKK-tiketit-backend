@@ -7,7 +7,6 @@ const con = connection.getConnection();
 module.exports = {
  
     hasAccess: function(userid, ticketid) {
-        //TODO: Yhdistä tietokantahaut.
         const query = 'SELECT aloittaja, kurssi \
         FROM core.ketju \
         WHERE id=$1';
@@ -17,11 +16,13 @@ module.exports = {
                 return Promise.resolve(data.aloittaja);
             } else {
                 //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
-                const query = '\
+                const query2 = '\
                 SELECT tili FROM core.kurssinosallistujat \
-                WHERE kurssi=$1 AND asema="opettaja" AND tili=$2';
-                return connection.queryOne(query, [data.kurssi, userid])
-                .then(() => { return userid });
+                WHERE kurssi=$1 AND asema=$2 AND tili=$3';
+                return connection.queryOne(query2, [data.kurssi, 'opettaja', userid])
+                .then(() => { 
+                  return userid;
+                 });
             }
         })
         .catch(() => Promise.reject(103));
