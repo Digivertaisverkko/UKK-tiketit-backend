@@ -11,6 +11,14 @@ module.exports = {
         .then((userdata) => {
           return arrayTools.arrayUnionWithKeys(array, userdata, idReferenceKey, 'id');
         });
+    },
+
+    insertTicketStateToTicketIdReferences: function(array, idReferenceKey, ticketid) {
+      var ids = arrayTools.extractAttributes(array, idReferenceKey);
+      return sql.tickets.getTicketStates(ids)
+      .then((stateData) => {
+        return arrayTools.addObjectWithKeys(array, stateData, 'tila', 'id', 'ketju');
+      });
     }
 
 }

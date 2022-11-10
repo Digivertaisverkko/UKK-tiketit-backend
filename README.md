@@ -313,7 +313,7 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
   kentat: 
   [{
     id: $int
-    arvo: $strings
+    arvo: $string
   }]
 }
 ```

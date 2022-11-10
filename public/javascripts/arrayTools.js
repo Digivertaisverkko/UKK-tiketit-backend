@@ -53,6 +53,40 @@ module.exports = {
             retArray.push(element[key]);
         });
         return retArray;
+    },
+
+
+    /**
+     * Palauttaa uuden taulukon, jossa on on kaikki ensimmäisen taulukon oliot, mutta niihin on lisätty attribuutti newKey,
+     * johon tallennetaan toisesta taulukosta löytyvä arvo. Toisesta taulukosta valittu arvo valikoituu, jos ensimmäisen
+     * taulukon arvon seekKey on sama kuin toisen taulukon arvon comparedKey.
+     * Eli esim:
+     * ensimmäinen taulu [{nimi: "asd", viite: 2}, {nimi: "fgh", viite: 3}, {nimi: "jkl", viite: 1}]
+     * toinen taulu [{otsikko: "qwe", id: 2}, {otsikko: "rty", id:3}, {otsikko: "uio", id: 4}]
+     * newKey = "uusi"
+     * seekKey = "viite"
+     * comparedKey = "id"
+     * TULOS:
+     * [{nimi: "asd", viite: 2, uusi: {otsikko: "qwe", id: 2}},
+     *  {nimi: "fgh", viite: 3, uusi: {otsikko: "rty", id: 3}},
+     *  {nimi: "jkl", viite: 1}]
+     * 
+     * @param {*} firstArray
+     * @param {*} secondArray 
+     * @param {*} newKey 
+     * @param {*} seekKey 
+     * @param {*} comparedKey 
+     */
+    addObjectWithKeys: function(firstArray, secondArray, newKey, seekKey, comparedKey) {
+        let retArray = [...firstArray];
+        retArray.forEach(firstElement => {
+            var value = firstElement[seekKey];
+            var secondElement = secondArray.find(e => e[comparedKey] === value);
+            if (secondElement != undefined) {
+                firstElement[newKey] = secondElement;
+            }
+        });
+        return retArray;
     }
 
 }

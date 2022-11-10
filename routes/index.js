@@ -373,7 +373,8 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
         .then(() => resolve(ticketid))
         .catch(() => reject(304));
       });
-    }).then((ticketid) => {
+    })
+    .then((ticketid) => {
       return sql.tickets.createComment(ticketid, storeduserid, message);
     })
     .then(() => {
