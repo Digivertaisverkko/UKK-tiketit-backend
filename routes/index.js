@@ -9,6 +9,7 @@ const { setFlagsFromString } = require('v8');
 const errorFactory = require('../public/javascripts/error.js')
 const splicer = require('../public/javascripts/sqlsplicer.js');
 const { use } = require('express/lib/application.js');
+const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -151,7 +152,7 @@ router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
   })
   .then((userdata) => {
     if (userdata != undefined && userdata.asema === 'opettaja') {
-      return sql.tickets.getAllTickets(req.params.courseid)
+      return sql.tickets.getAllTickets(req.params.courseid);
     } else if (userdata != undefined) {
       return sql.tickets.getAllMyTickets(req.params.courseid, userdata.id);
     } else {

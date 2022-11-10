@@ -1,7 +1,9 @@
 const crypto = require('crypto');
+const { stat } = require('fs');
 const { Pool, Client } = require('pg');
 
 const connection = require('./connection.js');
+const arrayTools = require('./arrayTools.js');
 const con = connection.getConnection();
 
 module.exports = {
@@ -32,12 +34,18 @@ module.exports = {
       const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
       FROM core.ketju \
       WHERE aloittaja=$1 AND kurssi=$2';
-      return connection.queryAll(query, [userId, courseId]);
+      return connection.queryAll(query, [userId, courseId])
+      .then((ticketdata) => {
+        return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+      });
     },
   
   getAllTickets: function(courseId) {
     const query = 'SELECT * FROM core.ketju WHERE kurssi=$1';
-    return connection.queryAll(query, [courseId]);
+    return connection.queryAll(query, [courseId])
+    .then((ticketdata) => {
+      return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    });
   },
 
   getTicket: function(messageId) {
@@ -96,6 +104,20 @@ module.exports = {
     });
   },
 
+  insertTicketStateToTicketIdReferences: function(array, idReferenceKey) {
+    var ids = arrayTools.extractAttributes(array, idReferenceKey);
+    return module.exports.getTicketStates(ids)
+    .then((stateData) => {
+      array.forEach(element => {
+        var state = stateData.find((stateElement) => stateElement.ketju===element[idReferenceKey]);
+        if (state != undefined) {
+          element.tila = state.tila;
+        }          
+      });
+      return array;
+    });
+  },
+
   createComment: function(ticketid, userid, content) {
     const query = '\
     INSERT INTO core.kommentti (ketju, lahettaja, viesti, aikaleima) \
@@ -107,16 +129,10 @@ module.exports = {
 
   getTicketStates: function(ticketidList) {
     const query = '\
-    SELECT tila, ketju FROM core.ketjuntila ORDER BY aikaleima DESC \
-    WHERE ketju = ANY ($1)';
-    return connection.queryAll(query [ticketidList])
-    .then((stateList) => {
-      var retArray = [];
-      ticketidList.forEach(id => {
-        var stateObject = stateList.find(element => element.ketju==id);
-        retArray.push({id: id, tila: stateObject.tila});
-      });
-    });
+    SELECT DISTINCT ON (ketju) tila, ketju FROM core.ketjuntila \
+    WHERE ketju = ANY ($1) \
+    ORDER BY ketju, aikaleima DESC';
+    return connection.queryAll(query, [ticketidList]);
   }
 
 };
