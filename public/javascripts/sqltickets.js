@@ -66,7 +66,6 @@ module.exports = {
 
 
   createTicket: function(courseid, userid, title) {
-
     const query = '\
     INSERT INTO core.ketju (kurssi, aloittaja, otsikko, aikaleima) \
     VALUES ($1, $2, $3, NOW()) \
@@ -89,6 +88,7 @@ module.exports = {
         INSERT INTO core.ketjunkentat (ketju, kentta, arvo) \
         VALUES ($1, $2, $3)';
         connection.queryNone(query, [ticketid, fieldid, value])
+        .then(() => resolve())
         .catch((error) => { reject(error); });
       } else {
         reject(300);
@@ -103,6 +103,20 @@ module.exports = {
     RETURNING id';
     return connection.queryOne(query, [ticketid, userid, content])
     .then((sqldata) => { return sqldata.id; });
+  },
+
+  getTicketStates: function(ticketidList) {
+    const query = '\
+    SELECT tila, ketju FROM core.ketjuntila ORDER BY aikaleima DESC \
+    WHERE ketju = ANY ($1)';
+    return connection.queryAll(query [ticketidList])
+    .then((stateList) => {
+      var retArray = [];
+      ticketidList.forEach(id => {
+        var stateObject = stateList.find(element => element.ketju==id);
+        retArray.push({id: id, tila: stateObject.tila});
+      });
+    });
   }
 
 };
