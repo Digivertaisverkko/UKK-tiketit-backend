@@ -29,7 +29,7 @@ module.exports = {
         retArray.forEach(firstElement => {
             var value = firstElement[replacedKey]
             var secondElement = secondArray.find(e => e[comparedKey] === value);
-            if (secondElement != undefined) {
+            if (secondElement != undefined) {
                 firstElement[replacedKey] = secondElement;
             }
         });
@@ -82,8 +82,8 @@ module.exports = {
         retArray.forEach(firstElement => {
             var value = firstElement[seekKey];
             var secondElement = secondArray.find(e => e[comparedKey] === value);
-            if (secondElement != undefined) {
-                firstElement[newKey] = secondElement;
+            if (secondElement != undefined) {
+                firstElement[newKey] = secondElement['tila'];
             }
         });
         return retArray;
