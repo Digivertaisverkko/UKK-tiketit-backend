@@ -40,9 +40,11 @@ router.get('/api/authtoken/', function(req, res, next) {
     .then((data) => {
       res.send({'success': true, 'session-id': data[0].sessionid});
       return data;
-    }).then((data) => {
+    })
+    .then((data) => {
       return sql.users.removeLoginAttempt(logincode);
-    }).catch((error) => {
+    })
+    .catch((error) => {
       res.send(errorFactory.createError(error));
     });
   }
@@ -64,7 +66,8 @@ router.post('/api/luotili/', function(req, res, next) {
     auth.createAccount(username, password)
     .then((data) => {
       res.send({success: true});
-    }).catch((error) => {
+    })
+    .catch((error) => {
       res.send(errorFactory.createError(error));
     });
   } else {
