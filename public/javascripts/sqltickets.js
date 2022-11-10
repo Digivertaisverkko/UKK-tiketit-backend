@@ -6,62 +6,62 @@ const con = connection.getConnection();
 
 module.exports = {
  
-    hasAccess: function(userid, ticketid) {
-        const query = 'SELECT aloittaja, kurssi \
-        FROM core.ketju \
-        WHERE id=$1';
-        return connection.queryOne(query, [ticketid])
-        .then((data) => {
-            if (data.aloittaja == userid) {
-                return Promise.resolve(data.aloittaja);
-            } else {
-                //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
-                const query2 = '\
-                SELECT tili FROM core.kurssinosallistujat \
-                WHERE kurssi=$1 AND asema=$2 AND tili=$3';
-                return connection.queryOne(query2, [data.kurssi, 'opettaja', userid])
-                .then(() => { 
-                  return userid;
-                 });
-            }
-        })
-        .catch(() => Promise.reject(103));
-    },
+  hasAccess: function(userid, ticketid) {
+      const query = 'SELECT aloittaja, kurssi \
+      FROM core.ketju \
+      WHERE id=$1';
+      return connection.queryOne(query, [ticketid])
+      .then((data) => {
+          if (data.aloittaja == userid) {
+              return Promise.resolve(data.aloittaja);
+          } else {
+              //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
+              const query2 = '\
+              SELECT tili FROM core.kurssinosallistujat \
+              WHERE kurssi=$1 AND asema=$2 AND tili=$3';
+              return connection.queryOne(query2, [data.kurssi, 'opettaja', userid])
+              .then(() => { 
+                return userid;
+                });
+          }
+      })
+      .catch(() => Promise.reject(103));
+  },
 
-    getAllMyTickets: function(courseId, userId) {
-        const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
-        FROM core.ketju \
-        WHERE aloittaja=$1 AND kurssi=$2';
-        return connection.queryAll(query, [userId, courseId]);
-      },
-    
-      getAllTickets: function(courseId) {
-        const query = 'SELECT * FROM core.ketju WHERE kurssi=$1';
-        return connection.queryAll(query, [courseId]);
-      },
-    
-      getTicket: function(messageId) {
-        const query = '\
-        SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi FROM core.ketju k \
-        INNER JOIN (SELECT ketju, tila FROM core.ketjuntila WHERE ketju=$1 ORDER BY aikaleima DESC LIMIT 1) kt \
-        ON k.id = kt.ketju \
-        WHERE k.id=$1';
-        return connection.queryOne(query, [messageId]);
-      },
-    
-      getFieldsOfTicket: function(messageId) {
-        const query = '\
-        SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.ketjunkentat kk \
-        INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
-        ON kk.kentta = pohja.id \
-        WHERE kk.ketju=$1';
-        return connection.queryAll(query, [messageId]);
-      },
-    
-      getComments: function(messageId) {
-        const query = 'SELECT viesti, lahettaja, aikaleima FROM core.kommentti WHERE ketju=$1 ORDER BY aikaleima';
-        return connection.queryAll(query, [messageId]);
-      },
+  getAllMyTickets: function(courseId, userId) {
+      const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
+      FROM core.ketju \
+      WHERE aloittaja=$1 AND kurssi=$2';
+      return connection.queryAll(query, [userId, courseId]);
+    },
+  
+  getAllTickets: function(courseId) {
+    const query = 'SELECT * FROM core.ketju WHERE kurssi=$1';
+    return connection.queryAll(query, [courseId]);
+  },
+
+  getTicket: function(messageId) {
+    const query = '\
+    SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi FROM core.ketju k \
+    INNER JOIN (SELECT ketju, tila FROM core.ketjuntila WHERE ketju=$1 ORDER BY aikaleima DESC LIMIT 1) kt \
+    ON k.id = kt.ketju \
+    WHERE k.id=$1';
+    return connection.queryOne(query, [messageId]);
+  },
+
+  getFieldsOfTicket: function(messageId) {
+    const query = '\
+    SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.ketjunkentat kk \
+    INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
+    ON kk.kentta = pohja.id \
+    WHERE kk.ketju=$1';
+    return connection.queryAll(query, [messageId]);
+  },
+
+  getComments: function(messageId) {
+    const query = 'SELECT viesti, lahettaja, aikaleima FROM core.kommentti WHERE ketju=$1 ORDER BY aikaleima';
+    return connection.queryAll(query, [messageId]);
+  },
 
 
 
