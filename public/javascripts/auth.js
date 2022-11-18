@@ -30,7 +30,7 @@ module.exports = {
                     let hash = module.exports.hash(password, saltData[0].salt);
                     sql.users.checkUserAccount(username, hash).then((accountData) => {
                         if (accountData.length === 1) {
-                            sql.users.updateLoginAttemptWithAccount(loginid, accountData[0].tili).then((updateData) => {
+                            sql.users.updateLoginAttemptWithAccount(loginid, accountData[0].profiili).then((updateData) => {
                                 sql.users.getLoginAttemptWithId(loginid).then((attemptData) => {
                                     if (attemptData.length === 1) {
                                         resolve({success: true, 'login-code': attemptData[0].fronttunnus});
@@ -55,7 +55,7 @@ module.exports = {
             sql.users.getLoginAttemptWithAccessCode(accessCode)
             .then((loginData) => {
                 if (loginData.length > 0) {
-                    sql.users.createSession(loginData[0].tili)
+                    sql.users.createSession(loginData[0].profiili)
                     .then((sessionData) => {
                         resolve(sessionData);
                     });
@@ -91,7 +91,7 @@ module.exports = {
         return sql.users.userIdForSession(sessionid)
         .then((userids) => {
             if (userids.length == 1) {
-                return userids[0].tili;
+                return userids[0].profiili;
             } else {
                 return Promise.reject(100);
             }
