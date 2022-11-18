@@ -196,11 +196,20 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
-  .then((userid) => {
+  .then(() => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticketdata) => {
-    return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
+    return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
+    .then((data) => {
+      if (data.asema == 'opettaja') {
+        return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
+        .then(() => {
+          return data;
+        });
+      }
+      return data;
+    })
   })
   .then((data) => {
     if (data.length == 1) {
@@ -250,15 +259,32 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
 
 router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   let content = req.body.viesti;
+  let storeduserid;
   if (content != undefined) {
     auth.authenticatedUser(req)
     .then((userid) => {
       return sql.tickets.hasAccess(userid, req.params.ticketid);
     })
     .then((userid) => {
+      storeduserid = userid;
       return sql.tickets.createComment(req.params.ticketid, userid, content);
     })
-    .then((commentId) => {
+    .then((commentid) => {
+      return sql.tickets.getTicket(req.params.ticketid)
+      .then((ticketdata) => {
+         return sql.courses.getUserInfoForCourse(storeduserid, ticketdata.kurssi);
+      })
+      .then((userinfo) => {
+        if (userinfo.asema == 'opettaja') {
+          return sql.tickets.setTicketStateIfAble(req.params.ticketid, 4);
+        } else if (userinfo.asema == 'opiskelija' || userinfo.asema == 'oppilas') {
+          return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
+        } else {
+          return Promise.reject(userinfo.asema);
+        }
+      });
+    })
+    .then(() => {
       res.send({success: true});
     })
     .catch((error) => {

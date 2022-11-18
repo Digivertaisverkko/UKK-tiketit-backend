@@ -116,13 +116,14 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 -header-
 {
-  session-id: $UUId
+  session-id: $UUID
 }
 ```
 ##### Vasstaus: 
 ```
 [{
   nimi: $string
+  id: $int
 }]
 ```
 
@@ -370,6 +371,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   aikaleima: $string
   aloittaja: $kurssilainen-olio
   tila: $string
+  kurssi: $int
 }
 ```
 [Kurssilainen-olio](#kurssilainen-olio)

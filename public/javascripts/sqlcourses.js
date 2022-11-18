@@ -5,7 +5,6 @@ const connection = require('./connection.js');
 const con = connection.getConnection();
 
 module.exports = {
- 
 
   getAllCourses: function() {
     return connection.query('SELECT id, nimi FROM core.kurssi', []);
