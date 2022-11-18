@@ -44,7 +44,7 @@ module.exports = {
 
   getFieldsOfTicketBase: function(ticketbaseid) {
     const query = '\
-    SELECT id, otsikko, pakollinen, esitaytettava FROM tiketinkentat tk \
+    SELECT id, otsikko, pakollinen, esitaytettava FROM tikettipohjankentat tk \
     INNER JOIN kenttapohja kp \
     ON kp.id=tk.kentta \
     WHERE tk.tikettipohja=$1';
@@ -54,7 +54,7 @@ module.exports = {
   addUserToCourse: function(courseid, userid, isTeacher) {
     const position = isTeacher ? 'opettaja' : 'opiskelija';
     const query = '\
-    INSERT INTO core.kurssinosallistujat (kurssi, tili, asema) \
+    INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) \
     VALUES ($1, $2, $3)';
 
     return connection.queryNone(query, [courseid, userid, position]);
@@ -63,8 +63,8 @@ module.exports = {
   getUserInfoForCourse(userid, courseid) {
     const query = '\
     SELECT t.id, t.nimi, t.sposti, ko.asema FROM core.kurssinosallistujat ko \
-    INNER JOIN core.tili t \
-    ON t.id = ko.tili \
+    INNER JOIN core.profiili t \
+    ON t.id = ko.profiili \
     WHERE ko.kurssi=$1 AND t.id=$2';
 
     return connection.queryOne(query, [courseid, userid]);
@@ -72,9 +72,9 @@ module.exports = {
 
   getUserInfoListForCourse(useridList, courseid) {
     const query = '\
-    SELECT t.id, t.nimi, t.sposti, ko.asema FROM core.kurssinosallistujat ko \
-    INNER JOIN core.tili t \
-    ON t.id = ko.tili \
+    SELECT p.id, p.nimi, p.sposti, ko.asema FROM core.kurssinosallistujat ko \
+    INNER JOIN core.profiili p \
+    ON p.id = ko.profiili \
     WHERE ko.kurssi=$1 AND t.id = ANY ($2)'
 
     return connection.queryAll(query, [courseid, useridList]);
