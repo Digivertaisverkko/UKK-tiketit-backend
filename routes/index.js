@@ -263,6 +263,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     })
     .then((userid) => {
       storeduserid = userid;
+      //TODO: Tallenna kommenttiin oikea tiketin tila (se mihin tiketin tila vaihtuu kommentin myötä.)
       return sql.tickets.createComment(req.params.ticketid, userid, content, 4);
     })
     .then((commentid) => {
