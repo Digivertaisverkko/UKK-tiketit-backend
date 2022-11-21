@@ -32,7 +32,6 @@ module.exports = {
     RETURNING id'
     return connection.queryOne(query, [courseid, description])
     .then((data) => { return data.id });
-
   },
 
   getTicketBasesOfCourse: function(courseid) {
