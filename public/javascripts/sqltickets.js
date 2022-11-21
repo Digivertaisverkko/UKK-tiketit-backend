@@ -129,7 +129,7 @@ module.exports = {
 
   getTicketStates: function(ticketidList) {
     const query = '\
-    SELECT DISTINCT ON (tiketti) tila, tiketti FROM core.tiketinntila \
+    SELECT DISTINCT ON (tiketti) tila, tiketti FROM core.tiketintila \
     WHERE tiketti = ANY ($1) \
     ORDER BY tiketti, aikaleima DESC';
     return connection.queryAll(query, [ticketidList]);

@@ -117,12 +117,8 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
   .then((userid) => {
     return sql.courses.getCourseInfo(req.params.courseid);
   })
-  .then((sqldata) => {
-    if (sqldata.length == 1) {
-      res.send(sqldata[0]);
-    } else {
-      res.send(errorFactory.createError(200));
-    }
+  .then((coursedata) => {
+    res.send(coursedata);
   })
   .catch((error) => {
     res.send(errorFactory.createError(error));
