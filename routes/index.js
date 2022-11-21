@@ -10,6 +10,7 @@ const errorFactory = require('../public/javascripts/error.js')
 const splicer = require('../public/javascripts/sqlsplicer.js');
 const { use } = require('express/lib/application.js');
 const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
+const sanitizer = require('../public/javascripts/sanitizer.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -61,20 +62,14 @@ router.post('/api/omalogin/', function(req, res, next) {
 });
 
 router.post('/api/luotili/', function(req, res, next) {
-  let username = req.header('ktunnus');
-  let password = req.header('salasana');
-  let email = req.header('sposti');
-  if (username != null && password != null && email != null) {
-    auth.createAccount(username, password)
-    .then((data) => {
-      res.send({success: true});
-    })
-    .catch((error) => {
-      res.send(errorFactory.createError(error));
-    });
-  } else {
-    res.send(errorFactory.createError(300));
-  }
+  sanitizer.hasRequiredParameters(req, ['ktunnus', 'salasana', 'sposti'])
+  .then((header) => auth.createAccount(header.ktunnus, header.salasana, header.sposti))
+  .then((data) => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  });
 });
 
 

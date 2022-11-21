@@ -12,6 +12,7 @@ A-luokat:
 100 - Et ole kirjautunut
 101 - Kirjautumispalveluun ei saatu yhteyttä
 102 - Väärä käyttäjätunnus tai salasana
+110 - Luotava tili on jo olemassa
 
 
 
@@ -47,6 +48,9 @@ module.exports = {
                 break;
             case 103:
                 e.error.virheilmoitus = "Ei tarvittavia oikeuksia.";
+                break;
+            case 110:
+                e.error.virheilmoitus = "Luotava tili on jo olemassa."
                 break;
             case 200:
                 e.error.virheilmoitus = "Tuloksia ei löytynyt.";

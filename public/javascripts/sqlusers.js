@@ -73,7 +73,14 @@ module.exports = {
 
   createAccount: function(username, passwordhash, salt, userid) {
     const query = 'INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ($1, $2, $3, $4)';
-    return connection.queryAll(query, [username, passwordhash, salt, userid]);
+    return connection.queryAll(query, [username, passwordhash, salt, userid])
+    .catch((error) => {
+      if (error.code == '23505') {
+        return Promise.reject(110);
+      } else {
+        return Promise.reject(error);
+      }
+    });
   },
 
   userIdForSession: function(sessionid) {
