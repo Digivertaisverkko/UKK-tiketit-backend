@@ -263,7 +263,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     })
     .then((userid) => {
       storeduserid = userid;
-      return sql.tickets.createComment(req.params.ticketid, userid, content);
+      return sql.tickets.createComment(req.params.ticketid, userid, content, 4);
     })
     .then((commentid) => {
       return sql.tickets.getTicket(req.params.ticketid)
