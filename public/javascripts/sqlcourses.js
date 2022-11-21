@@ -75,7 +75,7 @@ module.exports = {
     SELECT p.id, p.nimi, p.sposti, ko.asema FROM core.kurssinosallistujat ko \
     INNER JOIN core.profiili p \
     ON p.id = ko.profiili \
-    WHERE ko.kurssi=$1 AND t.id = ANY ($2)'
+    WHERE ko.kurssi=$1 AND p.id = ANY ($2)'
 
     return connection.queryAll(query, [courseid, useridList]);
   }
