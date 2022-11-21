@@ -118,12 +118,12 @@ module.exports = {
     });
   },
 
-  createComment: function(ticketid, userid, content) {
+  createComment: function(ticketid, userid, content, state) {
     const query = '\
-    INSERT INTO core.kommentti (tiketti, lahettaja, viesti, aikaleima) \
-    VALUES ($1, $2, $3, NOW()) \
+    INSERT INTO core.kommentti (tiketti, lahettaja, viesti, tila, aikaleima) \
+    VALUES ($1, $2, $3, $4, NOW()) \
     RETURNING id';
-    return connection.queryOne(query, [ticketid, userid, content])
+    return connection.queryOne(query, [ticketid, userid, content, state])
     .then((sqldata) => { return sqldata.id; });
   },
 
