@@ -9,25 +9,25 @@ const con = connection.getConnection();
 module.exports = {
  
   hasAccess: function(userid, ticketid) {
-      const query = 'SELECT aloittaja, kurssi \
-      FROM core.ketju \
-      WHERE id=$1';
+    const query = 'SELECT aloittaja, kurssi \
+    FROM core.ketju \
+    WHERE id=$1';
       return connection.queryOne(query, [ticketid])
       .then((data) => {
-          if (data.aloittaja == userid) {
-              return Promise.resolve(data.aloittaja);
-          } else {
-              //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
-              const query2 = '\
-              SELECT tili FROM core.kurssinosallistujat \
-              WHERE kurssi=$1 AND asema=$2 AND tili=$3';
-              return connection.queryOne(query2, [data.kurssi, 'opettaja', userid])
-              .then(() => { 
-                return userid;
-                });
-          }
-      })
-      .catch(() => Promise.reject(103));
+        if (data.aloittaja == userid) {
+            return Promise.resolve(data.aloittaja);
+        } else {
+            //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
+            const query2 = '\
+            SELECT tili FROM core.kurssinosallistujat \
+            WHERE kurssi=$1 AND asema=$2 AND tili=$3';
+            return connection.queryOne(query2, [data.kurssi, 'opettaja', userid])
+            .then(() => { 
+              return userid;
+            });
+        }
+    })
+    .catch(() => Promise.reject(103));
   },
 
   getAllMyTickets: function(courseId, userId) {
@@ -133,6 +133,48 @@ module.exports = {
     WHERE ketju = ANY ($1) \
     ORDER BY ketju, aikaleima DESC';
     return connection.queryAll(query, [ticketidList]);
+  },
+
+  setTicketState: function(ticketid, state) {
+    const query = '\
+    INSERT INTO core.ketjuntila (ketju, tila, aikaleima) \
+    VALUES ($1, $2, NOW()) \
+    RETURNING id'
+    return connection.queryOne(query, [ticketid, state]);
+  },
+
+  setTicketStateIfAble: function(ticketid, newState) {
+    module.exports.getTicketStates([ticketid])
+    .then((stateList) => {
+      if (stateList.length == 1) {
+        let stateObject = stateList[0];
+        let oldState = stateObject.tila;
+
+        if (newState == oldState) {
+          return;
+        } else if (newState == 1) {
+          if (oldState == 2) {
+            return;
+          }
+        } else if (newState == 2) {
+          if (oldState != 1) {
+            return;
+          }
+        } else if (newState == 3 || newState == 4 || newState == 5) {
+          if (oldState != 2) {
+            return;
+          }
+        } else if (newState == 6) {
+          if (oldState == 1 || oldState == 2) {
+            return;
+          }
+        } else {
+          return;
+        }
+
+        return module.exports.setTicketState(ticketid, newState);
+      }
+    });
   }
 
 };
