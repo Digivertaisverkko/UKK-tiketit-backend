@@ -31,9 +31,9 @@ app.use('/users', usersRouter);
 // Setup ltijs
 const setupLti = async () => {
   // DB connection for LTI
-  const db = new Database('dvvukk_lti', 'dvvukk_admin', 'salasana', 
+  const db = new Database(process.env.PGDATABASE, process.env.LTIUSER, process.env.LTIPASSWORD, 
     { 
-      host: 'localhost',
+      host: process.env.PGHOST,
       dialect: 'postgres',
       logging: false 
     });
