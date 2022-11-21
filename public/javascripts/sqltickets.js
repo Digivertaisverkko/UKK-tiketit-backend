@@ -59,7 +59,7 @@ module.exports = {
 
   getFieldsOfTicket: function(messageId) {
     const query = '\
-    SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinnkentat kk \
+    SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat kk \
     INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
     ON kk.kentta = pohja.id \
     WHERE kk.tiketti=$1';
