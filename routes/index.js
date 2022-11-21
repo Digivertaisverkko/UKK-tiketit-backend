@@ -63,7 +63,8 @@ router.post('/api/omalogin/', function(req, res, next) {
 router.post('/api/luotili/', function(req, res, next) {
   let username = req.header('ktunnus');
   let password = req.header('salasana');
-  if (username != null && password != null) {
+  let email = req.header('sposti');
+  if (username != null && password != null && email != null) {
     auth.createAccount(username, password)
     .then((data) => {
       res.send({success: true});

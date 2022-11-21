@@ -65,9 +65,9 @@ module.exports = {
   },
 
 
-  createEmptyUser: function(name) {
-    const query = 'INSERT INTO core.profiili (nimi, sposti) VALUES ($1, "") RETURNING id';
-    return connection.queryOne(query, [name])
+  createEmptyUser: function(name, email) {
+    const query = 'INSERT INTO core.profiili (nimi, sposti) VALUES ($1, $2) RETURNING id';
+    return connection.queryOne(query, [name, email])
     .then((sqldata) => { return sqldata.id });
   },
 

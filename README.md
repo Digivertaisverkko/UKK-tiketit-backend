@@ -53,6 +53,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 {
   ktunnus: $string
   salasana: $string
+  sposti: $string
 }
 ```
 ##### Vastaus: 
