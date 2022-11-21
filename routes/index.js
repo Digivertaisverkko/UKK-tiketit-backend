@@ -256,8 +256,6 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   })
   .then((userid) => {
     storeduserid = userid;
-    //TODO: Tallenna kommenttiin oikea tiketin tila (se mihin tiketin tila vaihtuu kommentin myötä.)
-    return sql.tickets.createComment(req.params.ticketid, userid, req.body.viesti, 4);
   })
   .then((commentid) => {
     return sql.tickets.getTicket(req.params.ticketid)
@@ -274,6 +272,10 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
         return Promise.reject(userinfo.asema);
       }
     });
+  })
+  .then((state) => {
+    //TODO: Tallenna kommenttiin oikea tiketin tila (se mihin tiketin tila vaihtuu kommentin myötä.)
+    return sql.tickets.createComment(req.params.ticketid, userid, req.body.viesti, state);
   })
   .then(() => {
     res.send({success: true});
