@@ -244,10 +244,10 @@ Tulevaisuudessa lisäksi pitää lähettää:
 ```
 {
   harjoitukset: [$string]
-  lisäkentät:
+  lisakentat:
   [{
     nimi: $string
-    esitäytetty: $bool
+    esitaytetty: $bool
     pakollinen: $bool
   }]
 }
@@ -448,7 +448,7 @@ Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäj
 ### Muoto
 ```
 {
-  id: $int (viite tili-tauluun)
+  id: $int (viite profiili-tauluun)
   nimi: $string
   sposti: $string
   asema: $string

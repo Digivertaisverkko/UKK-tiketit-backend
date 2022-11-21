@@ -117,12 +117,8 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
   .then((userid) => {
     return sql.courses.getCourseInfo(req.params.courseid);
   })
-  .then((sqldata) => {
-    if (sqldata.length == 1) {
-      res.send(sqldata[0]);
-    } else {
-      res.send(errorFactory.createError(200));
-    }
+  .then((coursedata) => {
+    res.send(coursedata);
   })
   .catch((error) => {
     res.send(errorFactory.createError(error));
@@ -267,7 +263,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     })
     .then((userid) => {
       storeduserid = userid;
-      return sql.tickets.createComment(req.params.ticketid, userid, content);
+      return sql.tickets.createComment(req.params.ticketid, userid, content, 4);
     })
     .then((commentid) => {
       return sql.tickets.getTicket(req.params.ticketid)
@@ -277,7 +273,8 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
       .then((userinfo) => {
         if (userinfo.asema == 'opettaja') {
           return sql.tickets.setTicketStateIfAble(req.params.ticketid, 4);
-        } else if (userinfo.asema == 'opiskelija' || userinfo.asema == 'oppilas') {
+        } else if (userinfo.asema == 'opiskelija' || userinfo.asema == 'oppilas') { 
+          //TODO: poista oppilas-sanan tarkistus, kun kaikilla on päivitetty versio sample_datasta.
           return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
         } else {
           return Promise.reject(userinfo.asema);
