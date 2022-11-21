@@ -69,8 +69,8 @@ module.exports = {
         });
     },
 
-    createAccount: function(username, password) {
-        return sql.users.createEmptyUser(username)
+    createAccount: function(username, password, email) {
+        return sql.users.createEmptyUser(username, email)
         .then((newuserId) => {
             let salt = crypto.randomBytes(8).toString('hex');
             let hash = module.exports.hash(password, salt);
