@@ -484,21 +484,22 @@ BB - tarkentava koodi
 #### A-luokat:
 ##### 1 - Kirjautumisongelmat
 ``` 
-100 - Et ole kirjautunut
-101 - Kirjautumispalveluun ei saatu yhteyttä
-102 - Väärä käyttäjätunnus tai salasana
-103 - Ei oikeuksia
+1000 - Et ole kirjautunut
+1001 - Kirjautumispalveluun ei saatu yhteyttä
+1002 - Väärä käyttäjätunnus tai salasana
+1003 - Ei oikeuksia
+1010 - Luotava tili on jo olemassa
 ```
 
 
 ##### 2 - SQL-ongelmat
 ```
-200 - Ei löytynyt.
+2000 - Ei löytynyt.
 ```
 
 
 ##### 3 - Liikenneongelmat
 ```
-300 - Väärät parametrit
-304 - Joku meni vikaan
+3000 - Väärät parametrit
+3004 - Joku meni vikaan
 ```

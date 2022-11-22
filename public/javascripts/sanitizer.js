@@ -8,7 +8,7 @@ module.exports = {
             for (const key of keyList) {
                 let value = request.header(key);
                 if (value == null || value == undefined) {
-                    return reject(300);
+                    return reject(3000);
                 } else {
                     object[key] = value;
                 }
@@ -23,7 +23,7 @@ module.exports = {
             for (const key of keyList) {
                 let value = request.body[key];
                 if (value == null || value == undefined) {
-                    return reject(300);
+                    return reject(3000);
                 } else {
                     object[key] = value;
                 }

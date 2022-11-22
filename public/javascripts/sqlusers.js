@@ -76,7 +76,7 @@ module.exports = {
     return connection.queryAll(query, [username, passwordhash, salt, userid])
     .catch((error) => {
       if (error.code == '23505') {
-        return Promise.reject(110);
+        return Promise.reject(1010);
       } else {
         return Promise.reject(error);
       }
