@@ -53,10 +53,10 @@ router.get('/api/authtoken/', function(req, res, next) {
 });
 
 router.post('/api/omalogin/', function(req, res, next) {
-  sanitizer.hasRequiredHeaders(['ktunnus', 'salasana', 'login-id'])
+  sanitizer.hasRequiredHeaders(req, ['ktunnus', 'salasana', 'login-id'])
   .then((header) => auth.login(header.ktunnus, header.salasana, header['login-id']))
   .then((data) => res.send(data))
-  .catch((error) => res.send(errorFactory.createError(error) ));
+  .catch((error) => res.send(errorFactory.createError(error)));
 });
 
 router.post('/api/luotili/', function(req, res, next) {
