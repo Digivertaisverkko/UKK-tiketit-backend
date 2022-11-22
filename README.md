@@ -129,6 +129,25 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
+### /api/kurssi/omatkurssit/
+#### GET
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+##### Vastaus:
+```
+[{
+  kurssi: $string
+  asema: $string
+}]
+```
+(ks. [Kurssilainen-olio](kurssilainen-olion) aseman arvot)
+
+
 ### /api/kurssi/:kurssi-id/
 #### GET
 ##### Lähetä:

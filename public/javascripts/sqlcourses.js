@@ -10,6 +10,11 @@ module.exports = {
     return connection.query('SELECT id, nimi FROM core.kurssi', []);
   },
 
+  getAllCoursesWithUser: function(userid) {
+    const query = 'SELECT kurssi, asema FROM core.kurssinosallistujat WHERE profiili=$1'
+    return connection.query(query, [userid]);
+  },
+
   getCourseInfo: function(courseId) {
     const query = 'SELECT id, nimi FROM core.kurssi WHERE id=$1';
     return connection.queryOne(query, [courseId]);
