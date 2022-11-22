@@ -44,7 +44,7 @@ module.exports = {
                         }
                     });
                 } else {
-                    reject(1003);
+                    reject(1002);
                 }
             });
         });
