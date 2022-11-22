@@ -14,7 +14,7 @@ module.exports = {
                 let fronttunnus = crypto.randomUUID();
                 resolve({cc: codeChallenge, lid: loginid, fcode: fronttunnus})
             } else {
-                reject(500);
+                reject(1001);
             }
         }).then((data) => {
             return sql.users.createLoginUrl(data.lid, data.cc, data.fcode);
@@ -35,16 +35,16 @@ module.exports = {
                                     if (attemptData.length === 1) {
                                         resolve({success: true, 'login-code': attemptData[0].fronttunnus});
                                     } else {
-                                        reject(403);
+                                        reject(1003);
                                     }
                                 });
                             });
                         } else {
-                            reject(403)
+                            reject(1003)
                         }
                     });
                 } else {
-                    reject(500);
+                    reject(1003);
                 }
             });
         });
@@ -60,7 +60,7 @@ module.exports = {
                         resolve(sessionData);
                     });
                 } else {
-                    reject(403);
+                    reject(1003);
                 }
             })
             .catch((error) => {
@@ -85,7 +85,7 @@ module.exports = {
     authenticatedUser: function(httpRequest) {
         var sessionid = httpRequest.header('session-id');
         if (sessionid == undefined) {
-            return Promise.reject(300);
+            return Promise.reject(3000);
         }
 
         return sql.users.userIdForSession(sessionid)
@@ -93,7 +93,7 @@ module.exports = {
             if (userids.length == 1) {
                 return userids[0].profiili;
             } else {
-                return Promise.reject(100);
+                return Promise.reject(1000);
             }
         });
     }

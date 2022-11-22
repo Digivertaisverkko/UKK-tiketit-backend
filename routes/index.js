@@ -146,7 +146,7 @@ router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
     } else if (userdata != undefined) {
       return sql.tickets.getAllMyTickets(req.params.courseid, userdata.id);
     } else {
-      return Promise.reject(103);
+      return Promise.reject(1003);
     }
   })
   .then((ticketdata) => {
@@ -205,7 +205,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     if (data.length == 1) {
       res.send(data[0]);
     } else {
-      Promise.reject(304);
+      Promise.reject(3004);
     }
   })
   .catch((error) => {
@@ -348,7 +348,7 @@ router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) 
     if (tickedIdRows.length > 0) {
       return sql.courses.getFieldsOfTicketBase(tickedIdRows[0].id);
     } else {
-      return Promise.reject(200);
+      return Promise.reject(2000);
     }
   })
   .then((sqldata) => {
@@ -379,7 +379,7 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
       });
       Promise.all(promises)
       .then(() => resolve(ticketid))
-      .catch(() => reject(304));
+      .catch(() => reject(3004));
     });
   })
   .then((ticketid) => {

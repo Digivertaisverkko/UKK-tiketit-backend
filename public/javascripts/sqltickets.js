@@ -27,7 +27,7 @@ module.exports = {
             });
         }
     })
-    .catch(() => Promise.reject(103));
+    .catch(() => Promise.reject(1003));
   },
 
   getAllMyTickets: function(courseId, userId) {
@@ -99,7 +99,7 @@ module.exports = {
         .then(() => resolve())
         .catch((error) => { reject(error); });
       } else {
-        reject(300);
+        reject(3000);
       }
     });
   },
