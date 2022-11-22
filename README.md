@@ -141,11 +141,12 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ##### Vastaus:
 ```
 [{
-  kurssi: $string
+  kurssi: $int (viittaa kurssin id:hen)
   asema: $string
 }]
 ```
 (ks. [Kurssilainen-olio](kurssilainen-olion) aseman arvot)
+
 
 
 ### /api/kurssi/:kurssi-id/
