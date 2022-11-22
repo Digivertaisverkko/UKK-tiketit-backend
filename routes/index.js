@@ -117,7 +117,7 @@ router.get('/api/kurssi/omatkurssit', function(req, res, next) {
   .catch((error) => {
     res.send(errorFactory.createError(error));
   })
-}),
+});
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
   auth.authenticatedUser(req)
