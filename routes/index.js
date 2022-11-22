@@ -106,6 +106,19 @@ router.get('/api/hash/:password', function(req, res) {
   res.send(array);
 });
 
+router.get('/api/kurssi/omatkurssit', function(req, res, next) {
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.courses.getAllCoursesWithUser(userid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(error));
+  })
+}),
+
 router.get('/api/kurssi/:courseid', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
