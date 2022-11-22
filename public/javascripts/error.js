@@ -16,7 +16,6 @@ A-luokat:
 1010 - Luotava tili on jo olemassa
 
 
-
 2 - SQL-ongelmat
 2000 - Tuloksia ei löytynyt
 
@@ -24,7 +23,6 @@ A-luokat:
 3 - Liikenneongelmat
 3000 - Väärät parametrit
 3004 - Joku meni vikaan
-
 
 */
 

@@ -490,16 +490,19 @@ virhetilojen sattuessa tietokanta lähettää viestin, jossa on success=false ja
 {
   tunnus: $int
   virheilmoitus: $string
+  (originaali: $string)
 }
 ```
 
 tunnus on numeraalinen kuvaus tavatusta ongelmasta, ja virheilmoitus on ihmisymmärrettävä ja helpommin luettava teksti samasta asiasta. Virheilmoitus on aina sama per tunnus.
 
+originaali sisällytettään viestiin vain, kun tunnuksena on 3004. Se sisältää alkuperäisen virheilmoituksen, jonka joku käytetty kirjasto lähetti, ja jota ei saatu kiinni ennen pyyntöön vastausta. Jossain harvoissa tapauksissa originaalin sisältö voi olla myös 3004, jos rajapinta on itse halunnut lähettää virheen tunnuksella 3004.
+
 ### Tunnukset
 
-Rakenne samanlainen kuin HTTP:ssä, eli koodin on muotoa ABB.
+Rakenne samantapainen kuin HTTP:ssä, eli koodin on muotoa ABBB.
 A - ylätason tunniste
-BB - tarkentava koodi
+BBB - tarkentava koodi
 
 #### A-luokat:
 ##### 1 - Kirjautumisongelmat
