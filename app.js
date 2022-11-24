@@ -1,3 +1,5 @@
+var dotenv = require('dotenv').config()
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -50,12 +52,12 @@ const setupLti = async () => {
 
   // Register platform
   await lti.registerPlatform({
-    url: 'http://localhost/moodle',
+    url: process.env.LTI_PLAT_URL,
     name: 'Platform',
-    clientId: 'dKxA5MpPAMAIvVd',
-    authenticationEndpoint: 'http://localhost/moodle/mod/lti/auth.php',
-    accesstokenEndpoint: 'http://localhost/moodle/mod/lti/token.php',
-    authConfig: { method: 'JWK_SET', key: 'http://localhost/moodle/mod/lti/certs.php' }
+    clientId: process.env.LTI_PLAT_CLIENTID,
+    authenticationEndpoint: process.env.LTI_PLAT_AUTH_ENDPOINT,
+    accesstokenEndpoint: process.env.LTI_PLAT_TOKEN_ENDPOINT,
+    authConfig: { method: 'JWK_SET', key: process.env.LTI_PLAT_CERTS }
   });
 
   // Redirect to app after succesful connections
