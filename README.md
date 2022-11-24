@@ -53,6 +53,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 {
   ktunnus: $string
   salasana: $string
+  sposti: $string
 }
 ```
 ##### Vastaus: 
@@ -126,6 +127,26 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
   id: $int
 }]
 ```
+
+
+### /api/kurssi/omatkurssit/
+#### GET
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+##### Vastaus:
+```
+[{
+  kurssi: $int (viittaa kurssin id:hen)
+  asema: $string
+}]
+```
+(ks. [Kurssilainen-olio](kurssilainen-olion) aseman arvot)
+
 
 
 ### /api/kurssi/:kurssi-id/
@@ -469,35 +490,39 @@ virhetilojen sattuessa tietokanta lähettää viestin, jossa on success=false ja
 {
   tunnus: $int
   virheilmoitus: $string
+  (originaali: $string)
 }
 ```
 
 tunnus on numeraalinen kuvaus tavatusta ongelmasta, ja virheilmoitus on ihmisymmärrettävä ja helpommin luettava teksti samasta asiasta. Virheilmoitus on aina sama per tunnus.
 
+originaali sisällytettään viestiin vain, kun tunnuksena on 3004. Se sisältää alkuperäisen virheilmoituksen, jonka joku käytetty kirjasto lähetti, ja jota ei saatu kiinni ennen pyyntöön vastausta. Jossain harvoissa tapauksissa originaalin sisältö voi olla myös 3004, jos rajapinta on itse halunnut lähettää virheen tunnuksella 3004.
+
 ### Tunnukset
 
-Rakenne samanlainen kuin HTTP:ssä, eli koodin on muotoa ABB.
+Rakenne samantapainen kuin HTTP:ssä, eli koodin on muotoa ABBB.
 A - ylätason tunniste
-BB - tarkentava koodi
+BBB - tarkentava koodi
 
 #### A-luokat:
 ##### 1 - Kirjautumisongelmat
 ``` 
-100 - Et ole kirjautunut
-101 - Kirjautumispalveluun ei saatu yhteyttä
-102 - Väärä käyttäjätunnus tai salasana
-103 - Ei oikeuksia
+1000 - Et ole kirjautunut
+1001 - Kirjautumispalveluun ei saatu yhteyttä
+1002 - Väärä käyttäjätunnus tai salasana
+1003 - Ei oikeuksia
+1010 - Luotava tili on jo olemassa
 ```
 
 
 ##### 2 - SQL-ongelmat
 ```
-200 - Ei löytynyt.
+2000 - Ei löytynyt.
 ```
 
 
 ##### 3 - Liikenneongelmat
 ```
-300 - Väärät parametrit
-304 - Joku meni vikaan
+3000 - Väärät parametrit
+3004 - Joku meni vikaan
 ```

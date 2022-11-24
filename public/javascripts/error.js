@@ -9,20 +9,20 @@ BB - tarkentava koodi
 
 A-luokat:
 1 - Kirjautumisongelmat 
-100 - Et ole kirjautunut
-101 - Kirjautumispalveluun ei saatu yhteyttä
-102 - Väärä käyttäjätunnus tai salasana
-
+1000 - Et ole kirjautunut
+1001 - Kirjautumispalveluun ei saatu yhteyttä
+1002 - Väärä käyttäjätunnus tai salasana
+1003 - Ei oikeuksia.
+1010 - Luotava tili on jo olemassa
 
 
 2 - SQL-ongelmat
-200 - Tuloksia ei löytynyt
+2000 - Tuloksia ei löytynyt
 
 
 3 - Liikenneongelmat
-300 - Väärät parametrit
-304 - Joku meni vikaan
-
+3000 - Väärät parametrit
+3004 - Joku meni vikaan
 
 */
 
@@ -36,26 +36,31 @@ module.exports = {
         e.error.tunnus = errorid;
 
         switch (errorid) {
-            case 100:
+            case 1000:
                 e.error.virheilmoitus = "Et ole kirjautunut.";
                 break;
-            case 101:
+            case 1001:
                 e.error.virheilmoitus = "Kirjautumispalveluun ei saatu yhteyttä.";
                 break;
-            case 102:
+            case 1002:
                 e.error.virheilmoitus = "Väärä käyttäjätunnus tai salasana."
                 break;
-            case 103:
+            case 1003:
                 e.error.virheilmoitus = "Ei tarvittavia oikeuksia.";
                 break;
-            case 200:
+            case 1010:
+                e.error.virheilmoitus = "Luotava tili on jo olemassa."
+                break;
+            case 2000:
                 e.error.virheilmoitus = "Tuloksia ei löytynyt.";
                 break;
-            case 300:
+            case 3000:
                 e.error.virheilmoitus = "Virheelliset parametrit.";
                 break;
             default:
+                e.error.tunnus = 3004;
                 e.error.virheilmoitus = "Joku meni vikaan."
+                e.error.originaali = errorid;
                 break;
         }
 

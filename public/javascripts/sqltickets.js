@@ -27,7 +27,7 @@ module.exports = {
             });
         }
     })
-    .catch(() => Promise.reject(103));
+    .catch(() => Promise.reject(1003));
   },
 
   getAllMyTickets: function(courseId, userId) {
@@ -99,7 +99,7 @@ module.exports = {
         .then(() => resolve())
         .catch((error) => { reject(error); });
       } else {
-        reject(300);
+        reject(3000);
       }
     });
   },
@@ -139,12 +139,12 @@ module.exports = {
     const query = '\
     INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
     VALUES ($1, $2, NOW()) \
-    RETURNING id'
+    RETURNING tila'
     return connection.queryOne(query, [ticketid, state]);
   },
 
   setTicketStateIfAble: function(ticketid, newState) {
-    module.exports.getTicketStates([ticketid])
+    return module.exports.getTicketStates([ticketid])
     .then((stateList) => {
       if (stateList.length == 1) {
         let stateObject = stateList[0];

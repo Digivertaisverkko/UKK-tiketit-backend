@@ -65,15 +65,22 @@ module.exports = {
   },
 
 
-  createEmptyUser: function(name) {
-    const query = 'INSERT INTO core.profiili (nimi, sposti) VALUES ($1, "") RETURNING id';
-    return connection.queryOne(query, [name])
+  createEmptyUser: function(name, email) {
+    const query = 'INSERT INTO core.profiili (nimi, sposti) VALUES ($1, $2) RETURNING id';
+    return connection.queryOne(query, [name, email])
     .then((sqldata) => { return sqldata.id });
   },
 
   createAccount: function(username, passwordhash, salt, userid) {
     const query = 'INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ($1, $2, $3, $4)';
-    return connection.queryAll(query, [username, passwordhash, salt, userid]);
+    return connection.queryAll(query, [username, passwordhash, salt, userid])
+    .catch((error) => {
+      if (error.code == '23505') {
+        return Promise.reject(1010);
+      } else {
+        return Promise.reject(error);
+      }
+    });
   },
 
   userIdForSession: function(sessionid) {
