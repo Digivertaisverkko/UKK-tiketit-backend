@@ -1,4 +1,4 @@
-var dotenv = require('dotenv').config()
+var dotenv = require('dotenv').config();
 
 var createError = require('http-errors');
 var express = require('express');
@@ -42,24 +42,24 @@ const setupLti = async () => {
 
   lti.setup('EXAMPLEKEY', { plugin: db }, {
     cookies: {
-      secure: false,
-      sameSite: ''
+      secure: false
     },
-    devMode: true});
+    devMode: true,
+    dynRegRoute: '/register', // Setting up dynamic registration route. Defaults to '/register'
+    dynReg: {
+      url: process.env.LTI_TOOL_URL + '/lti', // Tool Provider URL. Required field.
+      name: 'UKK-tiketit', // Tool Provider name. Required field.
+      logo: '', // Tool Provider logo URL.
+      description: 'Tikettijärjestelmä', // Tool Provider description.
+      redirectUris: [], // Additional redirection URLs. The main URL is added by default.
+      customParameters: {}, // Custom parameters.
+      autoActivate: true // Whether or not dynamically registered Platforms should be automatically activated. Defaults to false.
+    }
+  });
 
   // Start LTI provider in serverless mode
   await lti.deploy({ serverless: true });
-
-  // Register platform
-  await lti.registerPlatform({
-    url: process.env.LTI_PLAT_URL,
-    name: 'Platform',
-    clientId: process.env.LTI_PLAT_CLIENTID,
-    authenticationEndpoint: process.env.LTI_PLAT_AUTH_ENDPOINT,
-    accesstokenEndpoint: process.env.LTI_PLAT_TOKEN_ENDPOINT,
-    authConfig: { method: 'JWK_SET', key: process.env.LTI_PLAT_CERTS }
-  });
-
+  
   // Redirect to app after succesful connections
   lti.onConnect(async (token, req, res) => {
     return lti.redirect(res, 'http://localhost:4200');

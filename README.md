@@ -9,7 +9,7 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 
 - ```cp .env.example .env```
 
-- Aseta vaadittavat ympäristömuuttujat .env tiedostoon. LTI 1.3 konfigurointiin vaadittavat parametrit haetaan LMS:stä, johon tämä työkalu upotetaan. Moodlen kohdalla voi seurata esimerkiksi tätä ohjetta ulkoisen työkalun integroimisessa ja kyseisten parametrien löytämisestä: https://mhe.my.site.com/macmillanlearning/s/article/Administrator-guide-to-LTI-Advantage-LTI-1-3-integration-with-Moodle
+- Aseta vaadittavat ympäristömuuttujat .env tiedostoon.
 
 ```
 PGHOST=[PostgreSQL instanssin osoite]
@@ -19,16 +19,25 @@ PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
 PGPASSWORD=[PostgreSQL käyttäjän salasana]
 LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
 LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
-LTI_PLAT_URL=[LMS:n URL]
-LTI_PLAT_CLIENTID=[LMS:n Client ID]
-LTI_PLAT_AUTH_ENDPOINT=[LMS:n Authentication Request URL]
-LTI_PLAT_TOKEN_ENDPOINT=[LMS:n Access token URL]
-LTI_PLAT_CERTS=[LMS:n Public keyset URL]
+LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
 ```
 
 - Aja komento ```npm install```
 
 - Aja komento ```node app.js```
+
+Jos tarvitset enemmän debug infoa ltijs:ltä, niin aja seuraava komento:
+```DEBUG='provider:*' node app.js```
+
+## Integroiminen Moodleen
+
+Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen ominaisuus mahdollistaa sen, että ulkoisen työkalun integroiminen Moodleen onnistuu syöttämällä työkalun rekisteröintilinkin Moodleen. Tämä tapahtuu seuraavalla tavalla:
+
+- Mene Moodlessa Admin käyttäjänä ```Site administration / Plugins / Activity modules / External tool / Manage tools```.
+- Syötä työkalun rekisteröintilinkki ```Tool URL...``` laatikkoon. Esimerkiksi: ```http://localhost:3000/lti/register```.
+- Paina ```Add LTI Advantage``` nappia ja odota, että palaat hetken päästä takaisin samaan näkymään.
+- Työkalu ei aktivoidu automaattisesti Moodlessa. Eli paina ```Activate``` nappia alempana ```UKK-Tiketit``` työkalun laatikossa.
+- Lisää ulkoinen työkalu haluamallesi paikalle kurssialueella ja testaa toimivuus.
 
 
 # REST-rajapinnan määritelmä
