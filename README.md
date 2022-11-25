@@ -3,6 +3,27 @@
 Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen MySQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
 
+# Backendin ajaminen
+
+- Lataa tai kloonaa tämä repo
+
+- ```cp .env.example .env```
+
+- Aseta vaadittavat ympäristömuuttujat .env tiedostoon
+
+```
+PGHOST=[PostgreSQL instanssin osoite]
+PGPORT=[PostgreSQL instanssin portti]
+PGDATABASE=[PostgreSQL tietokannan nimi]
+PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
+PGPASSWORD=[PostgreSQL käyttäjän salasana]
+```
+
+- Aja komento ```npm install```
+
+- Aja komento ```node app.js```
+
+
 # REST-rajapinnan määritelmä
 
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
