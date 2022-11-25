@@ -3,6 +3,34 @@
 Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen MySQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
 
+# Backendin ajaminen
+
+- Lataa tai kloonaa tämä repo
+
+- ```cp .env.example .env```
+
+- Aseta vaadittavat ympäristömuuttujat .env tiedostoon. LTI 1.3 konfigurointiin vaadittavat parametrit haetaan LMS:stä, johon tämä työkalu upotetaan. Moodlen kohdalla voi seurata esimerkiksi tätä ohjetta ulkoisen työkalun integroimisessa ja kyseisten parametrien löytämisestä: https://mhe.my.site.com/macmillanlearning/s/article/Administrator-guide-to-LTI-Advantage-LTI-1-3-integration-with-Moodle
+
+```
+PGHOST=[PostgreSQL instanssin osoite]
+PGPORT=[PostgreSQL instanssin portti]
+PGDATABASE=[PostgreSQL tietokannan nimi]
+PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
+PGPASSWORD=[PostgreSQL käyttäjän salasana]
+LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
+LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
+LTI_PLAT_URL=[LMS:n URL]
+LTI_PLAT_CLIENTID=[LMS:n Client ID]
+LTI_PLAT_AUTH_ENDPOINT=[LMS:n Authentication Request URL]
+LTI_PLAT_TOKEN_ENDPOINT=[LMS:n Access token URL]
+LTI_PLAT_CERTS=[LMS:n Public keyset URL]
+```
+
+- Aja komento ```npm install```
+
+- Aja komento ```node app.js```
+
+
 # REST-rajapinnan määritelmä
 
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
