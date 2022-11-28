@@ -277,7 +277,8 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     })
     .then((userinfo) => {
       if (userinfo.asema == 'opettaja') {
-        return sql.tickets.setTicketStateIfAble(req.params.ticketid, 4);
+        let state = req.params.tila || 4
+        return sql.tickets.setTicketStateIfAble(req.params.ticketid, state);
       } else if (userinfo.asema == 'opiskelija') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
       } else {
