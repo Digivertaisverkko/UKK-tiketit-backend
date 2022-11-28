@@ -265,17 +265,22 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   sanitizer.hasRequiredParameters(req, ['viesti'])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
+    console.log("piip1")
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
   .then((userid) => {
+    console.log("piip2")
     storeduserid = userid;
   })
   .then(() => {
+    console.log("piip3")
     return sql.tickets.getTicket(req.params.ticketid)
     .then((ticketdata) => {
+      console.log("piip4")
         return sql.courses.getUserInfoForCourse(storeduserid, ticketdata.kurssi);
     })
     .then((userinfo) => {
+      console.log("piip5")
       if (userinfo.asema == 'opettaja') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 4);
       } else if (userinfo.asema == 'opiskelija' || userinfo.asema == 'oppilas') { 
@@ -287,10 +292,12 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     });
   })
   .then((state) => {
+    console.log("piip6 " + state)
     //TODO: Tallenna kommenttiin oikea tiketin tila (se mihin tiketin tila vaihtuu kommentin myötä.)
-    return sql.tickets.createComment(req.params.ticketid, userid, req.body.viesti, state);
+    return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, state);
   })
   .then(() => {
+    console.log("piip7")
     res.send({success: true});
   })
   .catch((error) => {
