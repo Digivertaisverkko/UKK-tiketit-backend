@@ -278,8 +278,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     .then((userinfo) => {
       if (userinfo.asema == 'opettaja') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 4);
-      } else if (userinfo.asema == 'opiskelija' || userinfo.asema == 'oppilas') { 
-        //TODO: poista oppilas-sanan tarkistus, kun kaikilla on päivitetty versio sample_datasta.
+      } else if (userinfo.asema == 'opiskelija') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
       } else {
         return Promise.reject(userinfo.asema);
