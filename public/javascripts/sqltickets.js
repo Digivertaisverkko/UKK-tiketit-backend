@@ -153,9 +153,7 @@ module.exports = {
         if (newState == oldState) {
           return oldState;
         } else if (newState == 1) {
-          if (oldState == 2) {
-            return oldState;
-          }
+          //Päästä läpi
         } else if (newState == 2) {
           if (oldState != 1) {
             return oldState;
@@ -165,9 +163,7 @@ module.exports = {
             return oldState;
           }
         } else if (newState == 6) {
-          if (oldState == 1 || oldState == 2) {
-            return oldState;
-          }
+          //Päästä läpi
         } else {
           return oldState;
         }
