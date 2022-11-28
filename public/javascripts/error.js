@@ -29,42 +29,52 @@ A-luokat:
 
 module.exports = {
 
-    createError: function(errorid) {
+    createError: function(res, errorid) {
         var e = new Object;
         e.success = false;
         e.error = new Object();
         e.error.tunnus = errorid;
 
+        var status = 318;
+
         switch (errorid) {
             case 1000:
                 e.error.virheilmoitus = "Et ole kirjautunut.";
+                status = 403
                 break;
             case 1001:
                 e.error.virheilmoitus = "Kirjautumispalveluun ei saatu yhteyttä.";
+                status = 503
                 break;
             case 1002:
                 e.error.virheilmoitus = "Väärä käyttäjätunnus tai salasana."
+                status = 403
                 break;
             case 1003:
                 e.error.virheilmoitus = "Ei tarvittavia oikeuksia.";
+                status = 403
                 break;
             case 1010:
                 e.error.virheilmoitus = "Luotava tili on jo olemassa."
+                status = 500
                 break;
             case 2000:
                 e.error.virheilmoitus = "Tuloksia ei löytynyt.";
+                status = 204
                 break;
             case 3000:
                 e.error.virheilmoitus = "Virheelliset parametrit.";
+                status = 400
                 break;
             default:
                 e.error.tunnus = 3004;
                 e.error.virheilmoitus = "Joku meni vikaan."
                 e.error.originaali = errorid;
+                status = 500
                 break;
         }
 
 
-        return e;
+        res.status(status).send(e)
     }
 };
