@@ -35,7 +35,7 @@ module.exports = {
         e.error = new Object();
         e.error.tunnus = errorid;
 
-        var status = 318;
+        var status = 418;
 
         switch (errorid) {
             case 1000:
