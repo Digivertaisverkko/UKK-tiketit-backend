@@ -199,20 +199,16 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
+  .then((access) => {
+    if (access.asema == 'opettaja') {
+      return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
+    }
+  })
   .then(() => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticketdata) => {
     return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
-    .then((data) => {
-      if (data.asema == 'opettaja') {
-        return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
-        .then(() => {
-          return data;
-        });
-      }
-      return data;
-    })
   })
   .then((data) => {
     if (data.length == 1) {
