@@ -226,17 +226,6 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 [Kurssilainen-olio](#kurssilainen-olio)
 
-Tila voidaan toteuttaa myöhemmin.
-
-*Tila* on numeerinen tunnus viestin tilalle: 
-- 0 virhetila 
-- 1 lähetty 
-- 2 luettu 
-- 3 lisätietoa pyydetty 
-- 4 kommentoitu 
-- 5 ratkaistu 
-- 6 arkistoitu 
-
 
 
 ### /api/kurssi/:kurssi-id/ukk/
@@ -432,7 +421,8 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   kurssi: $int
 }
 ```
-[Kurssilainen-olio](#kurssilainen-olio)
+[Kurssilainen-olio](#kurssilainen-olio)<br>
+[Tila](#tiketin-tila)<br>
 **TODO:** Liiteet? 
 
 
@@ -467,6 +457,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 - body -
 {
   viesti: $string
+  tila: $int (valinnainen)
 }
 ```
 ##### Vastaus:
@@ -476,6 +467,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   success: true
 }
 ```
+[*tila*-muuttuja](#tiketin-tila) on tarpeellinen vain opettajan laittamissa viesteissä, ja muissa se ei edes tee mitään. Jos tilaa ei määritellä, niin oletetaan sen olevan **4** (kommentti). 
 
 
 ### /api/tiketti/:tiketti-id/kommentit/
@@ -495,12 +487,12 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   teksti: $string 
 }] 
 ```
-Edellä *tila* vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.
+Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.<br>
 [Kurssilainen-olio](#kurssilainen-olio)
 
 
 
-# Erikoisoliot
+# Erikoisarvot
 ## Kurssilainen-olio
 Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäjän tietoja. Kaikki palauttavat samanlaisen.
 ### Muoto
@@ -513,16 +505,28 @@ Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäj
 }
 ```
 
-asema-kentän arvoina voi olla:
+*asema*-kentän arvoina voi olla:
 - opettaja
 - opiskelija
 - admin
+
+## Tiketin tila
+Kaikilla tiketeillä on *tila*, joka esitetään numeerisena arvona välillä 1-6. Kaikki muut ovat virhetiloja, mutta rajapinta palauttaa *tilaksi* 0, jos sen hakemisessa esiintyy jotain häikkää.
+
+*Tilan* mahdolliset arvot: 
+- 0 virhetila 
+- 1 lähetty 
+- 2 luettu 
+- 3 lisätietoa pyydetty 
+- 4 kommentoitu 
+- 5 ratkaistu 
+- 6 arkistoitu 
 
 
 # Virhetilat
 ## Error-olio
 ### Muoto
-virhetilojen sattuessa tietokanta lähettää viestin, jossa on success=false ja error=$error-olio. Error olio on seuraavanlainen json-objecti:
+Virhetilojen sattuessa tietokanta lähettää viestin, jossa on success=false ja error=$error-olio. Error olio on seuraavanlainen json-objecti:
 ```
 {
   tunnus: $int
@@ -531,9 +535,9 @@ virhetilojen sattuessa tietokanta lähettää viestin, jossa on success=false ja
 }
 ```
 
-tunnus on numeraalinen kuvaus tavatusta ongelmasta, ja virheilmoitus on ihmisymmärrettävä ja helpommin luettava teksti samasta asiasta. Virheilmoitus on aina sama per tunnus.
+*tunnus* on numeraalinen kuvaus tavatusta ongelmasta, ja *virheilmoitus* on ihmisymmärrettävä ja helpommin luettava teksti samasta asiasta. *Virheilmoitus* on aina sama jokaiselle *tunnukselle*.
 
-originaali sisällytettään viestiin vain, kun tunnuksena on 3004. Se sisältää alkuperäisen virheilmoituksen, jonka joku käytetty kirjasto lähetti, ja jota ei saatu kiinni ennen pyyntöön vastausta. Jossain harvoissa tapauksissa originaalin sisältö voi olla myös 3004, jos rajapinta on itse halunnut lähettää virheen tunnuksella 3004.
+*originaali* sisällytettään viestiin vain, kun tunnuksena on **3004**. Se sisältää alkuperäisen virheilmoituksen, jonka joku käytetty kirjasto lähetti, ja jota ei saatu kiinni ennen pyyntöön vastausta. Jossain harvoissa tapauksissa originaalin sisältö voi olla myös **3004**, jos rajapinta on itse halunnut lähettää virheen tunnuksella **3004**.
 
 ### Tunnukset
 

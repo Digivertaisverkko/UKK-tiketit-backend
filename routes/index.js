@@ -277,9 +277,9 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     })
     .then((userinfo) => {
       if (userinfo.asema == 'opettaja') {
-        return sql.tickets.setTicketStateIfAble(req.params.ticketid, 4);
-      } else if (userinfo.asema == 'opiskelija' || userinfo.asema == 'oppilas') { 
-        //TODO: poista oppilas-sanan tarkistus, kun kaikilla on päivitetty versio sample_datasta.
+        let state = req.params.tila || 4
+        return sql.tickets.setTicketStateIfAble(req.params.ticketid, state);
+      } else if (userinfo.asema == 'opiskelija') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
       } else {
         return Promise.reject(userinfo.asema);
@@ -287,8 +287,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     });
   })
   .then((state) => {
-    //TODO: Tallenna kommenttiin oikea tiketin tila (se mihin tiketin tila vaihtuu kommentin myötä.)
-    return sql.tickets.createComment(req.params.ticketid, userid, req.body.viesti, state);
+    return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, state);
   })
   .then(() => {
     res.send({success: true});

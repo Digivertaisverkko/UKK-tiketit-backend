@@ -151,25 +151,21 @@ module.exports = {
         let oldState = stateObject.tila;
 
         if (newState == oldState) {
-          return;
+          return oldState;
         } else if (newState == 1) {
-          if (oldState == 2) {
-            return;
-          }
+          //Päästä läpi
         } else if (newState == 2) {
           if (oldState != 1) {
-            return;
+            return oldState;
           }
         } else if (newState == 3 || newState == 4 || newState == 5) {
           if (oldState != 2) {
-            return;
+            return oldState;
           }
         } else if (newState == 6) {
-          if (oldState == 1 || oldState == 2) {
-            return;
-          }
+          //Päästä läpi
         } else {
-          return;
+          return oldState;
         }
 
         return module.exports.setTicketState(ticketid, newState);
