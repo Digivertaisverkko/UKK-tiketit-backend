@@ -9,18 +9,20 @@ const con = connection.getConnection();
 module.exports = {
  
   hasAccess: function(userid, ticketid) {
+    let storedData;
     const query = 'SELECT aloittaja, kurssi \
     FROM core.tiketti \
     WHERE id=$1';
     return connection.queryOne(query, [ticketid])
     .then((data) => {
+      storedData = data;
       const query2 = '\
       SELECT profiili, asema FROM core.kurssinosallistujat \
       WHERE kurssi=$1 AND profiili=$2';
       return connection.queryOne(query2, [data.kurssi, userid]);
     })
-    .then((result) => { 
-      if (result.asema == 'opettaja' || data.aloittaja == userid) {
+    .then((result) => {
+      if (result.asema == 'opettaja' || storedData.aloittaja == userid) {
         return result;
       } else {
         return Promise.reject(1003)

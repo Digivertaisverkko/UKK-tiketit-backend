@@ -244,7 +244,7 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
-  .then((userid) => {
+  .then((access) => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticket) => {
@@ -267,8 +267,8 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
-  .then((userid) => {
-    storeduserid = userid;
+  .then((access) => {
+    storeduserid = access.profiili;
   })
   .then(() => {
     return sql.tickets.getTicket(req.params.ticketid)
