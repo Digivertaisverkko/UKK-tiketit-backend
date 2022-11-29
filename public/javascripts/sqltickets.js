@@ -12,20 +12,19 @@ module.exports = {
     const query = 'SELECT aloittaja, kurssi \
     FROM core.tiketti \
     WHERE id=$1';
-      return connection.queryOne(query, [ticketid])
-      .then((data) => {
-        if (data.aloittaja == userid) {
-            return Promise.resolve(data.aloittaja);
-        } else {
-            //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
-            const query2 = '\
-            SELECT profiili FROM core.kurssinosallistujat \
-            WHERE kurssi=$1 AND asema=$2 AND profiili=$3';
-            return connection.queryOne(query2, [data.kurssi, 'opettaja', userid])
-            .then(() => { 
-              return userid;
-            });
-        }
+    return connection.queryOne(query, [ticketid])
+    .then((data) => {
+      const query2 = '\
+      SELECT profiili, asema FROM core.kurssinosallistujat \
+      WHERE kurssi=$1 AND profiili=$2';
+      return connection.queryOne(query2, [data.kurssi, userid]);
+    })
+    .then((result) => { 
+      if (result.asema == 'opettaja' || data.aloittaja == userid) {
+        return result;
+      } else {
+        return Promise.reject(1003)
+      }
     })
     .catch(() => Promise.reject(1003));
   },
