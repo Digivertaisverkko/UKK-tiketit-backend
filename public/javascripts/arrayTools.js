@@ -5,7 +5,7 @@
 module.exports = {
 
     /**
-     * Yhdistää kaksi taulukkoa siten, että ensimmäisen taulukon solun olion arvon toisen taulukon solun oliolla.
+     * Yhdistää kaksi taulukkoa siten, että ensimmäisen taulukon solun olion arvo korvataan toisen taulukon solun oliolla.
      * Yhdistysehtona ensimmäisen taulukon solun olion arvon täytyy mätsätä jonkin toisen taulukon solun olion arvon kanssa.
      * Jos toisesta taulusta ei löydy oliota, joka vastaisi ensimmäisen taulun arvoon, ensimmäinen taulu pitää muotonsa.
      * 
