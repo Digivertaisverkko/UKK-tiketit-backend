@@ -169,7 +169,10 @@ module.exports = {
           return oldState;
         }
 
-        return module.exports.setTicketState(ticketid, newState);
+        return module.exports.setTicketState(ticketid, newState)
+        .then((data) => {
+          return data.tila;
+        });
       }
     });
   }
