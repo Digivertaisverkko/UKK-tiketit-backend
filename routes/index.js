@@ -292,10 +292,8 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
         return sql.courses.getUserInfoForCourse(storeduserid, ticketdata.kurssi);
     })
     .then((userinfo) => {
-      console.log("kommentti1 " + userinfo.asema)
       if (userinfo.asema == 'opettaja') {
         let state = req.body.tila || 4
-        console.log("kommentti2 " + req.body.tila + " : " + state)
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, state);
       } else if (userinfo.asema == 'opiskelija') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
@@ -305,7 +303,6 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     });
   })
   .then((state) => {
-    console.log("kommentti2 " + state)
     return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, state);
   })
   .then(() => {
