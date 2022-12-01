@@ -56,7 +56,7 @@ module.exports = {
 
   getTicket: function(messageId) {
     const query = '\
-    SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi FROM core.tiketti t \
+    SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi, ukk FROM core.tiketti t \
     INNER JOIN (SELECT tiketti, tila FROM core.tiketintila WHERE tiketti=$1 ORDER BY aikaleima DESC LIMIT 1) tt \
     ON t.id = tt.tiketti \
     WHERE t.id=$1';
