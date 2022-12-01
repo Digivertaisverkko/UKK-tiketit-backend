@@ -225,9 +225,8 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 [{
   id: $int
   otsikko: $string
-  pvm: $string
+  aikaleima: $string
   tyyppi: $string
-  tehtava: $string
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
