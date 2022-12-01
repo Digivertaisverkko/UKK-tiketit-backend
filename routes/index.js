@@ -170,14 +170,15 @@ router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
-  //TODO: ukk-toteutus
-    var array = [4];
-    array[0] = {nimi: '”Index out of bounds”?', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '16.9.2023'};
-    array[1] = {nimi: 'Ohjelma tulostaa numeroita kirjainten sijasta!', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '17.9.2023'};
-    array[2] = {nimi: 'Tehtävänannossa ollut linkki ei vie mihinkään', tyyppi: "Kurssitieto", tehtava: "Tehtävä 3", pvm: '23.9.2023'};
-    array[3] = {nimi: '”} Expected”?', tyyppi: "Ongelma", tehtava: "Tehtävä 4", pvm: '30.9.2023'};
-  
-    res.json(array);
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.tickets.getFaqTickets(req.params.courseid)
+  })
+  .then((ticketData) => {
+    return splicer.insertTicketFieldsToIdReferences(ticketData, 'id')
+  })
+  .then((data) => res.send(data) )
+  .catch((error) => errorFactory.createError(res, error) );
 });
 
 router.get('/api/kurssit/', function(req, res, next) {
