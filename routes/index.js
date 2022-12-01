@@ -286,6 +286,9 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   .then(() => {
     return sql.tickets.getTicket(req.params.ticketid)
     .then((ticketdata) => {
+        if (ticketdata.ukk == true) {
+          return Promise.reject(1003);
+        }
         return sql.courses.getUserInfoForCourse(storeduserid, ticketdata.kurssi);
     })
     .then((userinfo) => {
