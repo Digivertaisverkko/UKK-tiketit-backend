@@ -199,20 +199,16 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
+  .then((access) => {
+    if (access.asema == 'opettaja') {
+      return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
+    }
+  })
   .then(() => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticketdata) => {
     return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
-    .then((data) => {
-      if (data.asema == 'opettaja') {
-        return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
-        .then(() => {
-          return data;
-        });
-      }
-      return data;
-    })
   })
   .then((data) => {
     if (data.length == 1) {
@@ -244,7 +240,7 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
-  .then((userid) => {
+  .then((access) => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticket) => {
@@ -267,8 +263,8 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
   })
-  .then((userid) => {
-    storeduserid = userid;
+  .then((access) => {
+    storeduserid = access.profiili;
   })
   .then(() => {
     return sql.tickets.getTicket(req.params.ticketid)
@@ -276,8 +272,10 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
         return sql.courses.getUserInfoForCourse(storeduserid, ticketdata.kurssi);
     })
     .then((userinfo) => {
+      console.log("kommentti1 " + userinfo.asema)
       if (userinfo.asema == 'opettaja') {
-        let state = req.params.tila || 4
+        let state = req.body.tila || 4
+        console.log("kommentti2 " + req.body.tila + " : " + state)
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, state);
       } else if (userinfo.asema == 'opiskelija') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
@@ -287,6 +285,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     });
   })
   .then((state) => {
+    console.log("kommentti2 " + state)
     return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, state);
   })
   .then(() => {

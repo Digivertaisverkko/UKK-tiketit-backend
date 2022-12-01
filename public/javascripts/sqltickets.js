@@ -9,23 +9,24 @@ const con = connection.getConnection();
 module.exports = {
  
   hasAccess: function(userid, ticketid) {
+    let storedData;
     const query = 'SELECT aloittaja, kurssi \
     FROM core.tiketti \
     WHERE id=$1';
-      return connection.queryOne(query, [ticketid])
-      .then((data) => {
-        if (data.aloittaja == userid) {
-            return Promise.resolve(data.aloittaja);
-        } else {
-            //Kurssin opettajillakin pitäisi olla oikeus lukea tikettejä.
-            const query2 = '\
-            SELECT profiili FROM core.kurssinosallistujat \
-            WHERE kurssi=$1 AND asema=$2 AND profiili=$3';
-            return connection.queryOne(query2, [data.kurssi, 'opettaja', userid])
-            .then(() => { 
-              return userid;
-            });
-        }
+    return connection.queryOne(query, [ticketid])
+    .then((data) => {
+      storedData = data;
+      const query2 = '\
+      SELECT profiili, asema FROM core.kurssinosallistujat \
+      WHERE kurssi=$1 AND profiili=$2';
+      return connection.queryOne(query2, [data.kurssi, userid]);
+    })
+    .then((result) => {
+      if (result.asema == 'opettaja' || storedData.aloittaja == userid) {
+        return result;
+      } else {
+        return Promise.reject(1003)
+      }
     })
     .catch(() => Promise.reject(1003));
   },
@@ -168,7 +169,10 @@ module.exports = {
           return oldState;
         }
 
-        return module.exports.setTicketState(ticketid, newState);
+        return module.exports.setTicketState(ticketid, newState)
+        .then((data) => {
+          return data.tila;
+        });
       }
     });
   }
