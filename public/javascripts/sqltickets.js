@@ -89,12 +89,12 @@ module.exports = {
 
 
 
-  createTicket: function(courseid, userid, title) {
+  createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
     const query = '\
-    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima) \
-    VALUES ($1, $2, $3, NOW()) \
+    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
+    VALUES ($1, $2, $3, NOW(), $4) \
     RETURNING id';
-    return connection.queryOne(query, [courseid, userid, title])
+    return connection.queryOne(query, [courseid, userid, title, isFaq])
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
         const query = '\
@@ -102,6 +102,21 @@ module.exports = {
         VALUES ($1, 1, NOW())';
         return connection.queryAll(query, [ticketid])
         .then((sqldata) => { return ticketid; });
+    })
+    .then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        var promises = [];
+        fields.forEach(kvp => {
+          promises.push(module.exports.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+        });
+        Promise.all(promises)
+        .then(() => resolve(ticketid))
+        .catch(() => reject(3004));
+      });
+    })
+    .then((ticketid) => {
+      return module.exports.createComment(ticketid, userid, content, 1)
+      .then(() => ticketid );
     });
   },
 

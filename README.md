@@ -230,7 +230,6 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
- 
 
 
 #### POST
@@ -244,6 +243,11 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 {
   otsikko: $string
   viesti: $string
+  kentat: 
+  [{
+    id: $int
+    arvo: $string
+  }]
   vastaus: $string
 } 
 ```
