@@ -177,8 +177,24 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
   .then((ticketData) => {
     return splicer.insertTicketFieldsToIdReferences(ticketData, 'id')
   })
-  .then((data) => res.send(data) )
+  .then((data) => res.send([]) )
   .catch((error) => errorFactory.createError(res, error) );
+});
+
+router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
+  let storedUserId;
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    storedUserId = userid;
+    sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
+  })
+  .then(() => {
+    return sql.tickets.createTicket(req.params.courseid, storedUserId, req.body.otsikko, req.body.kentat, req.body.viesti, true);
+  })
+  .then((ticketid) => {
+    return sql.tickets.createComment(ticketid, storedUserId, req.body.vastaus);
+  })
+  .catch((error) => errorFactory.createError(res, error));
 });
 
 router.get('/api/kurssit/', function(req, res, next) {
@@ -381,22 +397,7 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat'])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
-    storeduserid = userid;
-    return sql.tickets.createTicket(req.params.courseid, userid, req.body.otsikko);
-  })
-  .then((ticketid) => {
-    return new Promise(function(resolve, reject) {
-      var promises = [];
-      req.body.kentat.forEach(kvp => {
-        promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
-      });
-      Promise.all(promises)
-      .then(() => resolve(ticketid))
-      .catch(() => reject(3004));
-    });
-  })
-  .then((ticketid) => {
-    return sql.tickets.createComment(ticketid, storeduserid, req.body.viesti, 1);
+    return sql.tickets.createTicket(req.params.courseid, userid, req.body.otsikko, req.body.kentat, req.body.viesti);
   })
   .then(() => {
     res.send({success: true});
