@@ -177,7 +177,7 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
   .then((ticketData) => {
     return splicer.insertTicketFieldsToIdReferences(ticketData, 'id')
   })
-  .then((data) => res.send([]) )
+  .then((data) => res.send(data) )
   .catch((error) => errorFactory.createError(res, error) );
 });
 
