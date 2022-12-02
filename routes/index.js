@@ -170,14 +170,31 @@ router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
-  //TODO: ukk-toteutus
-    var array = [4];
-    array[0] = {nimi: '”Index out of bounds”?', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '16.9.2023'};
-    array[1] = {nimi: 'Ohjelma tulostaa numeroita kirjainten sijasta!', tyyppi: "Ongelma", tehtava: "Tehtävä 2", pvm: '17.9.2023'};
-    array[2] = {nimi: 'Tehtävänannossa ollut linkki ei vie mihinkään', tyyppi: "Kurssitieto", tehtava: "Tehtävä 3", pvm: '23.9.2023'};
-    array[3] = {nimi: '”} Expected”?', tyyppi: "Ongelma", tehtava: "Tehtävä 4", pvm: '30.9.2023'};
-  
-    res.json(array);
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.tickets.getFaqTickets(req.params.courseid)
+  })
+  .then((ticketData) => {
+    return splicer.insertTicketFieldsToIdReferences(ticketData, 'id')
+  })
+  .then((data) => res.send([]) )
+  .catch((error) => errorFactory.createError(res, error) );
+});
+
+router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
+  let storedUserId;
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    storedUserId = userid;
+    sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
+  })
+  .then(() => {
+    return sql.tickets.createTicket(req.params.courseid, storedUserId, req.body.otsikko, req.body.kentat, req.body.viesti, true);
+  })
+  .then((ticketid) => {
+    return sql.tickets.createComment(ticketid, storedUserId, req.body.vastaus);
+  })
+  .catch((error) => errorFactory.createError(res, error));
 });
 
 router.get('/api/kurssit/', function(req, res, next) {
@@ -269,13 +286,14 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   .then(() => {
     return sql.tickets.getTicket(req.params.ticketid)
     .then((ticketdata) => {
+        if (ticketdata.ukk == true) {
+          return Promise.reject(1003);
+        }
         return sql.courses.getUserInfoForCourse(storeduserid, ticketdata.kurssi);
     })
     .then((userinfo) => {
-      console.log("kommentti1 " + userinfo.asema)
       if (userinfo.asema == 'opettaja') {
         let state = req.body.tila || 4
-        console.log("kommentti2 " + req.body.tila + " : " + state)
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, state);
       } else if (userinfo.asema == 'opiskelija') {
         return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
@@ -285,7 +303,6 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     });
   })
   .then((state) => {
-    console.log("kommentti2 " + state)
     return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, state);
   })
   .then(() => {
@@ -380,22 +397,7 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat'])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
-    storeduserid = userid;
-    return sql.tickets.createTicket(req.params.courseid, userid, req.body.otsikko);
-  })
-  .then((ticketid) => {
-    return new Promise(function(resolve, reject) {
-      var promises = [];
-      req.body.kentat.forEach(kvp => {
-        promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
-      });
-      Promise.all(promises)
-      .then(() => resolve(ticketid))
-      .catch(() => reject(3004));
-    });
-  })
-  .then((ticketid) => {
-    return sql.tickets.createComment(ticketid, storeduserid, req.body.viesti, 1);
+    return sql.tickets.createTicket(req.params.courseid, userid, req.body.otsikko, req.body.kentat, req.body.viesti);
   })
   .then(() => {
     res.send({success: true});

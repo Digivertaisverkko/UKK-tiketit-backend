@@ -34,7 +34,7 @@ module.exports = {
   getAllMyTickets: function(courseId, userId) {
       const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
       FROM core.tiketti \
-      WHERE aloittaja=$1 AND kurssi=$2';
+      WHERE aloittaja=$1 AND kurssi=$2 AND ukk=FALSE';
       return connection.queryAll(query, [userId, courseId])
       .then((ticketdata) => {
         return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
@@ -42,16 +42,21 @@ module.exports = {
     },
   
   getAllTickets: function(courseId) {
-    const query = 'SELECT * FROM core.tiketti WHERE kurssi=$1';
+    const query = 'SELECT * FROM core.tiketti WHERE kurssi=$1 AND ukk=FALSE';
     return connection.queryAll(query, [courseId])
     .then((ticketdata) => {
       return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
     });
   },
 
+  getFaqTickets: function(courseId) {
+    const query = 'SELECT id, otsikko, aikaleima FROM core.tiketti WHERE kurssi=$1 AND ukk=TRUE';
+    return connection.queryAll(query, [courseId]);
+  },
+
   getTicket: function(messageId) {
     const query = '\
-    SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi FROM core.tiketti t \
+    SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi, ukk FROM core.tiketti t \
     INNER JOIN (SELECT tiketti, tila FROM core.tiketintila WHERE tiketti=$1 ORDER BY aikaleima DESC LIMIT 1) tt \
     ON t.id = tt.tiketti \
     WHERE t.id=$1';
@@ -59,12 +64,22 @@ module.exports = {
   },
 
   getFieldsOfTicket: function(messageId) {
+    //TODO: muuta messageId:t ticketId:iksi.
     const query = '\
     SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat kk \
     INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
     ON kk.kentta = pohja.id \
     WHERE kk.tiketti=$1';
     return connection.queryAll(query, [messageId]);
+  },
+
+  getOneFieldOfTicketList: function(ticketIdList, fieldid) {
+    const query = '\
+    SELECT tk.tiketti, tk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat tk \
+    INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
+    ON tk.kentta = pohja.id \
+    WHERE tk.tiketti= ANY($1) AND pohja.id=$2';
+    return connection.queryAll(query, [ticketIdList, fieldid]);
   },
 
   getComments: function(messageId) {
@@ -74,12 +89,12 @@ module.exports = {
 
 
 
-  createTicket: function(courseid, userid, title) {
+  createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
     const query = '\
-    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima) \
-    VALUES ($1, $2, $3, NOW()) \
+    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
+    VALUES ($1, $2, $3, NOW(), $4) \
     RETURNING id';
-    return connection.queryOne(query, [courseid, userid, title])
+    return connection.queryOne(query, [courseid, userid, title, isFaq])
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
         const query = '\
@@ -87,6 +102,21 @@ module.exports = {
         VALUES ($1, 1, NOW())';
         return connection.queryAll(query, [ticketid])
         .then((sqldata) => { return ticketid; });
+    })
+    .then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        var promises = [];
+        fields.forEach(kvp => {
+          promises.push(module.exports.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+        });
+        Promise.all(promises)
+        .then(() => resolve(ticketid))
+        .catch(() => reject(3004));
+      });
+    })
+    .then((ticketid) => {
+      return module.exports.createComment(ticketid, userid, content, 1)
+      .then(() => ticketid );
     });
   },
 

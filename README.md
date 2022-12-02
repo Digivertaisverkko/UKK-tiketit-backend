@@ -241,13 +241,11 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 [{
   id: $int
   otsikko: $string
-  pvm: $string
+  aikaleima: $string
   tyyppi: $string
-  tehtava: $string
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
- 
 
 
 #### POST
@@ -261,6 +259,11 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 {
   otsikko: $string
   viesti: $string
+  kentat: 
+  [{
+    id: $int
+    arvo: $string
+  }]
   vastaus: $string
 } 
 ```

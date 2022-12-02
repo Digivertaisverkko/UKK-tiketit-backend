@@ -36,6 +36,89 @@ module.exports = {
         return retArray;
     },
 
+    /**
+     * Yhdistää kaksi taulukkoa uudeksi taulukoksi siten, että ensimmäisen taulukon olioihin lisätään toisen taulukon olio
+     * avaimella newKey, jos ensimmäisen taulukon olion matchingKey on sama kuin toisen taulukon olion comparedKey.
+     * 
+     * Jos paria ei löydy, ensimmäisen taulukon olio pidetään sellaisenaan.
+     * Jos useampi pari löytyy, toisen taulukon ensimmäinen osuma sijoitetaan osaksi oliota.
+     * 
+     * Eli esim:
+     * ensimmäinen taulu [{nimi: "asd", viite: 2}, {nimi: "fgh", viite: 3}, {nimi: "jkl", viite: 1}]
+     * toinen taulu [{otsikko: "qwe", id: 2}, {otsikko: "rty", id:3}, {otsikko: "uio", id: 4}]
+     * matchingKey = "viite"
+     * comparedKey = "id"
+     * newKey = "uusi"
+     * TULOS:
+     * [{nimi: "asd", viite: 2, uusi: {otsikko: "qwe", id: 2}},
+     *  {nimi: "fgh", viite: 3, uusi: {otsikko: "rty", id: 3}},
+     *  {nimi: "jkl", viite: 1}
+     * ]
+     * 
+     * @param {*} firstArray Ensimmäinen taulukko, jonka kaikki arvot palautetaan sellaisenaan, tai muokattuina
+     * @param {*} secondArray Toinen taulukko, josta otetaan arvoja ensimmäiseen taulukkoon.
+     * @param {*} matchingKey Ensimmäisen taulukon olion avain, jolle etsitään yhteensopivaa paria toisesta taulukosta.
+     * @param {*} comparedKey Toisen taulukon olion avain, jota verrataan ensimmäisen taulun olioiden avaimiin.
+     * @param {*} newKey Uusi avain, johon toisen taulukon olio liitetään.
+     * @returns 
+     */
+    
+    arrayUnionByAddingToObjects: function(firstArray, secondArray, matchingKey, comparedKey, newKey) {
+        let retArray = [...firstArray];
+        retArray.forEach(firstElement => {
+            var value = firstElement[matchingKey]
+            var secondElement = secondArray.find(e => e[comparedKey] === value);
+            if (secondElement != undefined) {
+                firstElement[newKey] = secondElement;
+            }
+        });
+        return retArray;
+    },
+
+
+    /**
+     * Yhdistää kaksi taulukkoa uudeksi taulukoksi siten, että ensimmäisen taulukon olioihin lisätään toisen taulukon olion
+     * arvo avaimesta extractedKey avaimeen newKey, jos ensimmäisen taulukon olion matchingKey on sama kuin toisen taulukon 
+     * olion comparedKey.
+     * 
+     * Jos paria ei löydy, ensimmäisen taulukon olio pidetään sellaisenaan.
+     * Jos useampi pari löytyy, toisen taulukon ensimmäinen osuma sijoitetaan osaksi oliota.
+     * 
+     * Eli esim:
+     * ensimmäinen taulu [{nimi: "asd", viite: 2}, {nimi: "fgh", viite: 3}, {nimi: "jkl", viite: 1}]
+     * toinen taulu [{otsikko: "qwe", id: 2}, {otsikko: "rty", id:3}, {otsikko: "uio", id: 4}]
+     * matchingKey = "viite"
+     * comparedKey = "id"
+     * newKey = "uusi"
+     * extractedKey = "otsikko"
+     * TULOS:
+     * [{nimi: "asd", viite: 2, uusi: "qwe"},
+     *  {nimi: "fgh", viite: 3, uusi: "rty"},
+     *  {nimi: "jkl", viite: 1}
+     * ]
+     * 
+     * @param {*} firstArray Ensimmäinen taulukko, jonka kaikki arvot palautetaan sellaisenaan, tai muokattuina
+     * @param {*} secondArray Toinen taulukko, josta otetaan arvoja ensimmäiseen taulukkoon.
+     * @param {*} matchingKey Ensimmäisen taulukon olion avain, jolle etsitään yhteensopivaa paria toisesta taulukosta.
+     * @param {*} comparedKey Toisen taulukon olion avain, jota verrataan ensimmäisen taulun olioiden avaimiin.
+     * @param {*} newKey Uusi avain, johon toisen taulukon olio liitetään.
+     * @returns 
+     */
+    arrayUnionByAddingPartsOfObjects: function(firstArray, secondArray, matchingKey, comparedKey, newKey, extractedKey) {
+        let retArray = [...firstArray];
+        retArray.forEach(firstElement => {
+            var value = firstElement[matchingKey]
+            var secondElement = secondArray.find(e => e[comparedKey] === value);
+            if (secondElement != undefined) {
+                var secondValue = secondElement[extractedKey]
+                if (secondValue != undefined) {
+                    firstElement[newKey] = secondValue;
+                }
+            }
+        });
+        return retArray;
+    },
+
 
     /**
      * Palauttaa uuden taulukon, jossa on pelkästään annetun taulukon (array) annetut attribuutit (key).
