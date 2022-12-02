@@ -97,6 +97,7 @@ module.exports = {
     return connection.queryOne(query, [courseid, userid, title, isFaq])
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
+        console.log("tikk 1")
         const query = '\
         INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
         VALUES ($1, 1, NOW())';
@@ -104,6 +105,7 @@ module.exports = {
         .then((sqldata) => { return ticketid; });
     })
     .then((ticketid) => {
+      console.log("tikk 2")
       return new Promise(function(resolve, reject) {
         var promises = [];
         fields.forEach(kvp => {
@@ -115,6 +117,7 @@ module.exports = {
       });
     })
     .then((ticketid) => {
+      console.log("tikk 3")
       return module.exports.createComment(ticketid, userid, content, 1)
       .then(() => ticketid );
     });
