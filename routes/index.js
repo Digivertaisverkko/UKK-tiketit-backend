@@ -11,6 +11,7 @@ const splicer = require('../public/javascripts/sqlsplicer.js');
 const { use } = require('express/lib/application.js');
 const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 const sanitizer = require('../public/javascripts/sanitizer.js');
+const { send } = require('process');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -177,22 +178,28 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
   .then((ticketData) => {
     return splicer.insertTicketFieldsToIdReferences(ticketData, 'id')
   })
-  .then((data) => res.send([]) )
+  .then((data) => res.send(data) )
   .catch((error) => errorFactory.createError(res, error) );
 });
 
 router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
   let storedUserId;
+  //TODO: Estää opiskelijaa luomasta ukk-tikettiä
   auth.authenticatedUser(req)
   .then((userid) => {
     storedUserId = userid;
     sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
   })
   .then(() => {
+    console.log("ukk 1")
     return sql.tickets.createTicket(req.params.courseid, storedUserId, req.body.otsikko, req.body.kentat, req.body.viesti, true);
   })
   .then((ticketid) => {
-    return sql.tickets.createComment(ticketid, storedUserId, req.body.vastaus);
+    console.log("ukk 2")
+    return sql.tickets.createComment(ticketid, storedUserId, req.body.vastaus, 5);
+  })
+  .then(() => {
+    res.send({"success": true});
   })
   .catch((error) => errorFactory.createError(res, error));
 });
