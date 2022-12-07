@@ -17,6 +17,7 @@ PGPORT=[PostgreSQL instanssin portti]
 PGDATABASE=[PostgreSQL tietokannan nimi]
 PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
 PGPASSWORD=[PostgreSQL käyttäjän salasana]
+PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 
 - Aja komento ```npm install```
