@@ -10,7 +10,7 @@ module.exports = {
  
   hasAccess: function(userid, ticketid) {
     let storedData;
-    const query = 'SELECT aloittaja, kurssi \
+    const query = 'SELECT aloittaja, kurssi, ukk \
     FROM core.tiketti \
     WHERE id=$1';
     return connection.queryOne(query, [ticketid])
@@ -22,7 +22,7 @@ module.exports = {
       return connection.queryOne(query2, [data.kurssi, userid]);
     })
     .then((result) => {
-      if (result.asema == 'opettaja' || storedData.aloittaja == userid) {
+      if (result.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
         return result;
       } else {
         return Promise.reject(1003)
