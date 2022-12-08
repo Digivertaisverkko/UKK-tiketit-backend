@@ -471,7 +471,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   lahettaja: $kurssilainen-olio
   aikaleima: $string 
   tila: $int 
-  teksti: $string 
+  viesti: $string 
 }] 
 ```
 Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.<br>

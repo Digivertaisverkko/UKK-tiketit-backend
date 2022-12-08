@@ -191,11 +191,9 @@ router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
     sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
   })
   .then(() => {
-    console.log("ukk 1")
     return sql.tickets.createTicket(req.params.courseid, storedUserId, req.body.otsikko, req.body.kentat, req.body.viesti, true);
   })
   .then((ticketid) => {
-    console.log("ukk 2")
     return sql.tickets.createComment(ticketid, storedUserId, req.body.vastaus, 5);
   })
   .then(() => {

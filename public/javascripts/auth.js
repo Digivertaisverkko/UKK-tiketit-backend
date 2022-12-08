@@ -8,18 +8,20 @@ var sessionsByLogin = new Object();
 module.exports = {
 
     startLogin: function(codeChallenge, logintype) {
+        let storedData;
         return new Promise(function(resolve, reject) {
             if (logintype === 'own') {
                 let loginid = crypto.randomUUID();
                 let fronttunnus = crypto.randomUUID();
-                resolve({cc: codeChallenge, lid: loginid, fcode: fronttunnus})
+                storedData = {cc: codeChallenge, lid: loginid, fcode: fronttunnus};
+                resolve(storedData)
             } else {
                 reject(1001);
             }
         }).then((data) => {
             return sql.users.createLoginUrl(data.lid, data.cc, data.fcode);
         }).then((data) => {
-            return {'login-url': data};
+            return {'login-url': data, "login-id": storedData.lid};
         });
     },
 
