@@ -84,7 +84,7 @@ module.exports = {
   },
 
   getComments: function(messageId) {
-    const query = 'SELECT viesti, lahettaja, aikaleima FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
+    const query = 'SELECT viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
     return connection.queryAll(query, [messageId]);
   },
 
