@@ -2,10 +2,21 @@
 
 Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen MySQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
+## Sisällysluettelo
+- [Backendin ajaminen](#backendin-ajaminen)
+- [Rajapinnan määritelmä](#rest-rajapinnan-määritelmä)
+    - [Sisäänkirjautimisrajapinta](#sisäänkirjautumisen-rajapinta)
+    - [Kurssirajapinta](#kurssien-rajapinta)
+    - [Tikettirajapinta](#tikettien-rajapinta)
+- [Lähetetyt erikoisarvot](#erikoisarvot)
+- [Virhetilat](#virhetilat)
+
 
 # Backendin ajaminen
 
 - Lataa tai kloonaa tämä repo
+
+- Varmista, että sinulla on postgres-tietokanta pystyssä, ja alustettu [ohjeiden](docs/postgres/dokumentaatio.md) mukaan.
 
 - ```cp .env.example .env```
 
@@ -26,6 +37,8 @@ PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 
 
 # REST-rajapinnan määritelmä
+
+Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihin lähetettävä HTTP-komento, lähetettävät parametrit ja palautetun vastauksen muoto. Osoitteet on pyritty lajittelemaan loogisesti ja samanlaiset komennot vieretysten.
 
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
@@ -104,17 +117,6 @@ PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
   login-code: $string
 }
 ```
- 
-
-## Kurssien rajapinta 
-Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty session-id ei ole oikein, niin silloin näistä tulee vastauksena 
-```
-{
-  success: false
-  error: ”no authorization”
-  login-url: $URL
-}
-```
 
 
 ### /api/kirjaudu-ulos/
@@ -129,6 +131,17 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 {
   success: $bool
+}
+```
+<br><br><br>
+
+## Kurssien rajapinta 
+Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty session-id ei ole oikein, niin silloin näistä tulee vastauksena 
+```
+{
+  success: false
+  error: ”no authorization”
+  login-url: $URL
 }
 ```
 
@@ -214,6 +227,7 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 
 
 ### /api/kurssi/:kurssi-id/ukk/
+Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt UKK-tiketeiksi. Tällä on myös POST-muoto, jolla voidaan lisätä UKK-tikettejä kantaan.
 #### GET
 ##### Lähetä:
 ```
@@ -298,7 +312,7 @@ Tulevaisuudessa lisäksi pitää lähettää:
 
 
 ### /api/kurssi/:kurssi-id/liity/
-Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi.
+Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi. *Tämä rajapinta tullaan poistamaan tulevaisuudessa.*
 #### POST
 ##### Lähetä
 ```
@@ -317,7 +331,7 @@ Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena la
 
 
 ### /api/kurssi/:kurssi-id/kutsu/
-Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. Vaatii opettajan oikeudet kurssille, jotta opiskelijoita voi kutsua.
+Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. **Vaatii opettajan oikeudet kurssille**, jotta opiskelijoita voi kutsua.
 Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, niin kyseinen käyttäjä lisätään kurssille. Jos käyttäjää ei ole vielä kannassa, käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin. (Toteutus kesken.)
 #### POST
 ##### Lähetä
@@ -356,8 +370,23 @@ Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### Vastaus:
 Vastauksena tulee [kurssilainen-olio](#kurssilainen-olio)
 
+<br><br><br>
 
+## Tikettien rajapinta
 
+Tiketit muodostuvat tietokannassa useammasta osasesta. Iso osa rajapinnoista yrittää yhdistää nämä osat yhteen, mutta joissain tapauksissa on hyödyllistä tiedostaa kaikki osat, ja miten ne liittyvät toisiinsa.
+- Tikettipohja
+    - Kuvaus siitä, millainen tiketti kurssilla on.
+- Kenttäpohja
+    - Tiketissä on otsikon ja viestin lisäksi muita täytettäviä kenttiä, joita käyttäjiä voidaan vaatia täyttämään. Kenttäpohja määrittää mitä kenttiä tiketipohjassa on.
+- Tiketti
+    - Viittaus lähettyyn tikettiin itseensä. Sisältää viittauksen tikettipohjaan, ja kaikki tiketin sisältö viittaa itse tähän.
+- Tiketin kentät
+    - Lähettyjen tiketin lisäkenttien arvot.
+- [Tiketin tila](#tiketin-tila)
+    - Tiketillä voi olla useampia eri tiloja sen perusteella, kuka on sen lukenut ja kuka siihen on kommentoinut.
+- Kommentit
+    - Tiketeissä on kommentointimahdollisuus, ja tästä löytyy kaikki tiketin kommentit. Myös tiketin alkuperäinen viesti menee kommentiksi.
 
 ### /api/kurssi/:kurssi-id/uusitiketti/
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
@@ -510,10 +539,11 @@ Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mihin viestin *tila* muuttui
 [Kurssilainen-olio](#kurssilainen-olio)
 
 
+<br><br><br>
 
 # Erikoisarvot
 ## Kurssilainen-olio
-Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäjän tietoja. Kaikki palauttavat samanlaisen.
+Jotkut rajapinnat lähettävät olion, kun vastaus sisältää käyttäjän tietoja. Kaikki palauttavat samanlaisen.
 ### Muoto
 ```
 {
@@ -528,6 +558,8 @@ Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäj
 - opettaja
 - opiskelija
 - admin
+
+<br><br><br>
 
 ## Tiketin tila
 Kaikilla tiketeillä on *tila*, joka esitetään numeerisena arvona välillä 1-6. Kaikki muut ovat virhetiloja, mutta rajapinta palauttaa *tilaksi* 0, jos sen hakemisessa esiintyy jotain häikkää.
