@@ -8,8 +8,6 @@ Tämä tiedosto. Sisältää yleiskielisen selityksen tietokannan asetuksista ja
 Sisältää komennot tietokannan, sen skeemojen ja käyttäjien alustamiseksi.
 ### dvvukk_create_tables.txt
 Sisältää komennot tietokannan taulujen luomikseksi.
-### dvvukk_sample_data.txt
-Sisältää komennot tietokannan taulujen sisällön laittamikseksi testaamista varten. Tätä ei ajeta lopulliseen kantaan.
 ### dvvukk_drop_tables.txt
 Sisältää komennot tietokannan taulujen tuhoamiseksi. Tarkoitettu testauksen aikana luodun datan poistamiseen. Ei ole aina ajantasalla.
 
