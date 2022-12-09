@@ -90,22 +90,22 @@ Seuraavaksi luodaan ja konfiguroidaan vaaditut skeemat.
 Aluksi poistetaan ja luodaan 'public' skeema. Miksi? Tähän on KAKSI syytä:
 1) 'public' skeema on oletuksena avoin KAIKILLE tietokantajärjestelmän käyttäjille. Kyseinen skeema on muutenkin jäänne menneisyydestä ja sen vuoksi siihen on muilla käyttäjillä liikaa oikeuksia. Sen vuoksi se on syytä vähintäänkin konfiguroida uusiksi.
 2) Helpoin tapa "nollata" skeeman oikeudet perustasolle on poistaa se ja luoda uusiksi.\
-```dvvukk=# DROP SCHEMA public;```
+```dvvukk=# DROP SCHEMA public;```\
 ```dvvukk=# CREATE SCHEMA public;```
 
 Luodaan lisäksi core skeema:\
 ```dvvukk=# CREATE SCHEMA core;```
 
 Asetetaan käyttäjille oikea search_path, jotta kyseiset käyttäjät käyttävät oikeaa skeemaa automaattisesti:\
-```dvvukk=# ALTER ROLE [peruskäyttäjä] SET search_path TO core;```
+```dvvukk=# ALTER ROLE [peruskäyttäjä] SET search_path TO core;```\
 ```dvvukk=# ALTER ROLE [LTI-käyttäjä] SET search_path TO public;```
 
 Seuraavaksi asetetaan käyttäjille oikeat oikeudet. Ensin LTI-käyttäjä käyttäjälle KAIKKI oikeudet 'public' skeemaan. Syynä tälle on se, että ltijs-sequelize vaatii kattavat oikeudet.\
-```dvvukk=# GRANT ALL PRIVILEGES ON SCHEMA public TO [LTI-käyttäjä];```
+```dvvukk=# GRANT ALL PRIVILEGES ON SCHEMA public TO [LTI-käyttäjä];```\
 ```dvvukk=# ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO [LTI-käyttäjä];```
 
 Ja vielä rajatut oikeudet 'core' skeemaan käyttäjälle [peruskäyttäjä]:\
-```dvvukk=# GRANT USAGE ON SCHEMA core TO [peruskäyttäjä];```
+```dvvukk=# GRANT USAGE ON SCHEMA core TO [peruskäyttäjä];```\
 ```dvvukk=# ALTER DEFAULT PRIVILEGES IN SCHEMA core GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO [Peruskäyttäjä];```
 
 Seuraavaksi luodaan taulut 'core' skeemaan käyttäen Teamsissa olevaa 'dvvukk_create_tables.txt' skriptiä. Kyseinen skripti ajetaan superuserina (esimerkiksi postgres -käyttäjä). Varmista ennen skriptin ajoa, että olet yhdistänyt oikeaan tietokantaan!
