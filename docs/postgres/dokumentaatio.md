@@ -68,7 +68,7 @@ Eli kun syötät komentoja tästä ohjeesta, niin seuraa tarkasti tuota, jotta o
 
 Aluksi lisätään uudet käyttäjät tietokantajärjestelmään. UKK-tiketit-backend käyttää peruskäyttäjää tietokantaoperaatioiden suorittamisessa ja LTI-käyttäjää LTI-integraatioon liittyviin tietokantaoperaatioiden suorittamiseen. Muuta salasana joksikin muuksi ja paremmanksi!
 
-```postgres=# CREATE USER "[peruskäyttäjä]" WITH PASSWORD '[salasana]';```
+```postgres=# CREATE USER "[peruskäyttäjä]" WITH PASSWORD '[salasana]';```\
 ```postgres=# CREATE USER "[lti-käyttäjä]" WITH PASSWORD '[salasana]';```
 
 Jokaisen komennon jälkeen viestiksi pitäisi tulla "CREATE ROLE". Kyseinen viesti on geneerinen ja kertoo ainoastaan suoritetun operaation lyhykäisyydessään. Jos jotain menee vikaan, niin silloin tulee erillinen virheviesti. Tässä ohjeessa ei huomioida kyseisiä saatuja viestejä.
