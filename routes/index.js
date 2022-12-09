@@ -358,6 +358,31 @@ router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
   });
 });
 
+router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
+  sanitizer.hasRequiredParameters(req, ["sposti", "opettaja"])
+  .then(() => auth.authenticatedUser(req))
+  .then((userid) => {
+    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
+  })
+  .then((userinfo) => {
+    if (userinfo.asema !== "opettaja") {
+      return Promise.reject(1003);
+    } else {
+      return sql.users.userIdsWithEmail(req.body.sposti);
+    }
+  })
+  .then((usersWithMatchingEmail) => {
+    if (usersWithMatchingEmail.length == 0) {
+      //TODO: Lähetä kutsu ihmiselle, joka ei käytä ohjelmaa tällä hetkellä.
+      return Promise.reject(2000);
+    } else {
+      sql.courses.addUserToCourse(req.params.courseid, usersWithMatchingEmail[0], req.body.opettaja);
+    }
+  })
+  .then(() => res.send({success: true}))
+  .catch((error) => errorFactory.createError(res, error));
+});
+
 
 router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
   auth.authenticatedUser(req)

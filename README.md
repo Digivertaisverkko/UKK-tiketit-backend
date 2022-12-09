@@ -316,6 +316,33 @@ Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena la
 ```
 
 
+### /api/kurssi/:kurssi-id/kutsu/
+Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. Vaatii opettajan oikeudet kurssille, jotta opiskelijoita voi kutsua.
+Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, niin kyseinen käyttäjä lisätään kurssille. Jos käyttäjää ei ole vielä kannassa, käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin. (Toteutus kesken.)
+#### POST
+##### Lähetä
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+```
+- body -
+{
+  sposti: $string
+  opettaja: $bool
+}
+```
+##### Vastaus:
+```
+- body - 
+{
+  success: true
+}
+```
+
+
 ### /api/kurssi/:kurssi-id/oikeudet
 Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### GET
@@ -342,6 +369,8 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 {
   session-id: $UUID
 }
+```
+```
 -body- 
 {
   otsikko: $string
@@ -374,12 +403,14 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 #### GET
 ##### Lähetä:
 ```
+- header -
 {
    session-id: $UUID
 }
 ```
 ##### Vastaus:
 ```
+- body - 
 [{
   id: $int
   otsikko: $string
