@@ -86,6 +86,11 @@ module.exports = {
   userIdForSession: function(sessionid) {
     const query = 'SELECT profiili FROM core.sessio WHERE sessionid=$1 AND vanhenee>NOW()';
     return connection.queryAll(query, [sessionid]);
+  },
+
+  userIdsWithEmail: function(email) {
+    const query = 'SELECT id FROM core.profiili WHERE sposti=$1';
+    return connection.queryAll(query, [email]);
   }
  
 

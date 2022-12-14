@@ -1,0 +1,19 @@
+-- Kirjaudutaan sisään superuserina suoraan dvvukk -tietokantaan.
+-- HUOM: Muokkaa käyttäjänimeä ja tietokannan nimeä tarvittaessa!
+-- $ sudo -u postgres psql -d "dvvukk"
+
+DROP TABLE core.kurssinosallistujat;
+DROP TABLE core.ketjunkentat;
+DROP TABLE core.tiketinkentat;
+DROP TABLE core.esitaytetytvastaukset;
+DROP TABLE core.kommentti;
+DROP TABLE core.ketjuntila;
+DROP TABLE core.tikettipohja;
+DROP TABLE core.ketju;
+DROP TABLE core.kurssi;
+DROP TABLE core.kenttapohja;
+DROP TABLE core.sessio;
+DROP TABLE core.login;
+DROP TABLE core.loginyritys;
+DROP TABLE core.tili;
+\q

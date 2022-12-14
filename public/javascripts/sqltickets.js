@@ -10,11 +10,12 @@ module.exports = {
  
   hasAccess: function(userid, ticketid) {
     let storedData;
-    const query = 'SELECT aloittaja, kurssi \
+    const query = 'SELECT aloittaja, kurssi, ukk \
     FROM core.tiketti \
     WHERE id=$1';
     return connection.queryOne(query, [ticketid])
     .then((data) => {
+      //TODO: UKK:ihin pitäisi päästä käsiksi kirjautumatta.
       storedData = data;
       const query2 = '\
       SELECT profiili, asema FROM core.kurssinosallistujat \
@@ -22,7 +23,7 @@ module.exports = {
       return connection.queryOne(query2, [data.kurssi, userid]);
     })
     .then((result) => {
-      if (result.asema == 'opettaja' || storedData.aloittaja == userid) {
+      if (result.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
         return result;
       } else {
         return Promise.reject(1003)
@@ -83,7 +84,7 @@ module.exports = {
   },
 
   getComments: function(messageId) {
-    const query = 'SELECT viesti, lahettaja, aikaleima FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
+    const query = 'SELECT viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
     return connection.queryAll(query, [messageId]);
   },
 
@@ -97,7 +98,6 @@ module.exports = {
     return connection.queryOne(query, [courseid, userid, title, isFaq])
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
-        console.log("tikk 1")
         const query = '\
         INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
         VALUES ($1, 1, NOW())';
@@ -105,7 +105,6 @@ module.exports = {
         .then((sqldata) => { return ticketid; });
     })
     .then((ticketid) => {
-      console.log("tikk 2")
       return new Promise(function(resolve, reject) {
         var promises = [];
         fields.forEach(kvp => {
@@ -117,7 +116,6 @@ module.exports = {
       });
     })
     .then((ticketid) => {
-      console.log("tikk 3")
       return module.exports.createComment(ticketid, userid, content, 1)
       .then(() => ticketid );
     });

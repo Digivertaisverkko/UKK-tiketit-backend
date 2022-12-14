@@ -105,7 +105,22 @@ router.get('/api/hash/:password', function(req, res) {
   array[i] = {salasana: pass2, hash: hash, salt: salt};
 
   res.send(array);
-});
+}),
+
+
+router.get('/api/LTI/', function(req, res, next) {
+//TODO: Toteuta LTI-kirjautuminen
+}),
+
+
+router.get('/api/minun/poistatili', function(req, res, next) {
+//TODO: Toteuta tilin poistaminen kannasta.
+  auth.authenticatedUser(req)
+  .then((userid) =>  {
+    res.send();
+  })
+},
+
 
 router.get('/api/kurssi/omatkurssit', function(req, res, next) {
   auth.authenticatedUser(req)
@@ -118,7 +133,7 @@ router.get('/api/kurssi/omatkurssit', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   })
-});
+}),
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
   auth.authenticatedUser(req)
@@ -191,11 +206,9 @@ router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
     sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
   })
   .then(() => {
-    console.log("ukk 1")
     return sql.tickets.createTicket(req.params.courseid, storedUserId, req.body.otsikko, req.body.kentat, req.body.viesti, true);
   })
   .then((ticketid) => {
-    console.log("ukk 2")
     return sql.tickets.createComment(ticketid, storedUserId, req.body.vastaus, 5);
   })
   .then(() => {
@@ -358,6 +371,31 @@ router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   });
+});
+
+router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
+  sanitizer.hasRequiredParameters(req, ["sposti", "opettaja"])
+  .then(() => auth.authenticatedUser(req))
+  .then((userid) => {
+    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
+  })
+  .then((userinfo) => {
+    if (userinfo.asema !== "opettaja") {
+      return Promise.reject(1003);
+    } else {
+      return sql.users.userIdsWithEmail(req.body.sposti);
+    }
+  })
+  .then((usersWithMatchingEmail) => {
+    if (usersWithMatchingEmail.length == 0) {
+      //TODO: Lähetä kutsu ihmiselle, joka ei käytä ohjelmaa tällä hetkellä.
+      return Promise.reject(2000);
+    } else {
+      sql.courses.addUserToCourse(req.params.courseid, usersWithMatchingEmail[0], req.body.opettaja);
+    }
+  })
+  .then(() => res.send({success: true}))
+  .catch((error) => errorFactory.createError(res, error));
 });
 
 
