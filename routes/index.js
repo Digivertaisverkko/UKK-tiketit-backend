@@ -105,12 +105,12 @@ router.get('/api/hash/:password', function(req, res) {
   array[i] = {salasana: pass2, hash: hash, salt: salt};
 
   res.send(array);
-}),
+});
 
 
 router.get('/api/LTI/', function(req, res, next) {
 //TODO: Toteuta LTI-kirjautuminen
-}),
+});
 
 
 router.get('/api/minun/poistatili', function(req, res, next) {
@@ -119,7 +119,7 @@ router.get('/api/minun/poistatili', function(req, res, next) {
   .then((userid) =>  {
     res.send();
   })
-},
+});
 
 
 router.get('/api/kurssi/omatkurssit', function(req, res, next) {
@@ -133,7 +133,7 @@ router.get('/api/kurssi/omatkurssit', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   })
-}),
+});
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
   auth.authenticatedUser(req)
