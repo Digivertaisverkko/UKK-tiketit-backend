@@ -73,7 +73,6 @@ module.exports = {
     return module.exports.createEmptyUser(name, "")
     .then((profileId) => {
       storedProfileId = profileId;
-      console.log("createLtiUser sendQuery " + ltiClientId + " -|- " + ltiUserId + " -|- " + profileId);
       return connection.queryNone(ltiQuery, [ltiClientId, ltiUserId, profileId]);
     })
     .then(() => {

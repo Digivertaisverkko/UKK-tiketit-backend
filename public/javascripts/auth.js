@@ -91,7 +91,6 @@ module.exports = {
 
         return sql.users.getLtiUser(clientid, userid)
         .then((userList) => {
-            console.log("ltiLogin: userlist.length = " + userList.length)
             if (userList.length == 0) {
                 return sql.users.createLtiUser(username, clientid, userid);
             }

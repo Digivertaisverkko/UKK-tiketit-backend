@@ -60,7 +60,6 @@ module.exports = {
     let storedCourseId;
     return module.exports.getLtiCourseInfo(ltiClientId, ltiContextId)
     .then((courseList) => {
-      console.log("getAndCreateLtiCourse " + courseList.length);
       if (courseList.length == 0) {
         return module.exports.createCourseFromScratch(name, "");
       } else {
@@ -69,11 +68,9 @@ module.exports = {
     })
     .then((courseid) => {
       storedCourseId = courseid;
-      console.log("getAndCreateLtiCourse query");
       return connection.queryNone(query, [ltiClientId, ltiContextId, courseid]);
     })
     .then(() => {
-      console.log("getAndCreateLtiCourse map");
       return storedCourseId;
     });
   },
