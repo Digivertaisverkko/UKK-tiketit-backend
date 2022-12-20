@@ -59,6 +59,28 @@ module.exports = {
     return connection.queryAll(query, [username, passwordhash]);
   },
 
+  getLtiUser: function(ltiClientId, ltiUserId) {
+    const query = 'SELECT p.id, p.nimi, p.sposti \
+    FROM core.lti_login ll INNER JOIN core.profiili p\
+    ON ll.profiili=p.id\
+    WHERE ll.clientid=$1 AND ll.userid=$2';
+    return connection.queryAll(query, [ltiClientId, ltiUserId])
+  },
+
+  createLtiUser: function(name, ltiClientId, ltiUserId) {
+    const ltiQuery = 'INSERT INTO core.lti_login (clientid, userid, profiili) VALUES ($1, $2, $3)';
+    let storedProfileId;
+    return module.exports.createEmptyUser(name, "")
+    .then((profileId) => {
+      storedProfileId = profileId;
+      console.log("createLtiUser sendQuery " + ltiClientId + " -|- " + ltiUserId + " -|- " + profileId);
+      return connection.queryNone(ltiQuery, [ltiClientId, ltiUserId, profileId]);
+    })
+    .then(() => {
+      return storedProfileId;
+    });
+  },
+
   removeLoginAttempt: function(frontcode) {
     const query = 'DELETE FROM core.loginyritys WHERE fronttunnus=$1';
     return connection.queryAll(query, [frontcode]); 

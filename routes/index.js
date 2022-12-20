@@ -108,8 +108,17 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 
-router.get('/api/LTI/', function(req, res, next) {
-//TODO: Toteuta LTI-kirjautuminen
+router.post('/api/LTI/', function(req, res, next) {
+  sanitizer.hasRequiredParameters(req, ["token"])
+  .then(() => {
+    return auth.ltiLogin(req.body.token);
+  })
+  .then(() => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
 });
 
 
@@ -335,20 +344,10 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 
 
 router.post('/api/luokurssi', function(req, res, next) {
-  var storeduserid = null;
-  var storedcourseid = null;
   sanitizer.hasRequiredParameters(req, ['nimi', 'ohjeteksti'])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
-    storeduserid = userid;
-    return sql.courses.createCourse(req.body.nimi);
-  })
-  .then((courseid) => {
-    storedcourseid = courseid;
-    return sql.courses.addUserToCourse(courseid, storeduserid, true);
-  })
-  .then(() => {
-    return sql.courses.createTicketBase(req.body.ohjeteksti, storedcourseid);
+    return sql.courses.createCourseFromScratch(req.body.nimi, req.body.ohjeteksti, userid);
   })
   .then(() => {
     res.send({success: true});

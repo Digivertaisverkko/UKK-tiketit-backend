@@ -80,6 +80,39 @@ module.exports = {
         });
     },
 
+    ltiLogin: function(token) {
+        let userid = token.user;
+        let contextid = token.platformContext.contextId;
+        let clientid = token.clientId;
+        let username = token.userInfo.name;
+        let coursename = token.platformContext.context.title;
+
+        let storedProfileId;
+
+        return sql.users.getLtiUser(clientid, userid)
+        .then((userList) => {
+            console.log("ltiLogin: userlist.length = " + userList.length)
+            if (userList.length == 0) {
+                return sql.users.createLtiUser(username, clientid, userid);
+            }
+        })
+        .then((profileid) => {
+            storedProfileId = profileid;
+            return sql.courses.getAndCreateLtiCourse(coursename, clientid, contextid);
+        })
+        .then((courseid) => {
+            return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
+            .catch((error) => {
+                if (error === 2000) {
+                    return sql.courses.addUserToCourse(courseid, storedProfileId, false);
+                }
+            });
+        })
+        .then(() => {
+            return sql.users.createSession(storedProfileId);
+        });
+    },
+
     hash: function(hashable, salt) {
         return crypto.createHash('sha256').update(hashable).update(salt).digest('hex');
     },

@@ -1,3 +1,4 @@
+const { countReset } = require('console');
 const crypto = require('crypto');
 const { Pool, Client } = require('pg');
 
@@ -20,6 +21,13 @@ module.exports = {
     return connection.queryOne(query, [courseId]);
   },
 
+  getLtiCourseInfo: function(ltiClientId, ltiCourseId) {
+    const query = 'SELECT k.id, k.nimi \
+    FROM core.kurssi k INNER JOIN core.lti_kurssi lk\
+    ON k.id = lk.kurssi \
+    WHERE lk.clientid=$1 AND lk.contextid=$2';
+    return connection.queryAll(query, [ltiClientId, ltiCourseId]);
+  },
 
   createCourse: function(name) {
     const query = '\
@@ -28,6 +36,46 @@ module.exports = {
     RETURNING id';
     return connection.queryOne(query, [name])
     .then((sqldata) => { return sqldata.id });
+  },
+
+  createCourseFromScratch: function(name, instruction, creatorId=null) {
+    let storedcourseid;
+    return module.exports.createCourse(name)
+    .then((courseid) => {
+      storedcourseid = courseid;
+      if (creatorId !== null) {
+        return module.exports.addUserToCourse(courseid, creatorId, true);
+      }
+    })
+    .then(() => {
+      return module.exports.createTicketBase(instruction, storedcourseid);
+    })
+    .then(() => {
+      return storedcourseid;
+    });
+  },
+
+  getAndCreateLtiCourse: function(name, ltiClientId, ltiContextId) {
+    const query = 'INSERT INTO core.lti_kurssi (clientid, contextid, kurssi) VALUES ($1, $2, $3)';
+    let storedCourseId;
+    return module.exports.getLtiCourseInfo(ltiClientId, ltiContextId)
+    .then((courseList) => {
+      console.log("getAndCreateLtiCourse " + courseList.length);
+      if (courseList.length == 0) {
+        return module.exports.createCourseFromScratch(name, "");
+      } else {
+        return courseList[0].id;
+      }
+    })
+    .then((courseid) => {
+      storedCourseId = courseid;
+      console.log("getAndCreateLtiCourse query");
+      return connection.queryNone(query, [ltiClientId, ltiContextId, courseid]);
+    })
+    .then(() => {
+      console.log("getAndCreateLtiCourse map");
+      return storedCourseId;
+    });
   },
 
   createTicketBase: function(description, courseid) {

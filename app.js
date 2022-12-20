@@ -15,6 +15,7 @@ var sqlSite = require('./routes/sql')
 var app = express();
 
 const cors = require('cors');
+const auth = require('./public/javascripts/auth');
 app.use(cors());
 
 const port = process.env.PORT || 3000;
@@ -26,7 +27,7 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser("salaisuus"));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
@@ -64,11 +65,14 @@ const setupLti = async () => {
   
   // Redirect to app after succesful connections
   lti.onConnect(async (token, req, res) => {
+    //console.log(JSON.stringify(token));
+    auth.ltiLogin(token);
     return lti.redirect(res, 'http://localhost:4200');
   })
 }
 
 setupLti();
+
 
 // Mount Ltijs express app into preexisting express app with /lti prefix
 app.use('/lti', lti.app);
