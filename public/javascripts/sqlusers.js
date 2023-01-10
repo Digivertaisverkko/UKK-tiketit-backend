@@ -30,7 +30,7 @@ module.exports = {
 
   getLoginAttemptWithId: function(loginid) {
     const query = 'SELECT * FROM core.loginyritys WHERE loginid=$1';
-    return connection.query(query, [loginid]);
+    return connection.queryAll(query, [loginid]);
   },
 
   getLoginAttemptWithAccessCode: function(accessCode) {
@@ -64,6 +64,7 @@ module.exports = {
     FROM core.lti_login ll INNER JOIN core.profiili p\
     ON ll.profiili=p.id\
     WHERE ll.clientid=$1 AND ll.userid=$2';
+    console.log("getLtiUser (" + ltiClientId + ", " + ltiUserId + ")");
     return connection.queryAll(query, [ltiClientId, ltiUserId])
   },
 

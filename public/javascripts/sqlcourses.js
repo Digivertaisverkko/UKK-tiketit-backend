@@ -57,21 +57,19 @@ module.exports = {
 
   getAndCreateLtiCourse: function(name, ltiClientId, ltiContextId) {
     const query = 'INSERT INTO core.lti_kurssi (clientid, contextid, kurssi) VALUES ($1, $2, $3)';
-    let storedCourseId;
     return module.exports.getLtiCourseInfo(ltiClientId, ltiContextId)
     .then((courseList) => {
       if (courseList.length == 0) {
-        return module.exports.createCourseFromScratch(name, "");
+        return module.exports.createCourseFromScratch(name, "")
+        .then((courseid) => {
+          return connection.queryNone(query, [ltiClientId, ltiContextId, courseid]);
+        })
+        .then(() => {
+          return courseid;
+        });
       } else {
         return courseList[0].id;
       }
-    })
-    .then((courseid) => {
-      storedCourseId = courseid;
-      return connection.queryNone(query, [ltiClientId, ltiContextId, courseid]);
-    })
-    .then(() => {
-      return storedCourseId;
     });
   },
 

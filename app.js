@@ -65,15 +65,11 @@ const setupLti = async () => {
   
   // Redirect to app after succesful connections
   lti.onConnect(async (token, req, res) => {
-    //console.log(JSON.stringify(token));
-    return lti.redirect(res, 'http://localhost:4200');
-    /*
     return auth.ltiLogin(token)
     .then(() => {
-      lti.redirect(res, 'http://localhost:4200');
+      return lti.redirect(res, 'http://localhost:4200');
     });
-    */
-  })
+  });
 }
 
 setupLti();

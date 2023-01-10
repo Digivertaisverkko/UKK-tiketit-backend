@@ -67,7 +67,8 @@ Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihi
 ### /api/login/ 
 #### POST 
 ##### Lähetä:
-```  
+```
+- header -
 {  
   login-type: $string
   code-challenge: $string
@@ -75,7 +76,9 @@ Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihi
 ```
 ##### Vastaus:  
 ```
+- body -
 { 
+  login-id: $string
   login-url: $URL (sisältää generoidun login-id)
 }
 ```

@@ -29,11 +29,15 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             sql.users.getSalt(username).then((saltData) => {
                 if (saltData.length === 1) {
+                    console.log("1");
                     let hash = module.exports.hash(password, saltData[0].salt);
                     sql.users.checkUserAccount(username, hash).then((accountData) => {
                         if (accountData.length === 1) {
+                            console.log("2");
                             sql.users.updateLoginAttemptWithAccount(loginid, accountData[0].profiili).then((updateData) => {
+                                console.log("3");
                                 sql.users.getLoginAttemptWithId(loginid).then((attemptData) => {
+                                    console.log("4");
                                     if (attemptData.length === 1) {
                                         resolve({success: true, 'login-code': attemptData[0].fronttunnus});
                                     } else {
@@ -93,6 +97,8 @@ module.exports = {
         .then((userList) => {
             if (userList.length == 0) {
                 return sql.users.createLtiUser(username, clientid, userid);
+            } else {
+                return userList[0].id;
             }
         })
         .then((profileid) => {
@@ -100,6 +106,7 @@ module.exports = {
             return sql.courses.getAndCreateLtiCourse(coursename, clientid, contextid);
         })
         .then((courseid) => {
+            console.log("ltiLogin.getUserInfo " + storedProfileId + ", " + courseid);
             return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
             .catch((error) => {
                 if (error === 2000) {
