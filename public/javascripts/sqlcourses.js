@@ -62,10 +62,10 @@ module.exports = {
       if (courseList.length == 0) {
         return module.exports.createCourseFromScratch(name, "")
         .then((courseid) => {
-          return connection.queryNone(query, [ltiClientId, ltiContextId, courseid]);
-        })
-        .then(() => {
-          return courseid;
+          return connection.queryNone(query, [ltiClientId, ltiContextId, courseid])
+          .then(() => {
+            return courseid;
+          });
         });
       } else {
         return courseList[0].id;

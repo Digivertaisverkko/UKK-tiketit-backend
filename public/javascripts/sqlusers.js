@@ -64,7 +64,6 @@ module.exports = {
     FROM core.lti_login ll INNER JOIN core.profiili p\
     ON ll.profiili=p.id\
     WHERE ll.clientid=$1 AND ll.userid=$2';
-    console.log("getLtiUser (" + ltiClientId + ", " + ltiUserId + ")");
     return connection.queryAll(query, [ltiClientId, ltiUserId])
   },
 

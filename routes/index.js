@@ -113,8 +113,8 @@ router.post('/api/LTI/', function(req, res, next) {
   .then(() => {
     return auth.ltiLogin(req.body.token);
   })
-  .then(() => {
-    res.send({success: true});
+  .then((logindata) => {
+    res.send(logindata);
   })
   .catch((error) => {
     errorFactory.createError(res, error);

@@ -66,8 +66,8 @@ const setupLti = async () => {
   // Redirect to app after succesful connections
   lti.onConnect(async (token, req, res) => {
     return auth.ltiLogin(token)
-    .then(() => {
-      return lti.redirect(res, process.env.LTI_REDIRECT);
+    .then((logindata) => {
+      return lti.redirect(res, process.env.LTI_REDIRECT + "list-tickets?courseID=" + logindata.kurssi + "&sessionID=" + logindata.sessionid);
     });
   });
 }
