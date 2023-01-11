@@ -67,7 +67,7 @@ const setupLti = async () => {
   lti.onConnect(async (token, req, res) => {
     return auth.ltiLogin(token)
     .then(() => {
-      return lti.redirect(res, 'http://localhost:4200');
+      return lti.redirect(res, process.env.LTI_REDIRECT);
     });
   });
 }
