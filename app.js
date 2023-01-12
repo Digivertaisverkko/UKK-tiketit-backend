@@ -67,7 +67,10 @@ const setupLti = async () => {
   lti.onConnect(async (token, req, res) => {
     return auth.ltiLogin(token)
     .then((logindata) => {
-      return lti.redirect(res, process.env.LTI_REDIRECT + "list-tickets?courseID=" + logindata.kurssi + "&sessionID=" + logindata.sessionid);
+      let url = new URL(process.env.LTI_REDIRECT + "/list-tickets");
+      url.searchParams.append('courseID', logindata.kurssi);
+      url.searchParams.append('sessionID', logindata.sessionid);
+      return lti.redirect(res, url.toString());
     });
   });
 }
