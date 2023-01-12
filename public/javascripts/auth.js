@@ -1,6 +1,7 @@
 
 const crypto = require('crypto');
 const sql = require('../../routes/sql');
+const ltiparser = require('./ltiparser');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -86,6 +87,7 @@ module.exports = {
         let clientid = token.clientId;
         let username = token.userInfo.name;
         let coursename = token.platformContext.context.title;
+        let courseroles = token.platformContext.roles;
 
         let storedProfileId;
         let storedCourseId;
@@ -107,7 +109,8 @@ module.exports = {
             return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
             .catch((error) => {
                 if (error === 2000) {
-                    return sql.courses.addUserToCourse(courseid, storedProfileId, false);
+                    let position = ltiparser.coursePositionFromLtiRoles(courseroles);
+                    return sql.courses.addUserToCourse(courseid, storedProfileId, position === 'opettaja');
                 }
             });
         })
