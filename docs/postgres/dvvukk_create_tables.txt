@@ -121,4 +121,20 @@ FOREIGN KEY (profiili) REFERENCES core.profiili(id),
 PRIMARY KEY (loginid)
 );
 
+CREATE TABLE core.lti_login (
+clientid VARCHAR(256) NOT NULL,
+userid VARCHAR(256) NOT NULL,
+profiili INT NOT NULL UNIQUE,
+FOREIGN KEY (profiili) REFERENCES core.profiili(id),
+PRIMARY KEY (clientid, userid)
+);
+
+CREATE TABLE core.lti_kurssi (
+clientid VARCHAR(256) NOT NULL,
+contextid VARCHAR(256) NOT NULL,
+kurssi INT NOT NULL UNIQUE,
+FOREIGN KEY (kurssi) REFERENCES core.kurssi(id),
+PRIMARY KEY (clientid, contextid)
+);
+
 INSERT INTO core.profiili (id, nimi, sposti) OVERRIDING SYSTEM VALUE VALUES (0, 'POISTETTU', '');

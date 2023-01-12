@@ -28,12 +28,31 @@ PGPORT=[PostgreSQL instanssin portti]
 PGDATABASE=[PostgreSQL tietokannan nimi]
 PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
 PGPASSWORD=[PostgreSQL käyttäjän salasana]
+LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
+LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
+LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 
 - Aja komento ```npm install```
 
 - Aja komento ```node app.js```
+
+Jos tarvitset enemmän debug infoa ltijs:ltä, niin aja seuraava komento:
+```DEBUG='provider:*' node app.js```
+
+## Integroiminen Moodleen
+
+Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen ominaisuus mahdollistaa sen, että ulkoisen työkalun integroiminen Moodleen onnistuu syöttämällä työkalun rekisteröintilinkin Moodleen. Tämä tapahtuu seuraavalla tavalla:
+
+- Mene Moodlessa Admin käyttäjänä ```Site administration / Plugins / Activity modules / External tool / Manage tools```.
+- Syötä työkalun rekisteröintilinkki ```Tool URL...``` laatikkoon. Esimerkiksi: ```http://localhost:3000/lti/register```.
+- Paina ```Add LTI Advantage``` nappia ja odota, että palaat hetken päästä takaisin samaan näkymään.
+- Työkalu ei aktivoidu automaattisesti Moodlessa. Eli paina ```Activate``` nappia alempana ```UKK-Tiketit``` työkalun laatikossa.
+- Lisää ulkoinen työkalu haluamallesi paikalle kurssialueella ja testaa toimivuus.
+
+
+# REST-rajapinnan määritelmä
 
 
 # REST-rajapinnan määritelmä
@@ -48,7 +67,8 @@ Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihi
 ### /api/login/ 
 #### POST 
 ##### Lähetä:
-```  
+```
+- header -
 {  
   login-type: $string
   code-challenge: $string
@@ -56,7 +76,9 @@ Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihi
 ```
 ##### Vastaus:  
 ```
+- body -
 { 
+  login-id: $string
   login-url: $URL (sisältää generoidun login-id)
 }
 ```
@@ -115,6 +137,17 @@ Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihi
 {
   success: $bool
   login-code: $string
+}
+```
+ 
+
+## Kurssien rajapinta 
+Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty session-id ei ole oikein, niin silloin näistä tulee vastauksena 
+```
+{
+  success: false
+  error: ”no authorization”
+  login-url: $URL
 }
 ```
 
