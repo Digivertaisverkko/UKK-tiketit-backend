@@ -415,28 +415,16 @@ router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
 });
 
 
+router.get('api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
+  getTicketBases(req, res, next);
+})
+
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.courses.getTicketBasesOfCourse(req.params.courseid);
-  })
-  .then((tickedIdRows) => {
-    if (tickedIdRows.length > 0) {
-      return sql.courses.getFieldsOfTicketBase(tickedIdRows[0].id);
-    } else {
-      return Promise.reject(2000);
-    }
-  })
-  .then((sqldata) => {
-    res.send(sqldata);
-  })
-  .catch((error) => {
-    errorFactory.createError(res, error);
-  });
+  getTicketBases(req, res, next);
 });
 
 router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
-//TODO: Forwardoi /api/kurssi/:courseid/uusitiketti/kentat metodiin
+  getTicketBases(req, res, next);
 });
 
 router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
@@ -453,5 +441,22 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
     errorFactory.createError(res, error);
   });
 });
+
+
+
+
+
+function getTicketBases(req, res, next) {
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return sql.courses.getCombinedTicketBasesOfCourse(req.params.courseid);
+  })
+  .then((sqldata) => {
+    res.send(sqldata);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
+}
 
 module.exports = router;

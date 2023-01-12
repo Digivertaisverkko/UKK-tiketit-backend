@@ -422,13 +422,67 @@ Tiketit muodostuvat tietokannassa useammasta osasesta. Iso osa rajapinnoista yri
 - Kommentit
     - Tiketeissä on kommentointimahdollisuus, ja tästä löytyy kaikki tiketin kommentit. Myös tiketin alkuperäinen viesti menee kommentiksi.
 
+
+### /api/kurssi/:kurssi-id/tiketinkentat/
+Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti.)
+
+#### GET
+##### Lähetä:
+```
+- header -
+{
+   session-id: $UUID
+}
+```
+##### Vastaus:
+```
+- body - 
+[{
+  id: $int
+  otsikko: $string
+  pakollinen: $bool
+  esitäytettävä: $string
+}]
+```
+*Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+
+#### POST
+Tämä **POST** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset vanhoihin kenttiin uudesta kenttäpohjasta. Vanhalle kenttäpohjalla tehtyihin tiketteihin jää edelleen sen kenttäpohjan kentät, jonka perusteella se tiketti luotiin.
+
+##### Lähetä:
+```
+- header -
+{
+   session-id: $UUID
+}
+```
+```
+- body -
+{
+[{
+  otsikko: $string
+  pakollinen: $bool
+  esitäytettävä: $string
+  ohje: $string
+}]
+}
+```
+##### Vastaus:
+```
+- body -
+{
+  success: true
+}
+```
+
+
 ### /api/kurssi/:kurssi-id/uusitiketti/
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
 
 #### POST
 ##### Lähetä:
 ```
--header-
+- header -
 {
   session-id: $UUID
 }
@@ -456,32 +510,13 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 **TODO:** Miten liitteet? 
 
 #### GET 
-Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/kurssi/:kurssi-id/uusitiketti/kentat/*. 
+Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat/*](#apikurssikurssi-idtiketinkentat). 
 
 
 
 ### /api/kurssi/:kurssi-id/uusitiketti/kentat/
-Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti. 
-
 #### GET
-##### Lähetä:
-```
-- header -
-{
-   session-id: $UUID
-}
-```
-##### Vastaus:
-```
-- body - 
-[{
-  id: $int
-  otsikko: $string
-  pakollinen: $bool
-  esitäytettävä: $string
-}]
-```
-*Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat*](#apikurssikurssi-idtiketinkentat).
 
 
 

@@ -82,11 +82,18 @@ module.exports = {
     .then((data) => { return data.id });
   },
 
+  getCombinedTicketBasesOfCourse: function(courseid) {
+    return module.exports.getTicketBasesOfCourse(courseid)
+    .then((tickedIdRows) => {
+      return module.exports.getFieldsOfTicketBase(tickedIdRows[0].id);
+    });
+  },
+
   getTicketBasesOfCourse: function(courseid) {
     const query = '\
     SELECT id, kuvaus FROM tikettipohja \
     WHERE kurssi=$1';
-    return connection.queryAll(query, [courseid]);
+    return connection.query(query, [courseid]);
   },
 
   getFieldsOfTicketBase: function(ticketbaseid) {
