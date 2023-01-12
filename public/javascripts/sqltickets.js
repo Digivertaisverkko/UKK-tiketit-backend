@@ -190,8 +190,16 @@ module.exports = {
           if (oldState != 1) {
             return oldState;
           }
-        } else if (newState == 3 || newState == 4 || newState == 5) {
+        } else if (newState == 3) {
+          if (oldState != 2 && oldState != 4) {
+            return oldState;
+          }
+        } else if (newState == 4) {
           if (oldState != 2) {
+            return oldState;
+          }
+        } else if (newState == 5) {
+          if (oldState != 2 && oldState != 4 && oldState != 3) {
             return oldState;
           }
         } else if (newState == 6) {

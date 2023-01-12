@@ -304,7 +304,10 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
 
 router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   let storeduserid;
-  sanitizer.hasRequiredParameters(req, ['viesti'])
+
+  console.log(req.body);
+
+  sanitizer.hasRequiredParameters(req, ['viesti', 'tila'])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
     return sql.tickets.hasAccess(userid, req.params.ticketid);
@@ -331,8 +334,8 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
       }
     });
   })
-  .then((state) => {
-    return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, state);
+  .then((newTicketState) => {
+    return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, req.body.tila);
   })
   .then(() => {
     res.send({success: true});

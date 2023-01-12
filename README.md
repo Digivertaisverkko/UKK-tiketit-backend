@@ -31,6 +31,7 @@ PGPASSWORD=[PostgreSQL käyttäjän salasana]
 LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
 LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
 LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
+LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen on onnistunut]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 
@@ -538,7 +539,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 - body -
 {
   viesti: $string
-  tila: $int (valinnainen)
+  tila: $int
 }
 ```
 ##### Vastaus:
@@ -548,7 +549,6 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   success: true
 }
 ```
-[*tila*-muuttuja](#tiketin-tila) on tarpeellinen vain opettajan laittamissa viesteissä, ja muissa se ei edes tee mitään. Jos tilaa ei määritellä, niin oletetaan sen olevan **4** (kommentti). 
 
 
 ### /api/tiketti/:tiketti-id/kommentit/
@@ -568,7 +568,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   viesti: $string 
 }] 
 ```
-Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.<br>
+Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin POSTilla.<br>
 [Kurssilainen-olio](#kurssilainen-olio)
 
 
@@ -596,6 +596,8 @@ Jotkut rajapinnat lähettävät olion, kun vastaus sisältää käyttäjän tiet
 
 ## Tiketin tila
 Kaikilla tiketeillä on *tila*, joka esitetään numeerisena arvona välillä 1-6. Kaikki muut ovat virhetiloja, mutta rajapinta palauttaa *tilaksi* 0, jos sen hakemisessa esiintyy jotain häikkää.
+
+Tila määräytyy tiketille ja kommentille eri tavalla. Kommentin tila on suoraan se tila, joka sille asetetaa sitä kirjoittaessa. Tiketin tila määräytyy kommenttien, latauksien ja kirjautuneen käyttäjät mukaan, seuraten tilalogiikkakaaviota.
 
 *Tilan* mahdolliset arvot: 
 - 0 virhetila 
