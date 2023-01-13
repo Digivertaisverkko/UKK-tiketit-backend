@@ -441,7 +441,8 @@ Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä
   id: $int
   otsikko: $string
   pakollinen: $bool
-  esitäytettävä: $string
+  esitaytettava: $bool
+  esitäyttö: $string
 }]
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
@@ -459,14 +460,17 @@ Tämä **POST** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukse
 ```
 - body -
 {
-[{
-  otsikko: $string
-  pakollinen: $bool
-  esitäytettävä: $string
-  ohje: $string
-}]
+  kentat:
+    [{
+      otsikko: $string
+      pakollinen: $bool
+      esitaytettava: $bool
+      ohje: $string
+    }]
 }
 ```
+Lähetettäviin kenttiin **ei tarvitse** (eikä saa) laittaa oletuskenttiä (tehtävä ja tyyppi). Ne lisätään automaattisesti annettujen kenttien lisäksi.
+
 ##### Vastaus:
 ```
 - body -

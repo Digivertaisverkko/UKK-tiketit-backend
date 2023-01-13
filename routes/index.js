@@ -304,9 +304,6 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
 
 router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   let storeduserid;
-
-  console.log(req.body);
-
   sanitizer.hasRequiredParameters(req, ['viesti', 'tila'])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
@@ -415,9 +412,24 @@ router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
 });
 
 
-router.get('api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
+router.get('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
   getTicketBases(req, res, next);
-})
+});
+
+router.post('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
+  sanitizer.hasRequiredParameters(req, ['kentat'])
+  .then(() => sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat, ['otsikko', 'pakollinen', 'esitaytettava', 'ohje']))
+  .then(() => auth.authenticatedUser(req))
+  .then((userid) => sql.courses.removeAllFieldsFromTicketBase(req.params.courseid))
+  .then(() => sql.courses.insertFieldsToTicketBase(req.params.courseid, req.body.kentat))
+  .then(() => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    console.log("catch");
+    errorFactory.createError(res, error);
+  })
+});
 
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
   getTicketBases(req, res, next);
