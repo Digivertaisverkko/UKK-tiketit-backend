@@ -559,8 +559,10 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 ##### Vastaus:
 ```
 [{
-  nimi: $string 
+  otsikko: $string 
   arvo: $string 
+  tyyppi: $string
+  ohje: $string
 }] 
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*

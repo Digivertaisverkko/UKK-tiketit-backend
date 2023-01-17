@@ -238,22 +238,7 @@ router.get('/api/kurssit/', function(req, res, next) {
 
 
 router.get('/api/tiketti/:ticketid', function(req, res, next) {
-  sql.tickets.isFaqTicket(req.params.ticketid)
-  .then((isFaq) => {
-    if (isFaq === false) {
-      return auth.authenticatedUser(req)
-      .then((userid) => {
-        return sql.tickets.hasAccess(userid, req.params.ticketid);
-      })
-      .then((access) => {
-        if (access.asema == 'opettaja') {
-          return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
-        }
-      })
-    } else {
-      return;
-    }
-  })
+  auth.hasTicketAccess(req, req.params.ticketid)
   .then(() => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
@@ -274,8 +259,8 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
 
 
 router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
+  auth.hasTicketAccess(req, req.params.ticketid)
+  .then(() => {
     return sql.tickets.getFieldsOfTicket(req.params.ticketid);
   })
   .then((sqldata) => res.send(sqldata))
@@ -286,11 +271,8 @@ router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
 
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
   let courseid = null;
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.tickets.hasAccess(userid, req.params.ticketid);
-  })
-  .then((access) => {
+  auth.hasTicketAccess(req, req.params.ticketid)
+  .then(() => {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticket) => {

@@ -140,6 +140,25 @@ module.exports = {
                 return Promise.reject(1000);
             }
         });
+    },
+
+    hasTicketAccess: function(request, ticketId) {
+        return sql.tickets.isFaqTicket(ticketId)
+        .then((isFaq) => {
+          if (isFaq === false) {
+            return module.exports.authenticatedUser(request)
+            .then((userid) => {
+              return sql.tickets.hasAccess(userid, ticketId);
+            })
+            .then((access) => {
+              if (access.asema == 'opettaja') {
+                return sql.tickets.setTicketStateIfAble(ticketId, 2)
+              }
+            })
+          } else {
+            return;
+          }
+        });
     }
   
 };
