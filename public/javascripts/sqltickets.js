@@ -22,9 +22,9 @@ module.exports = {
       WHERE kurssi=$1 AND profiili=$2';
       return connection.queryOne(query2, [data.kurssi, userid]);
     })
-    .then((result) => {
-      if (result.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
-        return result;
+    .then((courseStatus) => {
+      if (courseStatus.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
+        return courseStatus;
       } else {
         return Promise.reject(1003)
       }
@@ -53,6 +53,17 @@ module.exports = {
   getFaqTickets: function(courseId) {
     const query = 'SELECT id, otsikko, aikaleima FROM core.tiketti WHERE kurssi=$1 AND ukk=TRUE';
     return connection.queryAll(query, [courseId]);
+  },
+
+  isFaqTicket: function(ticketId) {
+    const query = 'SELECT * FROM core.tiketti WHERE id=$1 AND ukk=TRUE';
+    return connection.queryOne(query, [ticketId])
+    .then((results) => {
+      return true;
+    })
+    .catch((error) => {
+      return Promise.resolve(false);
+    })
   },
 
   getTicket: function(messageId) {

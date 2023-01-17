@@ -238,13 +238,20 @@ router.get('/api/kurssit/', function(req, res, next) {
 
 
 router.get('/api/tiketti/:ticketid', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.tickets.hasAccess(userid, req.params.ticketid);
-  })
-  .then((access) => {
-    if (access.asema == 'opettaja') {
-      return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
+  sql.tickets.isFaqTicket(req.params.ticketid)
+  .then((isFaq) => {
+    if (isFaq === false) {
+      return auth.authenticatedUser(req)
+      .then((userid) => {
+        return sql.tickets.hasAccess(userid, req.params.ticketid);
+      })
+      .then((access) => {
+        if (access.asema == 'opettaja') {
+          return sql.tickets.setTicketStateIfAble(req.params.ticketid, 2)
+        }
+      })
+    } else {
+      return;
     }
   })
   .then(() => {
