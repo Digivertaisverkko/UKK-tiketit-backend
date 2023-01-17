@@ -41,7 +41,7 @@ module.exports = {
   createSession: function(userid) {
     const sessionid = crypto.randomUUID();
 
-    const query = 'INSERT INTO core.sessio (sessionid, vanhenee, profiili) VALUES ($1, NOW()+interval \'1 days\', $2)'
+    const query = 'INSERT INTO core.sessio (sessionid, vanhenee, profiili) VALUES ($1, NOW()+interval \'14 days\', $2)'
     return connection.queryNone(query, [sessionid, userid])
     .then(() => {
         const query = 'SELECT * FROM core.sessio WHERE sessionid=$1';
