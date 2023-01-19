@@ -145,10 +145,7 @@ router.get('/api/kurssi/omatkurssit', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.courses.getCourseInfo(req.params.courseid);
-  })
+  return sql.courses.getCourseInfo(req.params.courseid);
   .then((coursedata) => {
     res.send(coursedata);
   })
