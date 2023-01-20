@@ -674,23 +674,23 @@ BBB - tarkentava koodi
 
 #### A-luokat:
 ##### 1 - Kirjautumisongelmat
-``` 
-1000 - Et ole kirjautunut
-1001 - Kirjautumispalveluun ei saatu yhteyttä
-1002 - Väärä käyttäjätunnus tai salasana
-1003 - Ei oikeuksia
-1010 - Luotava tili on jo olemassa
-```
+ | Tunnus | Virhe | HTTP-status |
+ | ------ | ----- | ----------- |
+ | 1000   | Et ole kirjautunut | 403 |
+ | 1001   | Kirjautumispalveluun ei saatu yhteyttä | 503 |
+ | 1002   | Väärä käyttäjätunnus ja salasana | 403 |
+ | 1003   | Ei oikeuksia | 403 |
+ | 1010   | Luotava tili on jo olemassa | 500 |
 
 
 ##### 2 - SQL-ongelmat
-```
-2000 - Ei löytynyt.
-```
+ | Tunnus | Virhe | HTTP-status |
+ | ------ | ----- | ----------- |
+ | 2000   | Tuloksia ei löytynyt | 204 |
 
 
 ##### 3 - Liikenneongelmat
-```
-3000 - Väärät parametrit
-3004 - Joku meni vikaan
-```
+ | Tunnus | Virhe | HTTP-status |
+ | ------ | ----- | ----------- |
+ | 3000   | Virheelliset parametrit | 400 |
+ | 3004   | Joku meni vikaan | 500 |
