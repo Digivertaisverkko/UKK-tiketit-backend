@@ -206,7 +206,7 @@ router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
     storedUserId = userid;
-    sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
+    return sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
   })
   .then(() => {
     return sql.tickets.createTicket(req.params.courseid, storedUserId, req.body.otsikko, req.body.kentat, req.body.viesti, true);
