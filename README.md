@@ -53,14 +53,34 @@ Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen omin
 - Lisää ulkoinen työkalu haluamallesi paikalle kurssialueella ja testaa toimivuus.
 
 
-# REST-rajapinnan määritelmä
-
 
 # REST-rajapinnan määritelmä
 
 Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihin lähetettävä HTTP-komento, lähetettävät parametrit ja palautetun vastauksen muoto. Osoitteet on pyritty lajittelemaan loogisesti ja samanlaiset komennot vieretysten.
 
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+
+
+## LTI-rajapinta
+DVVUKK-backend on LTI-työkalu (tool), tai vanhaa terminologiaa käyttäen tarjoaja (provider). Työkalu tukee sekä 1.1, että 1.3 LTI-standardia. Kumpaakin standardia varten on omat rajapintansa, joihin pitää tarvittaessa ottaa yhteyttä. Näihin rajapintoihin ei ole tarkoitus ottaa yhteyttä muussa tapauksessa kuin LTI:n kautta, ja olettavan kommunikoinnin olevan LTI-standardin mukaista.
+
+LTI:n kautta kulkevasta datasta tallennetaan palvelimelle seuraavat tiedot:
+- Käyttäjän tunnus
+- Käyttäjän koko nimi
+- Context id (kurssin tunnistamiseksi)
+- Käyttäjän roolit
+
+Lisäksi LTI-versiosta riippuen toinen seuraavista:
+- Client id (LTI 1.3)
+- LTI-kuluttujan (consumer) nettiosoite (LTI 1.1)
+
+### /lti/register
+LTI 1.3:n rekisteröimisrajapinta.
+
+### /lti/1p1/start
+LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäjän sisään backendiin ja ohjaa frontendissä oikealle kurssisivulle.
+
+
 
 
 ## Sisäänkirjautumisen rajapinta 
