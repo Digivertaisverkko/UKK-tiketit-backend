@@ -23,17 +23,18 @@ router.get('/api/', function(req, res, next) {
 });
 
 router.post('/lti/1p1/start', function(req, res, next) {
-  console.log(req.body);
 
-  let userid = req.body.user_id;
-  let contextid = req.body.context_id;
-  let clientid = req.body.lis_outcome_service_url;
-  let username = req.body.lis_person_name_full;
-  let coursename = req.body.context_title;
-  let courseroles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
-
-
-  auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles)
+  sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id', 'lis_outcome_service_url',
+    'lis_person_name_full', 'context_title', 'roles'])
+  .then(() => {
+    let userid = req.body.user_id;
+    let contextid = req.body.context_id;
+    let clientid = req.body.lis_outcome_service_url;
+    let username = req.body.lis_person_name_full;
+    let coursename = req.body.context_title;
+    let courseroles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
+    return auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
+  })
   .then((logindata) => {
     let url = new URL(process.env.LTI_REDIRECT + "/list-tickets");
     url.searchParams.append('courseID', logindata.kurssi);
