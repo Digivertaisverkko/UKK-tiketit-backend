@@ -23,16 +23,11 @@ module.exports = {
                               'Member',
                               'Officer'];
 
-        console.log('asd ' + ltiRoleList);
-
         if (ltiRoleList.some((r) => {console.log('gg: ' + r); return adminRoles.includes(r); } )) {
-            console.log('fasd');
             return 'opettaja';
         } else if (ltiRoleList.some((r) => teacherRoles.includes(r))) {
-            console.log('gasd');
             return 'opettaja';
         } else {
-            console.log('basd');
             return 'opiskelija';
         }
     }

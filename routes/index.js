@@ -13,8 +13,6 @@ const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 const sanitizer = require('../public/javascripts/sanitizer.js');
 const { send } = require('process');
 
-const lti = require('ims-lti');
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -34,7 +32,6 @@ router.post('/lti/1p1/start', function(req, res, next) {
   let coursename = req.body.context_title;
   let courseroles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
 
-  console.log("start: " + userid + " ;_; " + contextid + " ;_; " + clientid + " ;_; " + username + " ;_; " + coursename + " ;_; " + courseroles);
 
   auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles)
   .then((logindata) => {
@@ -46,7 +43,6 @@ router.post('/lti/1p1/start', function(req, res, next) {
   .catch((error) => {
     res.send(errorFactory.createError(res, error));
   });
-  //provider = new lti.Provider(req.body.oauth_consumer_key, 'shhared', [nonce_store=MemoryStore], [signature_method=HMAC_SHA1]);
 });
 
 
