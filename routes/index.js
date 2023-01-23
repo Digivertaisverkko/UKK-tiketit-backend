@@ -13,6 +13,8 @@ const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 const sanitizer = require('../public/javascripts/sanitizer.js');
 const { send } = require('process');
 
+const lti = require('ims-lti');
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -21,6 +23,32 @@ router.get('/', function(req, res, next) {
 router.get('/api/', function(req, res, next) {
   res.send('Hello World!');
 });
+
+router.post('/lti/1p1/start', function(req, res, next) {
+  console.log(req.body);
+
+  let userid = req.body.user_id;
+  let contextid = req.body.context_id;
+  let clientid = req.body.lis_outcome_service_url;
+  let username = req.body.lis_person_name_full;
+  let coursename = req.body.context_title;
+  let courseroles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
+
+  console.log("start: " + userid + " ;_; " + contextid + " ;_; " + clientid + " ;_; " + username + " ;_; " + coursename + " ;_; " + courseroles);
+
+  auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles)
+  .then((logindata) => {
+    let url = new URL(process.env.LTI_REDIRECT + "/list-tickets");
+    url.searchParams.append('courseID', logindata.kurssi);
+    url.searchParams.append('sessionID', logindata.sessionid);
+    res.redirect(url.toString());
+  })
+  .catch((error) => {
+    res.send(errorFactory.createError(res, error));
+  });
+  //provider = new lti.Provider(req.body.oauth_consumer_key, 'shhared', [nonce_store=MemoryStore], [signature_method=HMAC_SHA1]);
+});
+
 
 router.post('/api/login/', function(req, res, next) {
   let logintype = req.header('login-type');
