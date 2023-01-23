@@ -1,3 +1,5 @@
+# Postgres asetukset
+
 # Mikä tämä kansio on?
 Tästä kansiosta löytyy dokumentaatio backendin käyttämästä tietokannasta ja sen asetuksista. Tiedostosta löytyy myös listattuna komennot, jotka ajamalla tietokannan saa backendin vaatimaan toimintakuntoon.\
 Kaikissa tässä kansiossa olevissa tiedostoissa ei ole listattu tietokannassa käytettyjä käyttäjätunnuksia ja salasanoja, vaan ne on korvattu hakasulkeilla rajattuja käyttäjärooleja (esim. [peruskäyttäjä], [admin] tai [salasana])
