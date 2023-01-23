@@ -65,7 +65,7 @@ const setupLti = async () => {
   
   // Redirect to app after succesful connections
   lti.onConnect(async (token, req, res) => {
-    return auth.ltiLogin(token)
+    return auth.ltiLoginWithToken(token)
     .then((logindata) => {
       let url = new URL(process.env.LTI_REDIRECT + "/list-tickets");
       url.searchParams.append('courseID', logindata.kurssi);

@@ -81,7 +81,7 @@ module.exports = {
         });
     },
 
-    ltiLogin: function(token) {
+    ltiLoginWithToken: function(token) {
         let userid = token.user;
         let contextid = token.platformContext.contextId;
         let clientid = token.clientId;
@@ -89,35 +89,51 @@ module.exports = {
         let coursename = token.platformContext.context.title;
         let courseroles = token.platformContext.roles;
 
+        return module.exports.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
+    },
+
+    ltiLogin: function(userid, contextid, clientid, username, coursename, courseroles) {
+
         let storedProfileId;
         let storedCourseId;
+
+        console.log(1);
 
         return sql.users.getLtiUser(clientid, userid)
         .then((userList) => {
             if (userList.length == 0) {
+                console.log(2);
                 return sql.users.createLtiUser(username, clientid, userid);
             } else {
+                console.log(3);
                 return userList[0].id;
             }
         })
         .then((profileid) => {
+            console.log(4);
             storedProfileId = profileid;
             return sql.courses.getAndCreateLtiCourse(coursename, clientid, contextid);
         })
         .then((courseid) => {
+            console.log(5);
             storedCourseId = courseid;
             return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
             .catch((error) => {
+                console.log(6);
                 if (error === 2000) {
+                    console.log(7);
                     let position = ltiparser.coursePositionFromLtiRoles(courseroles);
+                    console.log('7.1');
                     return sql.courses.addUserToCourse(courseid, storedProfileId, position === 'opettaja');
                 }
             });
         })
         .then(() => {
+            console.log(8);
             return sql.users.createSession(storedProfileId);
         })
         .then((sessiondata) => {
+            console.log(9);
             return {"sessionid": sessiondata[0].sessionid, "profiili": storedProfileId, "kurssi": storedCourseId};
         });
     },
