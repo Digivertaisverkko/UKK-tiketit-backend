@@ -24,10 +24,8 @@ router.get('/api/', function(req, res, next) {
 
 router.post('/lti/1p1/start/', function(req, res, next) {
 
-    console.log(req.body);
-
   sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id', 'lis_outcome_service_url',
-    'lis_person_name_full', 'context_title', 'roles'])
+    'lis_person_name_full', 'context_title', 'roles', 'launch_presentation_locale'])
   .then(() => {
     let userid = req.body.user_id;
     let contextid = req.body.context_id;
@@ -38,9 +36,12 @@ router.post('/lti/1p1/start/', function(req, res, next) {
     return auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
   })
   .then((logindata) => {
+    let locale = req.body.launch_presentation_locale;
+
     let url = new URL(process.env.LTI_REDIRECT + "/list-tickets");
     url.searchParams.append('courseID', logindata.kurssi);
     url.searchParams.append('sessionID', logindata.sessionid);
+    url.searchParams.append('lang', locale);
     res.redirect(url.toString());
   })
   .catch((error) => {

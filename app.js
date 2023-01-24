@@ -70,6 +70,7 @@ const setupLti = async () => {
       let url = new URL(process.env.LTI_REDIRECT + "/list-tickets");
       url.searchParams.append('courseID', logindata.kurssi);
       url.searchParams.append('sessionID', logindata.sessionid);
+      url.searchParams.append('lang', token.launchPresentation.locale);
       return lti.redirect(res, url.toString());
     });
   });
