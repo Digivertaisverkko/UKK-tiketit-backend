@@ -32,8 +32,7 @@ router.post('/lti/1p1/start', function(req, res, next) {
     let clientid = req.body.lis_outcome_service_url;
     let username = req.body.lis_person_name_full;
     let coursename = req.body.context_title;
-    //TODO: Parsi roolit oikein (pilkulla eroteltu string)
-    let courseroles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
+    let courseroles = req.body.roles.split(',');
     return auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
   })
   .then((logindata) => {
