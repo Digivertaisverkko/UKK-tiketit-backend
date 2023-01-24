@@ -23,9 +23,9 @@ module.exports = {
                               'Member',
                               'Officer'];
 
-        if (ltiRoleList.some((r) => {console.log('gg: ' + r); return adminRoles.includes(r); } )) {
+        if (ltiRoleList.some((r) => adminRoles.includes(r) )) {
             return 'opettaja';
-        } else if (ltiRoleList.some((r) => teacherRoles.includes(r))) {
+        } else if (ltiRoleList.some((r) => teacherRoles.includes(r) )) {
             return 'opettaja';
         } else {
             return 'opiskelija';

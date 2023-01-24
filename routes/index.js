@@ -22,7 +22,9 @@ router.get('/api/', function(req, res, next) {
   res.send('Hello World!');
 });
 
-router.post('/lti/1p1/start', function(req, res, next) {
+router.post('/lti/1p1/start/', function(req, res, next) {
+
+    console.log(req.body);
 
   sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id', 'lis_outcome_service_url',
     'lis_person_name_full', 'context_title', 'roles'])

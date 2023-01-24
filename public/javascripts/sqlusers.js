@@ -115,9 +115,10 @@ module.exports = {
   },
 
   updateUserProfile: function(userid, newName) {
+    console.log('asd ' + userid + ' ;; ' + newName);
     const query = '\
     UPDATE core.profiili \
-    SET nimi=$1 \
+    SET nimi=$1 \
     WHERE id=$2';
     return connection.queryNone(query, [newName, userid]);
   }
