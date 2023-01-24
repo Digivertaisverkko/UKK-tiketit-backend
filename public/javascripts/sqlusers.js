@@ -112,6 +112,14 @@ module.exports = {
   userIdsWithEmail: function(email) {
     const query = 'SELECT id FROM core.profiili WHERE sposti=$1';
     return connection.queryAll(query, [email]);
+  },
+
+  updateUserProfile: function(userid, newName) {
+    const query = '\
+    UPDATE core.profiili \
+    SET nimi=$1 \
+    WHERE id=$2';
+    return connection.queryNone(query, [newName, userid]);
   }
  
 

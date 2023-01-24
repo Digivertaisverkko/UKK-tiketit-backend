@@ -101,6 +101,11 @@ module.exports = {
         .then((userList) => {
             if (userList.length == 0) {
                 return sql.users.createLtiUser(username, clientid, userid);
+            } else if (userList[0].nimi === username) {
+                return sql.users.updateUserProfile(userList[0].id, username)
+                .then(() => {
+                    return userList[0].id;
+                });
             } else {
                 return userList[0].id;
             }
