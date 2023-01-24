@@ -75,6 +75,10 @@ module.exports = {
     return connection.queryOne(query, [messageId]);
   },
 
+  deleteTicket: function(ticketId) {
+    //TODO: Keksi tälle toteutus
+  },
+
   getFieldsOfTicket: function(messageId) {
     //TODO: muuta messageId:t ticketId:iksi.
     const query = '\

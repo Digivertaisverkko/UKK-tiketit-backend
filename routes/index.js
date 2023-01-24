@@ -32,6 +32,7 @@ router.post('/lti/1p1/start', function(req, res, next) {
     let clientid = req.body.lis_outcome_service_url;
     let username = req.body.lis_person_name_full;
     let coursename = req.body.context_title;
+    //TODO: Parsi roolit oikein (pilkulla eroteltu string)
     let courseroles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
     return auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
   })
@@ -349,6 +350,29 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     errorFactory.createError(res, error);
   });
 });
+
+
+router.post('/api/tiketti/:ticketid/poista', function(req, res, next) {
+  let storedUserId;
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    //TODO: hasTicketAccess ei riitä oikeuksien tarkistamiseen
+    return auth.hasTicketAccess(req, req.params.ticketid);
+  })
+  .then(() => {
+    return sql.tickets.getTicket(req.params.ticketid);
+  })
+  .then((ticketdata) => {
+    if (ticketdata.aloittaja === storedUserId && ticketdata.ukk === true) {
+      //TODO: Tarkista, riittääkö nämä oikeudet
+      sql.tickets.deleteTicket(ticketdata.id);
+    }
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
 
 
 router.post('/api/luokurssi', function(req, res, next) {
