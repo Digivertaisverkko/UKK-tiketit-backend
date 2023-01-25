@@ -365,10 +365,14 @@ router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
     return sql.tickets.getTicket(req.params.ticketid);
   })
   .then((ticketdata) => {
-    if (ticketdata.aloittaja === storedUserId && ticketdata.ukk === true) {
-      //TODO: Tarkista, riittääkö nämä oikeudet
-      sql.tickets.archiveTicket(ticketdata.id);
-    }
+    return auth.roleInCourse(ticketdata.kurssi, storedUserId)
+    .then((roledata) => {
+      if (roledata.asema === 'opettaja' && ticketdata.ukk === true) {
+        sql.tickets.archiveTicket(ticketdata.id);
+      } else {
+        Promise.reject(1003);
+      }
+    });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
