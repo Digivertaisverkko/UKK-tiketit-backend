@@ -6,6 +6,15 @@ const connection = require('./connection.js');
 const arrayTools = require('./arrayTools.js');
 const con = connection.getConnection();
 
+const TicketState = {
+  sent: 1,
+  read: 2,
+  infoneeded: 3,
+  commented: 4,
+  resolved: 5,
+  archived: 6
+}
+
 module.exports = {
  
   hasAccess: function(userid, ticketid) {
@@ -75,8 +84,8 @@ module.exports = {
     return connection.queryOne(query, [messageId]);
   },
 
-  deleteTicket: function(ticketId) {
-    //TODO: Keksi tälle toteutus
+  archiveTicket: function(ticketId) {
+    module.exports.setTicketState(ticketId, TicketState.archived);
   },
 
   getFieldsOfTicket: function(messageId) {
@@ -199,25 +208,25 @@ module.exports = {
 
         if (newState == oldState) {
           return oldState;
-        } else if (newState == 1) {
+        } else if (newState == TicketState.sent) {
           //Päästä läpi
-        } else if (newState == 2) {
-          if (oldState != 1) {
+        } else if (newState == TicketState.read) {
+          if (oldState != TicketState.sent) {
             return oldState;
           }
-        } else if (newState == 3) {
-          if (oldState != 2 && oldState != 4) {
+        } else if (newState == TicketState.infoneeded) {
+          if (oldState != TicketState.read && oldState != TicketState.commented) {
             return oldState;
           }
-        } else if (newState == 4) {
-          if (oldState != 2) {
+        } else if (newState == TicketState.commented) {
+          if (oldState != TicketState.read) {
             return oldState;
           }
-        } else if (newState == 5) {
-          if (oldState != 2 && oldState != 4 && oldState != 3) {
+        } else if (newState == TicketState.resolved) {
+          if (oldState != TicketState.read && oldState != TicketState.commented && oldState != TicketState.infoneeded) {
             return oldState;
           }
-        } else if (newState == 6) {
+        } else if (newState == TicketState.archived) {
           //Päästä läpi
         } else {
           return oldState;

@@ -11,16 +11,6 @@ module.exports = {
     return connection.queryAll(query, [loginid, codeChallenge, frontcode])
     .then((sqldata) => { return '/login?loginid=' + loginid })
     .catch((error) => { return Promise.reject('createLogin: ' + error + ' loginid: ' + loginid) });
-
-    return new Promise(function (resolve, reject) {
-      const query = 'INSERT INTO core.loginyritys (loginid, codeChallenge, fronttunnus, profiili) VALUES ($1, $2, $3, NULL)';
-      con.query(query, [loginid, codeChallenge, frontcode], function(err, res) {
-        if (err) {
-          reject('createLogin: ' + err + ' loginid: ' + loginid);
-        }
-        resolve('/login?loginid=' + loginid);
-      });
-    });
   },
 
   updateLoginAttemptWithAccount: function(loginid, userid) {

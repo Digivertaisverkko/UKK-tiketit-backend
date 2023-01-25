@@ -354,7 +354,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 });
 
 
-router.post('/api/tiketti/:ticketid/poista', function(req, res, next) {
+router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
   let storedUserId;
   auth.authenticatedUser(req)
   .then((userid) => {
@@ -367,12 +367,12 @@ router.post('/api/tiketti/:ticketid/poista', function(req, res, next) {
   .then((ticketdata) => {
     if (ticketdata.aloittaja === storedUserId && ticketdata.ukk === true) {
       //TODO: Tarkista, riittääkö nämä oikeudet
-      sql.tickets.deleteTicket(ticketdata.id);
+      sql.tickets.archiveTicket(ticketdata.id);
     }
   })
   .catch((error) => {
     errorFactory.createError(res, error);
-  })
+  });
 });
 
 
