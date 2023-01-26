@@ -17,6 +17,13 @@ const TicketState = {
 
 module.exports = {
  
+  getPlainTicket: function(ticketid) {
+    const query = 'SELECT aloittaja, kurssi, ukk \
+    FROM core.tiketti \
+    WHERE id=$1';
+    return connection.queryOne(query, [ticketid]);
+  },
+
   hasAccess: function(userid, ticketid) {
     let storedData;
     const query = 'SELECT aloittaja, kurssi, ukk \

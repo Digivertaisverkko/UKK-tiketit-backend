@@ -12,6 +12,7 @@ const { use } = require('express/lib/application.js');
 const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 const sanitizer = require('../public/javascripts/sanitizer.js');
 const { send } = require('process');
+const access = require('../public/javascripts/access management/access.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -160,9 +161,10 @@ router.get('/api/minun/poistatili', function(req, res, next) {
 
 
 router.get('/api/kurssi/omatkurssit', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.courses.getAllCoursesWithUser(userid);
+  //ACCESS
+  access.listCourses(req)
+  .then((handle) => {
+    return handle.methods.coursesOfUser(handle.userid);
   })
   .then((data) => {
     res.send(data);
@@ -172,8 +174,13 @@ router.get('/api/kurssi/omatkurssit', function(req, res, next) {
   });
 });
 
+
 router.get('/api/kurssi/:courseid', function(req, res, next) {
-  return sql.courses.getCourseInfo(req.params.courseid)
+  //ACCESS
+  access.publicMethods()
+  .then((handle) => {
+    return handle.methods.courseInfo(req.params.courseid);
+  })
   .then((coursedata) => {
     res.send(coursedata);
   })
@@ -183,12 +190,11 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.tickets.getAllMyTickets(req.params.courseid, userid);
-  })
-  .then((ticketdata) => {
-    return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', req.params.courseid);
+  //WIP ACCESS
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    console.log('asd');
+    handle.methods.getAllTicketsMadeByUser(handle.userid, req.params.courseid);
   })
   .then((sqldata) => {
     res.send(sqldata);
