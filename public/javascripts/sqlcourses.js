@@ -134,6 +134,14 @@ module.exports = {
     return connection.queryAll(query, [courseid, useridList]);
   },
 
+  updateUserPositionInCourse: function(userid, courseid, newPosition) {
+    const query = '\
+    UPDATE core.kurssinosallistujat \
+    SET asema=$1 \
+    WHERE kurssi=$2 AND profiili=$3';
+    return connection.queryNone(query, [newPosition, courseid, userid]);
+  },
+
   removeAllFieldsFromTicketBase: function(courseid) {
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((idList) => {

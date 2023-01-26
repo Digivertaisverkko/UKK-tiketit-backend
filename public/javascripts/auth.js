@@ -118,10 +118,18 @@ module.exports = {
     .then((courseid) => {
       storedCourseId = courseid;
       return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
+      .then((userInfo) => {
+        let position = ltiparser.coursePositionFromLtiRoles(courseroles);
+        if (userInfo.asema !== position) {
+          return sql.courses.updateUserPositionInCourse(userInfo.id, storedCourseId, position);
+        }
+      })
       .catch((error) => {
         if (error === 2000) {
           let position = ltiparser.coursePositionFromLtiRoles(courseroles);
           return sql.courses.addUserToCourse(courseid, storedProfileId, position === 'opettaja');
+        } else {
+          return Promise.reject(error);
         }
       });
     })
