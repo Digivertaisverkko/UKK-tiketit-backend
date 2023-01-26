@@ -12,7 +12,7 @@ class TicketWrites extends TicketReads {
       if (isFaq === true) {
         sql.tickets.archiveTicket(ticketid);
       } else {
-        return Promise.reject(3000);
+        return Promise.reject(3001);
       }
     })
   }

@@ -63,6 +63,8 @@ module.exports = {
   },
 
   writeTicket: function(request, ticketId) {
+    let storedUserId;
+    let storedTicketData;
     return auth.authenticatedUser(request)
     .then((userid) => {
       storedUserId = userid;
@@ -70,7 +72,7 @@ module.exports = {
     })
     .then((ticketData) => {
       storedTicketData = ticketData;
-      return auth.roleInCourse(ticketData.kurssi, userid);
+      return sql.courses.roleInCourse(ticketData.kurssi, storedUserId);
     })  
     .then((courseStatus) => {
       if (courseStatus.asema === 'opettaja') {

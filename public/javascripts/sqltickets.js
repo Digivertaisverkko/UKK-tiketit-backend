@@ -92,6 +92,7 @@ module.exports = {
   },
 
   archiveTicket: function(ticketId) {
+    console.log(4);
     module.exports.setTicketState(ticketId, TicketState.archived);
   },
 

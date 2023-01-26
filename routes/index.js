@@ -351,7 +351,13 @@ router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
   
   access.writeTicket(req, req.params.ticketid)
   .then((handle) => {
-    handle.methods.archiveFaqTicket(req.params.ticketid);
+    return handle.methods.archiveFaqTicket(req.params.ticketid);
+  })
+  .then(() => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
   })
   /*
   let storedUserId;

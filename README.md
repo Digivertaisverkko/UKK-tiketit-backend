@@ -68,7 +68,7 @@ LTI:n kautta kulkevasta datasta tallennetaan palvelimelle seuraavat tiedot:
 - Käyttäjän tunnus
 - Käyttäjän koko nimi
 - Context id (kurssin tunnistamiseksi)
-- Käyttäjän roolit
+- Käyttäjän rooli kurssilla
 
 Lisäksi LTI-versiosta riippuen toinen seuraavista:
 - Client id (LTI 1.3)
@@ -713,4 +713,5 @@ BBB - tarkentava koodi
  | Tunnus | Virhe | HTTP-status |
  | ------ | ----- | ----------- |
  | 3000   | Virheelliset parametrit | 400 |
+ | 3001   | Operaatiota ei voi suorittaa | 409 |
  | 3004   | Joku meni vikaan | 500 |

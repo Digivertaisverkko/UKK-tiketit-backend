@@ -22,6 +22,7 @@ A-luokat:
 
 3 - Liikenneongelmat
 3000 - Väärät parametrit
+3001 - Operaatio ei mahdollinen
 3004 - Joku meni vikaan
 
 */
@@ -65,6 +66,10 @@ module.exports = {
             case 3000:
                 e.error.virheilmoitus = "Virheelliset parametrit.";
                 status = 400
+                break;
+            case 3001:
+                e.error.virheilmoitus = "Operaatiota ei voida suorittaa.";
+                status = 400;
                 break;
             default:
                 e.error.tunnus = 3004;
