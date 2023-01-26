@@ -348,6 +348,12 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 
 
 router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
+  
+  access.writeTicket(req, req.params.ticketid)
+  .then((handle) => {
+    handle.methods.archiveFaqTicket(req.params.ticketid);
+  })
+  /*
   let storedUserId;
   auth.authenticatedUser(req)
   .then((userid) => {
@@ -370,6 +376,7 @@ router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   });
+  */
 });
 
 

@@ -6,7 +6,7 @@ let sql = require('../../../routes/sql.js');
 
 class TicketWrites extends TicketReads {
 
-  deleteFaqTicket(ticketid) {
+  archiveFaqTicket(ticketid) {
     return sql.tickets.isFaqTicket(ticketid)
     .then((isFaq) => {
       if (isFaq === true) {

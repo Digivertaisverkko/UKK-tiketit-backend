@@ -133,9 +133,9 @@ module.exports = {
     });
   },
 
-    hash: function(hashable, salt) {
-      return crypto.createHash('sha256').update(hashable).update(salt).digest('hex');
-    },
+  hash: function(hashable, salt) {
+    return crypto.createHash('sha256').update(hashable).update(salt).digest('hex');
+  },
 
   authenticatedUser: function(httpRequest) {
     var sessionid = httpRequest.header('session-id');
