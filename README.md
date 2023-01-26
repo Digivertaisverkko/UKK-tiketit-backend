@@ -2,10 +2,21 @@
 
 Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen MySQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
+## Sisällysluettelo
+- [Backendin ajaminen](#backendin-ajaminen)
+- [Rajapinnan määritelmä](#rest-rajapinnan-määritelmä)
+    - [Sisäänkirjautimisrajapinta](#sisäänkirjautumisen-rajapinta)
+    - [Kurssirajapinta](#kurssien-rajapinta)
+    - [Tikettirajapinta](#tikettien-rajapinta)
+- [Lähetetyt erikoisarvot](#erikoisarvot)
+- [Virhetilat](#virhetilat)
+
 
 # Backendin ajaminen
 
 - Lataa tai kloonaa tämä repo
+
+- Varmista, että sinulla on postgres-tietokanta pystyssä, ja alustettu [ohjeiden](docs/postgres/dokumentaatio.md) mukaan.
 
 - ```cp .env.example .env```
 
@@ -17,6 +28,10 @@ PGPORT=[PostgreSQL instanssin portti]
 PGDATABASE=[PostgreSQL tietokannan nimi]
 PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
 PGPASSWORD=[PostgreSQL käyttäjän salasana]
+LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
+LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
+LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
+LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen on onnistunut]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 
@@ -24,10 +39,48 @@ PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 
 - Aja komento ```node app.js```
 
+Jos tarvitset enemmän debug infoa ltijs:ltä, niin aja seuraava komento:
+```DEBUG='provider:*' node app.js```
+
+## Integroiminen Moodleen
+
+Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen ominaisuus mahdollistaa sen, että ulkoisen työkalun integroiminen Moodleen onnistuu syöttämällä työkalun rekisteröintilinkin Moodleen. Tämä tapahtuu seuraavalla tavalla:
+
+- Mene Moodlessa Admin käyttäjänä ```Site administration / Plugins / Activity modules / External tool / Manage tools```.
+- Syötä työkalun rekisteröintilinkki ```Tool URL...``` laatikkoon. Esimerkiksi: ```http://localhost:3000/lti/register```.
+- Paina ```Add LTI Advantage``` nappia ja odota, että palaat hetken päästä takaisin samaan näkymään.
+- Työkalu ei aktivoidu automaattisesti Moodlessa. Eli paina ```Activate``` nappia alempana ```UKK-Tiketit``` työkalun laatikossa.
+- Lisää ulkoinen työkalu haluamallesi paikalle kurssialueella ja testaa toimivuus.
+
+
 
 # REST-rajapinnan määritelmä
 
+Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihin lähetettävä HTTP-komento, lähetettävät parametrit ja palautetun vastauksen muoto. Osoitteet on pyritty lajittelemaan loogisesti ja samanlaiset komennot vieretysten.
+
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+
+
+## LTI-rajapinta
+DVVUKK-backend on LTI-työkalu (tool), tai vanhaa terminologiaa käyttäen tarjoaja (provider). Työkalu tukee sekä 1.1, että 1.3 LTI-standardia. Kumpaakin standardia varten on omat rajapintansa, joihin pitää tarvittaessa ottaa yhteyttä. Näihin rajapintoihin ei ole tarkoitus ottaa yhteyttä muussa tapauksessa kuin LTI:n kautta, ja olettavan kommunikoinnin olevan LTI-standardin mukaista.
+
+LTI:n kautta kulkevasta datasta tallennetaan palvelimelle seuraavat tiedot:
+- Käyttäjän tunnus
+- Käyttäjän koko nimi
+- Context id (kurssin tunnistamiseksi)
+- Käyttäjän roolit kurssilla
+
+Lisäksi LTI-versiosta riippuen toinen seuraavista:
+- Client id (LTI 1.3)
+- LTI-kuluttujan (consumer) nettiosoite (LTI 1.1)
+
+### /lti/register
+LTI 1.3:n rekisteröimisrajapinta.
+
+### /lti/1p1/start
+LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäjän sisään backendiin ja ohjaa frontendissä oikealle kurssisivulle.
+
+
 
 
 ## Sisäänkirjautumisen rajapinta 
@@ -35,7 +88,8 @@ PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ### /api/login/ 
 #### POST 
 ##### Lähetä:
-```  
+```
+- header -
 {  
   login-type: $string
   code-challenge: $string
@@ -43,7 +97,9 @@ PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 ##### Vastaus:  
 ```
+- body -
 { 
+  login-id: $string
   login-url: $URL (sisältää generoidun login-id)
 }
 ```
@@ -131,6 +187,17 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
   success: $bool
 }
 ```
+<br><br><br>
+
+## Kurssien rajapinta 
+Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty session-id ei ole oikein, niin silloin näistä tulee vastauksena 
+```
+{
+  success: false
+  error: ”no authorization”
+  login-url: $URL
+}
+```
 
 
 ### /api/kurssit/
@@ -214,6 +281,7 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 
 
 ### /api/kurssi/:kurssi-id/ukk/
+Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt UKK-tiketeiksi. Tällä on myös POST-muoto, jolla voidaan lisätä UKK-tikettejä kantaan.
 #### GET
 ##### Lähetä:
 ```
@@ -298,13 +366,40 @@ Tulevaisuudessa lisäksi pitää lähettää:
 
 
 ### /api/kurssi/:kurssi-id/liity/
-Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi.
+Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi. *Tämä rajapinta tullaan poistamaan tulevaisuudessa.*
 #### POST
 ##### Lähetä
 ```
 - header -
 {
   session-id: $UUID
+}
+```
+##### Vastaus:
+```
+- body - 
+{
+  success: true
+}
+```
+
+
+### /api/kurssi/:kurssi-id/kutsu/
+Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. **Vaatii opettajan oikeudet kurssille**, jotta opiskelijoita voi kutsua.
+Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, niin kyseinen käyttäjä lisätään kurssille. Jos käyttäjää ei ole vielä kannassa, käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin. (Toteutus kesken.)
+#### POST
+##### Lähetä
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+```
+- body -
+{
+  sposti: $string
+  opettaja: $bool
 }
 ```
 ##### Vastaus:
@@ -329,7 +424,80 @@ Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### Vastaus:
 Vastauksena tulee [kurssilainen-olio](#kurssilainen-olio)
 
+<br><br><br>
 
+## Tikettien rajapinta
+
+Tiketit muodostuvat tietokannassa useammasta osasesta. Iso osa rajapinnoista yrittää yhdistää nämä osat yhteen, mutta joissain tapauksissa on hyödyllistä tiedostaa kaikki osat, ja miten ne liittyvät toisiinsa.
+- Tikettipohja
+    - Kuvaus siitä, millainen tiketti kurssilla on.
+- Kenttäpohja
+    - Tiketissä on otsikon ja viestin lisäksi muita täytettäviä kenttiä, joita käyttäjiä voidaan vaatia täyttämään. Kenttäpohja määrittää mitä kenttiä tiketipohjassa on.
+- Tiketti
+    - Viittaus lähettyyn tikettiin itseensä. Sisältää viittauksen tikettipohjaan, ja kaikki tiketin sisältö viittaa itse tähän.
+- Tiketin kentät
+    - Lähettyjen tiketin lisäkenttien arvot.
+- [Tiketin tila](#tiketin-tila)
+    - Tiketillä voi olla useampia eri tiloja sen perusteella, kuka on sen lukenut ja kuka siihen on kommentoinut.
+- Kommentit
+    - Tiketeissä on kommentointimahdollisuus, ja tästä löytyy kaikki tiketin kommentit. Myös tiketin alkuperäinen viesti menee kommentiksi.
+
+
+### /api/kurssi/:kurssi-id/tiketinkentat/
+Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti.)
+
+#### GET
+##### Lähetä:
+```
+- header -
+{
+   session-id: $UUID
+}
+```
+##### Vastaus:
+```
+- body - 
+[{
+  id: $int
+  otsikko: $string
+  pakollinen: $bool
+  esitaytettava: $bool
+  esitäyttö: $string
+}]
+```
+*Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+
+#### POST
+Tämä **POST** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset vanhoihin kenttiin uudesta kenttäpohjasta. Vanhalle kenttäpohjalla tehtyihin tiketteihin jää edelleen sen kenttäpohjan kentät, jonka perusteella se tiketti luotiin.
+
+##### Lähetä:
+```
+- header -
+{
+   session-id: $UUID
+}
+```
+```
+- body -
+{
+  kentat:
+    [{
+      otsikko: $string
+      pakollinen: $bool
+      esitaytettava: $bool
+      ohje: $string
+    }]
+}
+```
+Lähetettäviin kenttiin **ei tarvitse** (eikä saa) laittaa oletuskenttiä (tehtävä ja tyyppi). Ne lisätään automaattisesti annettujen kenttien lisäksi.
+
+##### Vastaus:
+```
+- body -
+{
+  success: true
+}
+```
 
 
 ### /api/kurssi/:kurssi-id/uusitiketti/
@@ -338,10 +506,12 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 #### POST
 ##### Lähetä:
 ```
--header-
+- header -
 {
   session-id: $UUID
 }
+```
+```
 -body- 
 {
   otsikko: $string
@@ -364,30 +534,13 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 **TODO:** Miten liitteet? 
 
 #### GET 
-Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen */api/kurssi/:kurssi-id/uusitiketti/kentat/*. 
+Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat/*](#apikurssikurssi-idtiketinkentat). 
 
 
 
 ### /api/kurssi/:kurssi-id/uusitiketti/kentat/
-Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti. 
-
 #### GET
-##### Lähetä:
-```
-{
-   session-id: $UUID
-}
-```
-##### Vastaus:
-```
-[{
-  id: $int
-  otsikko: $string
-  pakollinen: $bool
-  esitäytettävä: $string
-}]
-```
-*Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
+Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat*](#apikurssikurssi-idtiketinkentat).
 
 
 
@@ -426,8 +579,10 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 ##### Vastaus:
 ```
 [{
-  nimi: $string 
+  otsikko: $string 
   arvo: $string 
+  tyyppi: $string
+  ohje: $string
 }] 
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
@@ -445,7 +600,7 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
 - body -
 {
   viesti: $string
-  tila: $int (valinnainen)
+  tila: $int
 }
 ```
 ##### Vastaus:
@@ -455,7 +610,6 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   success: true
 }
 ```
-[*tila*-muuttuja](#tiketin-tila) on tarpeellinen vain opettajan laittamissa viesteissä, ja muissa se ei edes tee mitään. Jos tilaa ei määritellä, niin oletetaan sen olevan **4** (kommentti). 
 
 
 ### /api/tiketti/:tiketti-id/kommentit/
@@ -472,17 +626,18 @@ Tällä rajapinnalla saa selville kaikki tiketin lisätiedot, joita pitää käy
   lahettaja: $kurssilainen-olio
   aikaleima: $string 
   tila: $int 
-  teksti: $string 
+  viesti: $string 
 }] 
 ```
-Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mihin viestin *tila* muuttui, kun viesti kirjoitettiin.<br>
+Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin POSTilla.<br>
 [Kurssilainen-olio](#kurssilainen-olio)
 
 
+<br><br><br>
 
 # Erikoisarvot
 ## Kurssilainen-olio
-Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäjän tietoja. Kaikki palauttavat samanlaisen.
+Jotkut rajapinnat lähettävät olion, kun vastaus sisältää käyttäjän tietoja. Kaikki palauttavat samanlaisen.
 ### Muoto
 ```
 {
@@ -498,8 +653,12 @@ Jotkut rajapinnat lähettävät kurssilainen olion, kun pitää kertoa käyttäj
 - opiskelija
 - admin
 
+<br><br><br>
+
 ## Tiketin tila
 Kaikilla tiketeillä on *tila*, joka esitetään numeerisena arvona välillä 1-6. Kaikki muut ovat virhetiloja, mutta rajapinta palauttaa *tilaksi* 0, jos sen hakemisessa esiintyy jotain häikkää.
+
+Tila määräytyy tiketille ja kommentille eri tavalla. Kommentin tila on suoraan se tila, joka sille asetetaa sitä kirjoittaessa. Tiketin tila määräytyy kommenttien, latauksien ja kirjautuneen käyttäjät mukaan, seuraten tilalogiikkakaaviota.
 
 *Tilan* mahdolliset arvot: 
 - 0 virhetila 
@@ -535,23 +694,23 @@ BBB - tarkentava koodi
 
 #### A-luokat:
 ##### 1 - Kirjautumisongelmat
-``` 
-1000 - Et ole kirjautunut
-1001 - Kirjautumispalveluun ei saatu yhteyttä
-1002 - Väärä käyttäjätunnus tai salasana
-1003 - Ei oikeuksia
-1010 - Luotava tili on jo olemassa
-```
+ | Tunnus | Virhe | HTTP-status |
+ | ------ | ----- | ----------- |
+ | 1000   | Et ole kirjautunut | 403 |
+ | 1001   | Kirjautumispalveluun ei saatu yhteyttä | 503 |
+ | 1002   | Väärä käyttäjätunnus ja salasana | 403 |
+ | 1003   | Ei oikeuksia | 403 |
+ | 1010   | Luotava tili on jo olemassa | 500 |
 
 
 ##### 2 - SQL-ongelmat
-```
-2000 - Ei löytynyt.
-```
+ | Tunnus | Virhe | HTTP-status |
+ | ------ | ----- | ----------- |
+ | 2000   | Tuloksia ei löytynyt | 204 |
 
 
 ##### 3 - Liikenneongelmat
-```
-3000 - Väärät parametrit
-3004 - Joku meni vikaan
-```
+ | Tunnus | Virhe | HTTP-status |
+ | ------ | ----- | ----------- |
+ | 3000   | Virheelliset parametrit | 400 |
+ | 3004   | Joku meni vikaan | 500 |

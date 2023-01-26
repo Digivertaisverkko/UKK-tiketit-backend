@@ -11,16 +11,6 @@ module.exports = {
     return connection.queryAll(query, [loginid, codeChallenge, frontcode])
     .then((sqldata) => { return '/login?loginid=' + loginid })
     .catch((error) => { return Promise.reject('createLogin: ' + error + ' loginid: ' + loginid) });
-
-    return new Promise(function (resolve, reject) {
-      const query = 'INSERT INTO core.loginyritys (loginid, codeChallenge, fronttunnus, profiili) VALUES ($1, $2, $3, NULL)';
-      con.query(query, [loginid, codeChallenge, frontcode], function(err, res) {
-        if (err) {
-          reject('createLogin: ' + err + ' loginid: ' + loginid);
-        }
-        resolve('/login?loginid=' + loginid);
-      });
-    });
   },
 
   updateLoginAttemptWithAccount: function(loginid, userid) {
@@ -30,7 +20,7 @@ module.exports = {
 
   getLoginAttemptWithId: function(loginid) {
     const query = 'SELECT * FROM core.loginyritys WHERE loginid=$1';
-    return connection.query(query, [loginid]);
+    return connection.queryAll(query, [loginid]);
   },
 
   getLoginAttemptWithAccessCode: function(accessCode) {
@@ -41,7 +31,7 @@ module.exports = {
   createSession: function(userid) {
     const sessionid = crypto.randomUUID();
 
-    const query = 'INSERT INTO core.sessio (sessionid, vanhenee, profiili) VALUES ($1, NOW()+interval \'1 days\', $2)'
+    const query = 'INSERT INTO core.sessio (sessionid, vanhenee, profiili) VALUES ($1, NOW()+interval \'14 days\', $2)'
     return connection.queryNone(query, [sessionid, userid])
     .then(() => {
         const query = 'SELECT * FROM core.sessio WHERE sessionid=$1';
@@ -57,6 +47,27 @@ module.exports = {
   checkUserAccount: function(username, passwordhash) {
     const query = 'SELECT * FROM core.login WHERE ktunnus=$1 AND salasana=$2';
     return connection.queryAll(query, [username, passwordhash]);
+  },
+
+  getLtiUser: function(ltiClientId, ltiUserId) {
+    const query = 'SELECT p.id, p.nimi, p.sposti \
+    FROM core.lti_login ll INNER JOIN core.profiili p\
+    ON ll.profiili=p.id\
+    WHERE ll.clientid=$1 AND ll.userid=$2';
+    return connection.queryAll(query, [ltiClientId, ltiUserId])
+  },
+
+  createLtiUser: function(name, ltiClientId, ltiUserId) {
+    const ltiQuery = 'INSERT INTO core.lti_login (clientid, userid, profiili) VALUES ($1, $2, $3)';
+    let storedProfileId;
+    return module.exports.createEmptyUser(name, "")
+    .then((profileId) => {
+      storedProfileId = profileId;
+      return connection.queryNone(ltiQuery, [ltiClientId, ltiUserId, profileId]);
+    })
+    .then(() => {
+      return storedProfileId;
+    });
   },
 
   removeLoginAttempt: function(frontcode) {
@@ -86,6 +97,20 @@ module.exports = {
   userIdForSession: function(sessionid) {
     const query = 'SELECT profiili FROM core.sessio WHERE sessionid=$1 AND vanhenee>NOW()';
     return connection.queryAll(query, [sessionid]);
+  },
+
+  userIdsWithEmail: function(email) {
+    const query = 'SELECT id FROM core.profiili WHERE sposti=$1';
+    return connection.queryAll(query, [email]);
+  },
+
+  updateUserProfile: function(userid, newName) {
+    console.log('asd ' + userid + ' ;; ' + newName);
+    const query = '\
+    UPDATE core.profiili \
+    SET nimi=$1 \
+    WHERE id=$2';
+    return connection.queryNone(query, [newName, userid]);
   }
  
 

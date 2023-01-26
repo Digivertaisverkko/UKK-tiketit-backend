@@ -6,6 +6,15 @@ const connection = require('./connection.js');
 const arrayTools = require('./arrayTools.js');
 const con = connection.getConnection();
 
+const TicketState = {
+  sent: 1,
+  read: 2,
+  infoneeded: 3,
+  commented: 4,
+  resolved: 5,
+  archived: 6
+}
+
 module.exports = {
  
   hasAccess: function(userid, ticketid) {
@@ -15,15 +24,16 @@ module.exports = {
     WHERE id=$1';
     return connection.queryOne(query, [ticketid])
     .then((data) => {
+      //TODO: UKK:ihin pitäisi päästä käsiksi kirjautumatta.
       storedData = data;
       const query2 = '\
       SELECT profiili, asema FROM core.kurssinosallistujat \
       WHERE kurssi=$1 AND profiili=$2';
       return connection.queryOne(query2, [data.kurssi, userid]);
     })
-    .then((result) => {
-      if (result.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
-        return result;
+    .then((courseStatus) => {
+      if (courseStatus.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
+        return courseStatus;
       } else {
         return Promise.reject(1003)
       }
@@ -54,6 +64,17 @@ module.exports = {
     return connection.queryAll(query, [courseId]);
   },
 
+  isFaqTicket: function(ticketId) {
+    const query = 'SELECT * FROM core.tiketti WHERE id=$1 AND ukk=TRUE';
+    return connection.queryOne(query, [ticketId])
+    .then((results) => {
+      return true;
+    })
+    .catch((error) => {
+      return Promise.resolve(false);
+    })
+  },
+
   getTicket: function(messageId) {
     const query = '\
     SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi, ukk FROM core.tiketti t \
@@ -61,6 +82,10 @@ module.exports = {
     ON t.id = tt.tiketti \
     WHERE t.id=$1';
     return connection.queryOne(query, [messageId]);
+  },
+
+  archiveTicket: function(ticketId) {
+    module.exports.setTicketState(ticketId, TicketState.archived);
   },
 
   getFieldsOfTicket: function(messageId) {
@@ -83,7 +108,7 @@ module.exports = {
   },
 
   getComments: function(messageId) {
-    const query = 'SELECT viesti, lahettaja, aikaleima FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
+    const query = 'SELECT viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
     return connection.queryAll(query, [messageId]);
   },
 
@@ -97,7 +122,6 @@ module.exports = {
     return connection.queryOne(query, [courseid, userid, title, isFaq])
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
-        console.log("tikk 1")
         const query = '\
         INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
         VALUES ($1, 1, NOW())';
@@ -105,7 +129,6 @@ module.exports = {
         .then((sqldata) => { return ticketid; });
     })
     .then((ticketid) => {
-      console.log("tikk 2")
       return new Promise(function(resolve, reject) {
         var promises = [];
         fields.forEach(kvp => {
@@ -117,7 +140,6 @@ module.exports = {
       });
     })
     .then((ticketid) => {
-      console.log("tikk 3")
       return module.exports.createComment(ticketid, userid, content, 1)
       .then(() => ticketid );
     });
@@ -186,17 +208,25 @@ module.exports = {
 
         if (newState == oldState) {
           return oldState;
-        } else if (newState == 1) {
+        } else if (newState == TicketState.sent) {
           //Päästä läpi
-        } else if (newState == 2) {
-          if (oldState != 1) {
+        } else if (newState == TicketState.read) {
+          if (oldState != TicketState.sent) {
             return oldState;
           }
-        } else if (newState == 3 || newState == 4 || newState == 5) {
-          if (oldState != 2) {
+        } else if (newState == TicketState.infoneeded) {
+          if (oldState != TicketState.read && oldState != TicketState.commented) {
             return oldState;
           }
-        } else if (newState == 6) {
+        } else if (newState == TicketState.commented) {
+          if (oldState != TicketState.read) {
+            return oldState;
+          }
+        } else if (newState == TicketState.resolved) {
+          if (oldState != TicketState.read && oldState != TicketState.commented && oldState != TicketState.infoneeded) {
+            return oldState;
+          }
+        } else if (newState == TicketState.archived) {
           //Päästä läpi
         } else {
           return oldState;

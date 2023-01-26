@@ -1,3 +1,4 @@
+const { countReset } = require('console');
 const crypto = require('crypto');
 const { Pool, Client } = require('pg');
 
@@ -20,6 +21,13 @@ module.exports = {
     return connection.queryOne(query, [courseId]);
   },
 
+  getLtiCourseInfo: function(ltiClientId, ltiCourseId) {
+    const query = 'SELECT k.id, k.nimi \
+    FROM core.kurssi k INNER JOIN core.lti_kurssi lk\
+    ON k.id = lk.kurssi \
+    WHERE lk.clientid=$1 AND lk.contextid=$2';
+    return connection.queryAll(query, [ltiClientId, ltiCourseId]);
+  },
 
   createCourse: function(name) {
     const query = '\
@@ -28,6 +36,41 @@ module.exports = {
     RETURNING id';
     return connection.queryOne(query, [name])
     .then((sqldata) => { return sqldata.id });
+  },
+
+  createCourseFromScratch: function(name, instruction, creatorId=null) {
+    let storedcourseid;
+    return module.exports.createCourse(name)
+    .then((courseid) => {
+      storedcourseid = courseid;
+      if (creatorId !== null) {
+        return module.exports.addUserToCourse(courseid, creatorId, true);
+      }
+    })
+    .then(() => {
+      return module.exports.createTicketBase(instruction, storedcourseid);
+    })
+    .then(() => {
+      return storedcourseid;
+    });
+  },
+
+  getAndCreateLtiCourse: function(name, ltiClientId, ltiContextId) {
+    const query = 'INSERT INTO core.lti_kurssi (clientid, contextid, kurssi) VALUES ($1, $2, $3)';
+    return module.exports.getLtiCourseInfo(ltiClientId, ltiContextId)
+    .then((courseList) => {
+      if (courseList.length == 0) {
+        return module.exports.createCourseFromScratch(name, "")
+        .then((courseid) => {
+          return connection.queryNone(query, [ltiClientId, ltiContextId, courseid])
+          .then(() => {
+            return courseid;
+          });
+        });
+      } else {
+        return courseList[0].id;
+      }
+    });
   },
 
   createTicketBase: function(description, courseid) {
@@ -39,16 +82,23 @@ module.exports = {
     .then((data) => { return data.id });
   },
 
+  getCombinedTicketBasesOfCourse: function(courseid) {
+    return module.exports.getTicketBasesOfCourse(courseid)
+    .then((tickedIdRows) => {
+      return module.exports.getFieldsOfTicketBase(tickedIdRows[0].id);
+    });
+  },
+
   getTicketBasesOfCourse: function(courseid) {
     const query = '\
     SELECT id, kuvaus FROM tikettipohja \
     WHERE kurssi=$1';
-    return connection.queryAll(query, [courseid]);
+    return connection.query(query, [courseid]);
   },
 
   getFieldsOfTicketBase: function(ticketbaseid) {
     const query = '\
-    SELECT id, otsikko, pakollinen, esitaytettava FROM tikettipohjankentat tk \
+    SELECT id, otsikko, pakollinen, esitaytettava, ohje FROM tikettipohjankentat tk \
     INNER JOIN kenttapohja kp \
     ON kp.id=tk.kentta \
     WHERE tk.tikettipohja=$1';
@@ -82,6 +132,57 @@ module.exports = {
     WHERE ko.kurssi=$1 AND p.id = ANY ($2)'
 
     return connection.queryAll(query, [courseid, useridList]);
+  },
+
+  updateUserPositionInCourse: function(userid, courseid, newPosition) {
+    const query = '\
+    UPDATE core.kurssinosallistujat \
+    SET asema=$1 \
+    WHERE kurssi=$2 AND profiili=$3';
+    return connection.queryNone(query, [newPosition, courseid, userid]);
+  },
+
+  removeAllFieldsFromTicketBase: function(courseid) {
+    return module.exports.getTicketBasesOfCourse(courseid)
+    .then((idList) => {
+      const fieldQuery = '\
+      DELETE FROM core.tikettipohjankentat \
+      WHERE tikettipohja=$1 AND kentta>2' //kentta id:t 1 ja 2 on varattu oletuskentille
+      return connection.queryNone(fieldQuery, [idList[0].id]);
+    });
+  },
+
+  insertFieldsToTicketBase: function(courseid, fieldArray) {
+    let storedTicketId;
+    return module.exports.getTicketBasesOfCourse(courseid)
+    .then((ticketIdList) => {
+      let promises = [];
+      storedTicketId = ticketIdList[0].id;
+      const query = '\
+      INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje) \
+      VALUES ($1, $2, $3, $4, $5) \
+      RETURNING id';
+      for (index in fieldArray) {
+        let element = fieldArray[index];
+        promises.push(connection.queryAll(query, [element.otsikko, 1, element.esitaytettava, element.pakollinen, element.ohje]));
+      }
+      return Promise.all(promises);
+    })
+    .then((fieldIdList) => {
+      let promises = [];
+      console.log("tikettipohjankentat: " + JSON.stringify(fieldIdList));
+      const query = '\
+      INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) \
+      VALUES ($1, $2)';
+      for (index in fieldIdList) {
+        /*Jokainen promise palauttaa erillisen taulun. 
+        Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
+        let id = fieldIdList[index][0].id;
+        console.log("insert tikettipohjankentat " + storedTicketId + " ;; " + id);
+        promises.push(connection.queryNone(query, [storedTicketId, id]));
+      }
+      return Promise.all(promises);
+    });
   }
 
 };
