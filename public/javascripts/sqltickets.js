@@ -119,8 +119,6 @@ module.exports = {
     return connection.queryAll(query, [messageId]);
   },
 
-
-
   createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
     const query = '\
     INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \

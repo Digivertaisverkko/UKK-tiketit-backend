@@ -190,11 +190,10 @@ router.get('/api/kurssi/:courseid', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
-  //WIP ACCESS
+  //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
-    console.log('asd');
-    handle.methods.getAllTicketsMadeByUser(handle.userid, req.params.courseid);
+    return handle.methods.getAllTicketsMadeByUser(handle.userid, req.params.courseid);
   })
   .then((sqldata) => {
     res.send(sqldata);
@@ -205,21 +204,9 @@ router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
-  })
-  .then((userdata) => {
-    if (userdata != undefined && userdata.asema === 'opettaja') {
-      return sql.tickets.getAllTickets(req.params.courseid);
-    } else if (userdata != undefined) {
-      return sql.tickets.getAllMyTickets(req.params.courseid, userdata.id);
-    } else {
-      return Promise.reject(1003);
-    }
-  })
-  .then((ticketdata) => {
-    return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', req.params.courseid);
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.getAllTicketsVisibleToUser(handle.userid, req.params.courseid);
   })
   .then((data) => res.send(data))
   .catch((error) => errorFactory.createError(res, error));

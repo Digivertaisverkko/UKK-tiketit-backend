@@ -84,10 +84,6 @@ module.exports = {
     })
   },
 
-  writeComment: function(request, commentId) {
-
-  },
-
   listCourses: function(request) {
     return auth.authenticatedUser(request)
     .then((userid) => {
@@ -99,12 +95,10 @@ module.exports = {
     let storedUserId;
     return auth.authenticatedUser(request)
     .then((userid) => {
-      console.log('fgd ' + userid + ' ' + courseid);
       storedUserId = userid;
-      return auth.roleInCourse(courseid, userid)
+      return sql.courses.roleInCourse(courseid, userid);
     })
     .then(() => {
-      console.log('cvb');
       return { userid: storedUserId, methods: coursereads };
     });
   },

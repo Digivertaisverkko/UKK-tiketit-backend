@@ -134,6 +134,13 @@ module.exports = {
     return connection.queryAll(query, [courseid, useridList]);
   },
 
+  roleInCourse: function(courseid, userid) {
+    const query2 = '\
+    SELECT profiili, asema FROM core.kurssinosallistujat \
+    WHERE kurssi=$1 AND profiili=$2';
+    return connection.queryOne(query2, [courseid, userid]);
+  },
+
   removeAllFieldsFromTicketBase: function(courseid) {
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((idList) => {
