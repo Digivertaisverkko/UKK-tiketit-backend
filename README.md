@@ -68,7 +68,7 @@ LTI:n kautta kulkevasta datasta tallennetaan palvelimelle seuraavat tiedot:
 - Käyttäjän tunnus
 - Käyttäjän koko nimi
 - Context id (kurssin tunnistamiseksi)
-- Käyttäjän roolit
+- Käyttäjän roolit kurssilla
 
 Lisäksi LTI-versiosta riippuen toinen seuraavista:
 - Client id (LTI 1.3)
