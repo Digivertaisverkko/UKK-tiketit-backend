@@ -205,6 +205,7 @@ router.get('/api/kurssi/:courseid/omat', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
+  //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
     return handle.methods.getAllTicketsVisibleToUser(handle.userid, req.params.courseid);
@@ -347,6 +348,9 @@ router.post('/api/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
 
 
 router.post('/api/luokurssi', function(req, res, next) {
+  res.status(405).send({syy: "Ei vielä toteutettu."});
+  //Kommentoitu tilapäisesti, kunnes oikea toteutus tarvitaan.
+  /*
   sanitizer.hasRequiredParameters(req, ['nimi', 'ohjeteksti'])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
@@ -358,11 +362,15 @@ router.post('/api/luokurssi', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   });
+  */
 });
 
 
 router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
+  res.status(405).send({syy: "Ei vielä toteutettu."});
   //TODO: Tietoturva-aukko: Kuka tahansa voi liittyä mille tahansa kurssille.
+  //Kommentoitu tilapäisesti tietoturva-aukon korjaamista odotellessa.
+  /*
   auth.authenticatedUser(req)
   .then((userid) => {
     sql.courses.addUserToCourse(req.params.courseid, userid, false);
@@ -373,9 +381,13 @@ router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   });
+  */
 });
 
 router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
+  res.status(405).send({syy: "Ei vielä toteutettu."});
+  //Kommentoitu tiläpäisesti, kunnes oikea toteutus tarvitaan.
+  /*
   sanitizer.hasRequiredParameters(req, ["sposti", "opettaja"])
   .then(() => auth.authenticatedUser(req))
   .then((userid) => {
@@ -398,13 +410,14 @@ router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
   })
   .then(() => res.send({success: true}))
   .catch((error) => errorFactory.createError(res, error));
+  */
 });
 
 
 router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.getUserInfo(handle.userid, req.params.courseid);
   })
   .then((sqldata) => {
     res.send(sqldata);

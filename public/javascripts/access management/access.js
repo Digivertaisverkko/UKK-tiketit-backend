@@ -20,6 +20,7 @@ const ticketwrites = new TicketWrites();
 const courselists = new CourseLists();
 const coursereads = new CourseReads();
 const coursewrites = new CourseWrites();
+const profilereads = new ProfileReads();
 
 module.exports = {
 
@@ -117,7 +118,10 @@ module.exports = {
   },
 
   readProfile: function(request, profileId) {
-
+    return auth.authenticatedUser(request)
+    .then((userid) => {
+      return { userid: userid, methods: profileread }
+    });
   },
 
   writeProfile: function(request, profileId) {
