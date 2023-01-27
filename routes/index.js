@@ -13,6 +13,7 @@ const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 const sanitizer = require('../public/javascripts/sanitizer.js');
 const { send } = require('process');
 const access = require('../public/javascripts/access management/access.js');
+const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -222,18 +223,13 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
 });
 
 router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
-  let storedUserId;
-  //TODO: Estää opiskelijaa luomasta ukk-tikettiä
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    storedUserId = userid;
-    return sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus']);
-  })
+  //ACCESS
+  sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus'])
   .then(() => {
-    return sql.tickets.createTicket(req.params.courseid, storedUserId, req.body.otsikko, req.body.kentat, req.body.viesti, true);
+    return access.writeCourse(req, req.params.courseid);
   })
-  .then((ticketid) => {
-    return sql.tickets.createComment(ticketid, storedUserId, req.body.vastaus, 5);
+  .then((handle) => {
+    handle.methods.createFaqTicket(req.params.courseid, handle.userid, req.body.otsikko, req.body.kentat, req.body.viesti);
   })
   .then(() => {
     res.send({"success": true});
@@ -348,7 +344,7 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 
 
 router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
-  
+  //ACCESS
   access.writeTicket(req, req.params.ticketid)
   .then((handle) => {
     return handle.methods.archiveFaqTicket(req.params.ticketid);
@@ -358,33 +354,26 @@ router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
   })
   .catch((error) => {
     errorFactory.createError(res, error);
-  })
-  /*
-  let storedUserId;
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    //TODO: hasTicketAccess ei riitä oikeuksien tarkistamiseen
-    return auth.hasTicketAccess(req, req.params.ticketid);
-  })
+  });
+});
+
+router.post('/api/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
+
+  sanitizer.objectHasRequiredParameters(req.body, ['otsikko', 'viesti', 'kentat', 'vastaus'])
   .then(() => {
-    return sql.tickets.getTicket(req.params.ticketid);
+    return access.writeTicket(req, req.params.ticketid);
   })
-  .then((ticketdata) => {
-    return auth.roleInCourse(ticketdata.kurssi, storedUserId)
-    .then((roledata) => {
-      if (roledata.asema === 'opettaja' && ticketdata.ukk === true) {
-        sql.tickets.archiveTicket(ticketdata.id);
-      } else {
-        Promise.reject(1003);
-      }
-    });
+  .then((handle) => {
+    return handle.methods.editFaqTicket(req.params.ticketid, req.body.otsikko, req.body.viesti, req.body.vastaus, req.body.kentat);
+  })
+  .then((data) => {
+    res.send({ success: true });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
-  });
-  */
-});
+  })
 
+});
 
 
 router.post('/api/luokurssi', function(req, res, next) {

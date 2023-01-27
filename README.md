@@ -328,16 +328,64 @@ Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt
 } 
 ```
 
+### /api/tiketti/:tiketti-id/arkistoiukk
+Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi. Tiketti arkistoidaan vain siinä tapauksessa, jos tiketti on merkitty UKK:ksi.
+#### POST
+##### Lähetä:
+```
+- header -
+{
+  session-id
+}
+```
+##### Vastaus:
+```
+- body -
+{
+  success: true
+}
+```
+
+### /api/tiketti/:tiketti-id/muokkaaukk
+Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi, ja muokattavan tiketin pitää olla UKK, eikä se saa olla [arkistoitu](#tiketin-tila).
+Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuilla tiedoilla. Lopputulos on siis sama, kuin kutsuisi [/api/tiketti/:tiketti-id/arkistoiukk](#apitikettitiketti-idarkistoiukk) ja **POST** [/api/kurssi/:kurssi-id/ukk](#apikurssikurssi-idukk).
+#### POST
+##### Lähetä:
+```
+- header - 
+{
+  session-id: $UUID
+}
+- body -
+{
+  otsikko: $string
+  viesti: $string
+  kentat: 
+  [{
+    id: $int
+    arvo: $string
+  }]
+  vastaus: $string
+} 
+```
+##### Vastaus:
+```
+- body -
+{
+  success: true
+}
+```
+
  
 ### /api/luokurssi/
 #### POST
 ##### Lähetä:
 ```
--header-
+- header -
 {
    session-id: $UUID
 }
--body-
+- body -
 {
   nimi: $string
   ohjeteksti: $string
@@ -357,6 +405,7 @@ Tulevaisuudessa lisäksi pitää lähettää:
 ```
 ##### Vastaus:
 ```
+- body - 
 {
   success: $bool
   error: $error-olio
@@ -416,7 +465,7 @@ Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### GET
 ##### Lähetä:
 ```
--header-
+- header -
 {
   session-id: $UUID
 }

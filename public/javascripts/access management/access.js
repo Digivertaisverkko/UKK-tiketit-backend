@@ -14,8 +14,11 @@ const TicketReads = require('./ticketreads.js');
 const TicketWrites = require('./ticketwrites.js');
 
 
+const ticketreads = new TicketReads();
+const ticketwrites = new TicketWrites();
 const courselists = new CourseLists();
 const coursereads = new CourseReads();
+const coursewrites = new CourseWrites();
 
 module.exports = {
 
@@ -58,22 +61,26 @@ module.exports = {
       }
     })
     .then(() => {
-      return { userid: storedUserId, methods: new TicketReads() };
+      return { userid: storedUserId, methods: ticketreads };
     });
   },
 
   writeTicket: function(request, ticketId) {
+    //Palauttaa saman kuin writeCourse, mutta hakee kurssi-id:n tiketistä.
+    return sql.tickets.getPlainTicket(ticketId)
+    .then((ticketData) => {
+      storedTicketData = ticketData;
+      return this.writeCourse(request, ticketData.kurssi);
+    })
+  },
+
+  writeCourse: function(request, courseId) {
     let storedUserId;
-    let storedTicketData;
     return auth.authenticatedUser(request)
     .then((userid) => {
       storedUserId = userid;
-      return sql.tickets.getPlainTicket(ticketId);
+      return sql.courses.roleInCourse(courseId, userid);
     })
-    .then((ticketData) => {
-      storedTicketData = ticketData;
-      return sql.courses.roleInCourse(ticketData.kurssi, storedUserId);
-    })  
     .then((courseStatus) => {
       if (courseStatus.asema === 'opettaja') {
         return courseStatus;
@@ -82,7 +89,7 @@ module.exports = {
       }
     })
     .then(() => {
-      return { userid: storedUserId, methods: new TicketWrites() };
+      return { userid: storedUserId, methods: coursewrites };
     })
   },
 
