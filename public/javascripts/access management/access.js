@@ -33,21 +33,17 @@ module.exports = {
     let storedTicketData;
     return sql.tickets.isFaqTicket(ticketId)
     .then((isFaq) => {
-      console.log(11);
       if (isFaq === false) {
         return auth.authenticatedUser(request)
         .then((userid) => {
-          console.log(12);
           storedUserId = userid;
           return sql.tickets.getPlainTicket(ticketId);
         })
         .then((ticketData) => {
-          console.log(13);
           storedTicketData = ticketData;
           return sql.courses.roleInCourse(ticketData.kurssi, storedUserId);
         })  
         .then((courseStatus) => {
-          console.log(14);
           if (courseStatus.asema == 'opettaja' || storedTicketData.aloittaja == storedUserId) {
             return courseStatus;
           } else {
@@ -55,7 +51,6 @@ module.exports = {
           }
         })
         .then((access) => {
-          console.log(15);
           if (access.asema === 'opettaja') {
             //TODO: Tämä ei kuuluu oikeuksien tarkistukseen, koska tämä kirjoittaa tietokantaan
             return sql.tickets.setTicketStateIfAble(ticketId, 2);
@@ -69,7 +64,6 @@ module.exports = {
       }
     })
     .then(() => {
-      console.log(16);
       return { userid: storedUserId, methods: ticketreads };
     });
   },

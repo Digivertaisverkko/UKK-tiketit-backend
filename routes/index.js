@@ -301,7 +301,6 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     return access.readTicket(req, req.params.ticketid);
   })
   .then((handle) => {
-    console.log(1);
     return handle.methods.addComment(req.params.ticketid, handle.userid, req.body.viesti, req.body.tila);
   })
   .then(() => {
@@ -429,7 +428,6 @@ router.post('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
     res.send({success: true});
   })
   .catch((error) => {
-    console.log("catch");
     errorFactory.createError(res, error);
   })
 });

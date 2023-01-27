@@ -169,7 +169,6 @@ module.exports = {
     })
     .then((fieldIdList) => {
       let promises = [];
-      console.log("tikettipohjankentat: " + JSON.stringify(fieldIdList));
       const query = '\
       INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) \
       VALUES ($1, $2)';
@@ -177,7 +176,6 @@ module.exports = {
         /*Jokainen promise palauttaa erillisen taulun. 
         Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
         let id = fieldIdList[index][0].id;
-        console.log("insert tikettipohjankentat " + storedTicketId + " ;; " + id);
         promises.push(connection.queryNone(query, [storedTicketId, id]));
       }
       return Promise.all(promises);

@@ -105,7 +105,6 @@ module.exports = {
   },
 
   updateUserProfile: function(userid, newName) {
-    console.log('asd ' + userid + ' ;; ' + newName);
     const query = '\
     UPDATE core.profiili \
     SET nimi=$1 \
