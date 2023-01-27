@@ -639,6 +639,7 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 
 ### /api/tiketti/:tiketti-id/uusikommentti
+Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tikettiin.
 #### POST
 ##### Lähetä:
 ```

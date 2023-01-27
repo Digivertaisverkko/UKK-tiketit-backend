@@ -303,39 +303,17 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
 });
 
 router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
-  let storeduserid;
+  //ACCESS
   sanitizer.hasRequiredParameters(req, ['viesti', 'tila'])
-  .then(() => auth.authenticatedUser(req))
-  .then((userid) => {
-    return sql.tickets.hasAccess(userid, req.params.ticketid);
+  .then(() => {
+    return access.readTicket(req, req.params.ticketid);
   })
-  .then((access) => {
-    storeduserid = access.profiili;
+  .then((handle) => {
+    console.log(1);
+    return handle.methods.addComment(req.params.ticketid, handle.userid, req.body.viesti, req.body.tila);
   })
   .then(() => {
-    return sql.tickets.getTicket(req.params.ticketid)
-    .then((ticketdata) => {
-        if (ticketdata.ukk == true) {
-          return Promise.reject(1003);
-        }
-        return sql.courses.getUserInfoForCourse(storeduserid, ticketdata.kurssi);
-    })
-    .then((userinfo) => {
-      if (userinfo.asema == 'opettaja') {
-        let state = req.body.tila || 4
-        return sql.tickets.setTicketStateIfAble(req.params.ticketid, state);
-      } else if (userinfo.asema == 'opiskelija') {
-        return sql.tickets.setTicketStateIfAble(req.params.ticketid, 1);
-      } else {
-        return Promise.reject(userinfo.asema);
-      }
-    });
-  })
-  .then((newTicketState) => {
-    return sql.tickets.createComment(req.params.ticketid, storeduserid, req.body.viesti, req.body.tila);
-  })
-  .then(() => {
-    res.send({success: true});
+    res.send({ success: true });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
@@ -358,7 +336,7 @@ router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
 });
 
 router.post('/api/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
-
+  //ACCESS
   sanitizer.objectHasRequiredParameters(req.body, ['otsikko', 'viesti', 'kentat', 'vastaus'])
   .then(() => {
     return access.writeTicket(req, req.params.ticketid);
