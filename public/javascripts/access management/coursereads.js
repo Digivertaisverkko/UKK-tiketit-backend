@@ -41,6 +41,10 @@ class CourseReads extends CourseLists {
     return sql.courses.getUserInfoForCourse(userId, courseId);
   }
 
+  getTicketBases(courseId) {
+    return sql.courses.getCombinedTicketBasesOfCourse(courseId);
+  }
+
 }
 
 module.exports = CourseReads;

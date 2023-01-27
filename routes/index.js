@@ -415,6 +415,7 @@ router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
 
 
 router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
+  //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
     return handle.methods.getUserInfo(handle.userid, req.params.courseid);
@@ -429,7 +430,16 @@ router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
 
 
 router.get('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
-  getTicketBases(req, res, next);
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.getTicketBases(req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
 });
 
 router.post('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
@@ -447,11 +457,29 @@ router.post('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
-  getTicketBases(req, res, next);
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.getTicketBases(req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
 });
 
 router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
-  getTicketBases(req, res, next);
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.getTicketBases(req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
 });
 
 router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
@@ -469,21 +497,5 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   });
 });
 
-
-
-
-
-function getTicketBases(req, res, next) {
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    return sql.courses.getCombinedTicketBasesOfCourse(req.params.courseid);
-  })
-  .then((sqldata) => {
-    res.send(sqldata);
-  })
-  .catch((error) => {
-    errorFactory.createError(res, error);
-  });
-}
 
 module.exports = router;
