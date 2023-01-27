@@ -273,9 +273,10 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
 
 
 router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
-  auth.hasTicketAccess(req, req.params.ticketid)
-  .then(() => {
-    return sql.tickets.getFieldsOfTicket(req.params.ticketid);
+  //ACCESS
+  access.readTicket(req, req.params.ticketid)
+  .then((handle) => {
+    return handle.methods.getFields(req.params.ticketid);
   })
   .then((sqldata) => res.send(sqldata))
   .catch((error) => {

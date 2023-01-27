@@ -45,6 +45,10 @@ class TicketReads {
     });
   }
 
+  getFields(ticketId) {
+    return sql.tickets.getFieldsOfTicket(ticketId);
+  }
+
 }
 
 

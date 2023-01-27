@@ -618,6 +618,7 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 
 ### /api/tiketti/:tiketti-id/kentat/
+Vaatii lukuoikeudet tikettiin.
 #### GET
 ##### Lähetä:
 ```
