@@ -14,6 +14,7 @@ const TicketReads = require('./ticketreads.js');
 const TicketWrites = require('./ticketwrites.js');
 
 
+const publicmethds = new PublicMethods();
 const ticketreads = new TicketReads();
 const ticketwrites = new TicketWrites();
 const courselists = new CourseLists();
@@ -24,7 +25,7 @@ module.exports = {
 
   publicMethods: function() {
     return new Promise(function(resolve, reject) {
-      resolve({ userid: undefined, methods: PublicMethods });
+      resolve({ userid: undefined, methods: publicmethds });
     });
   },
 

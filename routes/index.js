@@ -214,9 +214,10 @@ router.get('/api/kurssi/:courseid/kaikki', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
-  return sql.tickets.getFaqTickets(req.params.courseid)
-  .then((ticketData) => {
-    return splicer.insertTicketFieldsToIdReferences(ticketData, 'id')
+  //ACCESS
+  access.publicMethods()
+  .then((handle) => {
+    return handle.methods.getFaqTickets(req.params.courseid);
   })
   .then((data) => res.send(data) )
   .catch((error) => errorFactory.createError(res, error) );
