@@ -33,6 +33,13 @@ class TicketReads {
 
   }
 
+  getTicketMetadata(ticketId) {
+    return sql.tickets.getTicket(ticketId)
+    .then((ticketdata) => {
+      return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
+    });
+  }
+
   getComments(ticketId) {
     let storedCourseId;
     return sql.tickets.getTicket(ticketId)

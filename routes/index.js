@@ -252,12 +252,10 @@ router.get('/api/kurssit/', function(req, res, next) {
 
 
 router.get('/api/tiketti/:ticketid', function(req, res, next) {
-  auth.hasTicketAccess(req, req.params.ticketid)
-  .then(() => {
-    return sql.tickets.getTicket(req.params.ticketid);
-  })
-  .then((ticketdata) => {
-    return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
+  //ACCESS
+  access.readTicket(req, req.params.ticketid)
+  .then((handle) => {
+    return handle.methods.getTicketMetadata(req.params.ticketid);
   })
   .then((data) => {
     if (data.length == 1) {
