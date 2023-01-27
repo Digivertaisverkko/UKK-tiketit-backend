@@ -663,6 +663,7 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 
 
 ### /api/tiketti/:tiketti-id/kommentit/
+Vaatii tiketinlukuoikeudet.
 #### GET
 ##### Lähetä:
 ```

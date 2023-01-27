@@ -33,6 +33,18 @@ class TicketReads {
 
   }
 
+  getComments(ticketId) {
+    let storedCourseId;
+    return sql.tickets.getTicket(ticketId)
+    .then((ticket) => {
+      storedCourseId = ticket.kurssi;
+      return sql.tickets.getComments(ticketId);
+    })
+    .then((comments) => {
+      return splicer.insertCourseUserInfoToUserIdReferences(comments, 'lahettaja', storedCourseId);
+    });
+  }
+
 }
 
 

@@ -284,17 +284,10 @@ router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
 });
 
 router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
-  let courseid = null;
-  auth.hasTicketAccess(req, req.params.ticketid)
-  .then(() => {
-    return sql.tickets.getTicket(req.params.ticketid);
-  })
-  .then((ticket) => {
-    courseid = ticket.kurssi;
-    return sql.tickets.getComments(req.params.ticketid);
-  })
-  .then((comments) => {
-    return splicer.insertCourseUserInfoToUserIdReferences(comments, 'lahettaja', courseid);
+  //ACCESS
+  access.readTicket(req, req.params.ticketid)
+  .then((handle) => {
+    return handle.methods.getComments(req.params.ticketid);
   })
   .then((data) => res.send(data))
   .catch((error) => {
