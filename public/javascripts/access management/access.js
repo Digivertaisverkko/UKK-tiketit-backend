@@ -60,10 +60,7 @@ module.exports = {
         })
       } else {
         //Jos on UKK
-        return auth.authenticatedUser(request)
-        .then((userid) => {
-          storedUserId = userid;
-        })
+        storedUserId = undefined;
       }
     })
     .then(() => {
