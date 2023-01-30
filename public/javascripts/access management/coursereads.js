@@ -3,6 +3,7 @@ const sql = require('../../../routes/sql.js');
 const CourseLists = require('./courselists.js');
 
 const splicer = require('../sqlsplicer.js');
+const TicketState = require('../ticketstate.js');
 
 
 class CourseReads extends CourseLists {
@@ -41,8 +42,32 @@ class CourseReads extends CourseLists {
     return sql.courses.getUserInfoForCourse(userId, courseId);
   }
 
-  getTicketBases(courseId) {
-    return sql.courses.getCombinedTicketBasesOfCourse(courseId);
+  getFieldsOfTicketBase(courseId) {
+    return sql.courses.getFieldsOfTicketBaseForCourse(courseId);
+  }
+
+  createTicket(courseId, creatorId, title, content, fieldList, isFaq=false) {
+    return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
+    .then((sqldata) => { return sqldata.id })
+    .then((ticketid) => {
+        return sql.tickets.setTicketState(ticketid, TicketState.sent)
+        .then((sqldata) => { return ticketid; });
+    })
+    .then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        var promises = [];
+        fields.forEach(kvp => {
+          promises.push(module.exports.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+        });
+        Promise.all(promises)
+        .then(() => resolve(ticketid))
+        .catch(() => reject(3004));
+      });
+    })
+    .then((ticketid) => {
+      return module.exports.createComment(ticketid, userid, content, 1)
+      .then(() => ticketid );
+    });
   }
 
 }

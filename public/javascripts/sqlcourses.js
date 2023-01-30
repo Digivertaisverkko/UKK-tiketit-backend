@@ -82,7 +82,7 @@ module.exports = {
     .then((data) => { return data.id });
   },
 
-  getCombinedTicketBasesOfCourse: function(courseid) {
+  getFieldsOfTicketBaseForCourse: function(courseid) {
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((tickedIdRows) => {
       return module.exports.getFieldsOfTicketBase(tickedIdRows[0].id);

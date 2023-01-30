@@ -48,6 +48,11 @@ class CourseWrites extends CourseReads {
     })
   }
 
+  replaceFieldsOfTicketBase(courseId, fields) {
+    sql.courses.removeAllFieldsFromTicketBase(courseId)
+    .then(() => sql.courses.insertFieldsToTicketBase(courseId, fields))
+  }
+
 }
 
 

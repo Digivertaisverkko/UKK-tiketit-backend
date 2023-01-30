@@ -430,9 +430,10 @@ router.get('/api/kurssi/:courseid/oikeudet', function(req, res, next) {
 
 
 router.get('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
+  //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
-    return handle.methods.getTicketBases(req.params.courseid);
+    return handle.methods.getFieldsOfTicketBase(req.params.courseid);
   })
   .then((data) => {
     res.send(data);
@@ -442,12 +443,12 @@ router.get('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
   });
 });
 
-router.post('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
+router.put('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
+  //ACCESS
   sanitizer.hasRequiredParameters(req, ['kentat'])
   .then(() => sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat, ['otsikko', 'pakollinen', 'esitaytettava', 'ohje']))
-  .then(() => auth.authenticatedUser(req))
-  .then((userid) => sql.courses.removeAllFieldsFromTicketBase(req.params.courseid))
-  .then(() => sql.courses.insertFieldsToTicketBase(req.params.courseid, req.body.kentat))
+  .then(() => access.writeCourse(req, req.params.courseid))
+  .then((handle) => handle.methods.replaceFieldsOfTicketBase(req.params.courseid, req.body.kentat))
   .then(() => {
     res.send({success: true});
   })
@@ -457,9 +458,10 @@ router.post('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
 });
 
 router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
+  //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
-    return handle.methods.getTicketBases(req.params.courseid);
+    return handle.methods.getFieldsOfTicketBase(req.params.courseid);
   })
   .then((data) => {
     res.send(data);
@@ -470,9 +472,10 @@ router.get('/api/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) 
 });
 
 router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
+  //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
-    return handle.methods.getTicketBases(req.params.courseid);
+    return handle.methods.getFieldsOfTicketBase(req.params.courseid);
   })
   .then((data) => {
     res.send(data);
@@ -483,11 +486,13 @@ router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
 });
 
 router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
+  //ACCESS
   var storeduserid = null;
   sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat'])
-  .then(() => auth.authenticatedUser(req))
-  .then((userid) => {
-    return sql.tickets.createTicket(req.params.courseid, userid, req.body.otsikko, req.body.kentat, req.body.viesti);
+  .then(() => access.readCourse(req, req.params.courseid))
+  .then((handle) => {
+    return handle.methods.createTicket(req.params.courseid, handle.userid, req.body.otsikko,
+       req.body.viesti, req.body.kentat, false);
   })
   .then(() => {
     res.send({success: true});

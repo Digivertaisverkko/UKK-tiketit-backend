@@ -112,6 +112,14 @@ module.exports = {
     return connection.queryAll(query, [messageId]);
   },
 
+  insertTicketMetadata: function(courseid, userid, title, isFaq=false) {
+    const query = '\
+    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
+    VALUES ($1, $2, $3, NOW(), $4) \
+    RETURNING id';
+    return connection.queryOne(query, [courseid, userid, title, isFaq]);
+  },
+
   createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
     const query = '\
     INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
