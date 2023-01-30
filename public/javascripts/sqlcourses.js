@@ -82,7 +82,7 @@ module.exports = {
     .then((data) => { return data.id });
   },
 
-  getCombinedTicketBasesOfCourse: function(courseid) {
+  getFieldsOfTicketBaseForCourse: function(courseid) {
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((tickedIdRows) => {
       return module.exports.getFieldsOfTicketBase(tickedIdRows[0].id);
@@ -141,6 +141,13 @@ module.exports = {
     WHERE kurssi=$2 AND profiili=$3';
     return connection.queryNone(query, [newPosition, courseid, userid]);
   },
+  
+  roleInCourse: function(courseid, userid) {
+    const query2 = '\
+    SELECT profiili, asema FROM core.kurssinosallistujat \
+    WHERE kurssi=$1 AND profiili=$2';
+    return connection.queryOne(query2, [courseid, userid]);
+  },
 
   removeAllFieldsFromTicketBase: function(courseid) {
     return module.exports.getTicketBasesOfCourse(courseid)
@@ -170,7 +177,6 @@ module.exports = {
     })
     .then((fieldIdList) => {
       let promises = [];
-      console.log("tikettipohjankentat: " + JSON.stringify(fieldIdList));
       const query = '\
       INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) \
       VALUES ($1, $2)';
@@ -178,7 +184,6 @@ module.exports = {
         /*Jokainen promise palauttaa erillisen taulun. 
         Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
         let id = fieldIdList[index][0].id;
-        console.log("insert tikettipohjankentat " + storedTicketId + " ;; " + id);
         promises.push(connection.queryNone(query, [storedTicketId, id]));
       }
       return Promise.all(promises);

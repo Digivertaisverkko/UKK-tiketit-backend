@@ -6,17 +6,17 @@ const connection = require('./connection.js');
 const arrayTools = require('./arrayTools.js');
 const con = connection.getConnection();
 
-const TicketState = {
-  sent: 1,
-  read: 2,
-  infoneeded: 3,
-  commented: 4,
-  resolved: 5,
-  archived: 6
-}
+const TicketState = require('./ticketstate.js');
 
 module.exports = {
  
+  getPlainTicket: function(ticketid) {
+    const query = 'SELECT aloittaja, kurssi, ukk \
+    FROM core.tiketti \
+    WHERE id=$1';
+    return connection.queryOne(query, [ticketid]);
+  },
+
   hasAccess: function(userid, ticketid) {
     let storedData;
     const query = 'SELECT aloittaja, kurssi, ukk \
@@ -112,7 +112,13 @@ module.exports = {
     return connection.queryAll(query, [messageId]);
   },
 
-
+  insertTicketMetadata: function(courseid, userid, title, isFaq=false) {
+    const query = '\
+    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
+    VALUES ($1, $2, $3, NOW(), $4) \
+    RETURNING id';
+    return connection.queryOne(query, [courseid, userid, title, isFaq]);
+  },
 
   createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
     const query = '\

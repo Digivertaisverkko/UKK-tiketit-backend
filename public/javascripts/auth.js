@@ -141,9 +141,9 @@ module.exports = {
     });
   },
 
-    hash: function(hashable, salt) {
-      return crypto.createHash('sha256').update(hashable).update(salt).digest('hex');
-    },
+  hash: function(hashable, salt) {
+    return crypto.createHash('sha256').update(hashable).update(salt).digest('hex');
+  },
 
   authenticatedUser: function(httpRequest) {
     var sessionid = httpRequest.header('session-id');
@@ -192,7 +192,7 @@ module.exports = {
       return sql.tickets.getTicket(req.params.ticketid);
     })
     .then((ticketdata) => {
-      return auth.roleInCourse(ticketdata.kurssi, storedUserId)
+      return module.exports.roleInCourse(ticketdata.kurssi, storedUserId)
       .then((roledata) => {
         if (roledata.asema === 'opettaja' && ticketdata.ukk === true) {
           return;
@@ -201,13 +201,6 @@ module.exports = {
       }
       });
     })
-  },
-
-  roleInCourse: function(courseid, userid) {
-    const query2 = '\
-    SELECT profiili, asema FROM core.kurssinosallistujat \
-    WHERE kurssi=$1 AND profiili=$2';
-    return connection.queryOne(query2, [courseid, userid]);
   }
   
 };
