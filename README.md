@@ -766,4 +766,5 @@ BBB - tarkentava koodi
  | ------ | ----- | ----------- |
  | 3000   | Virheelliset parametrit | 400 |
  | 3001   | Operaatiota ei voi suorittaa | 409 |
+ | 3002   | Rajapintaa ei ole vielä toteutettu | 405 |
  | 3004   | Joku meni vikaan | 500 |

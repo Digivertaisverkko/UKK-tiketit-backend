@@ -348,7 +348,7 @@ router.post('/api/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
 
 
 router.post('/api/luokurssi', function(req, res, next) {
-  res.status(405).send({syy: "Ei vielä toteutettu."});
+  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
   //Kommentoitu tilapäisesti, kunnes oikea toteutus tarvitaan.
   /*
   sanitizer.hasRequiredParameters(req, ['nimi', 'ohjeteksti'])
@@ -367,7 +367,7 @@ router.post('/api/luokurssi', function(req, res, next) {
 
 
 router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
-  res.status(405).send({syy: "Ei vielä toteutettu."});
+  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
   //TODO: Tietoturva-aukko: Kuka tahansa voi liittyä mille tahansa kurssille.
   //Kommentoitu tilapäisesti tietoturva-aukon korjaamista odotellessa.
   /*
@@ -385,7 +385,7 @@ router.post('/api/kurssi/:courseid/liity', function(req, res, next) {
 });
 
 router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
-  res.status(405).send({syy: "Ei vielä toteutettu."});
+  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
   //Kommentoitu tiläpäisesti, kunnes oikea toteutus tarvitaan.
   /*
   sanitizer.hasRequiredParameters(req, ["sposti", "opettaja"])
