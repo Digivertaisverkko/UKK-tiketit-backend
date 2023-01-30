@@ -50,14 +50,17 @@ class CourseReads extends CourseLists {
     return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
+      console.log(1);
         return sql.tickets.setTicketState(ticketid, TicketState.sent)
         .then((sqldata) => { return ticketid; });
     })
     .then((ticketid) => {
+      console.log(2);
       return new Promise(function(resolve, reject) {
         var promises = [];
-        fields.forEach(kvp => {
-          promises.push(module.exports.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+        console.log(JSON.stringify(fieldList));
+        fieldList.forEach(kvp => {
+          promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
         });
         Promise.all(promises)
         .then(() => resolve(ticketid))
@@ -65,8 +68,11 @@ class CourseReads extends CourseLists {
       });
     })
     .then((ticketid) => {
-      return module.exports.createComment(ticketid, userid, content, 1)
-      .then(() => ticketid );
+      console.log(3);
+      return sql.tickets.createComment(ticketid, creatorId, content, 1)
+      .then(() => {
+        console.log(4); return ticketid;
+      });
     });
   }
 

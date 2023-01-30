@@ -487,7 +487,6 @@ router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
 
 router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   //ACCESS
-  var storeduserid = null;
   sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat'])
   .then(() => access.readCourse(req, req.params.courseid))
   .then((handle) => {
