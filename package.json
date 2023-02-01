@@ -13,6 +13,7 @@
     "dotenv": "^16.0.3",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
+    "ims-lti": "^3.0.2",
     "jade": "~1.11.0",
     "ltijs": "^5.9.0",
     "ltijs-sequelize": "^2.4.4",
