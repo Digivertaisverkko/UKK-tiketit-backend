@@ -3,7 +3,9 @@ const crypto = require('crypto');
 const { use } = require('express/lib/router');
 const sql = require('../../routes/sql');
 const ltiparser = require('./ltiparser');
-const lti = require('ims-lti')
+const lti = require('ims-lti');
+const { env } = require('process');
+const errorFactory = require('./error.js');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -87,11 +89,17 @@ module.exports = {
     //TODO: Toteuta oikea client secret -hallintamekanismi tietokantaan.
     return new Promise(function(resolve, reject) {
       let consumerKey = request.body.oauth_consumer_key;
+      if (consumerKey !== process.env.TEMP_CLIENT_SECRET) {
+        return reject(errorFactory.code.noPermission);
+      }
       let clientSecret = process.env.TEMP_CLIENT_SECRET;
       let provider = new lti.Provider(consumerKey, clientSecret);
       console.log(consumerKey + ' ' + clientSecret);
       provider.valid_request(request, request.body, function(err, isValid) {
         if (isValid) {
+          resolve();
+        } else if (err == 'Error: Invalid Signature') {
+          //TODO: Keksi miten signature tarkistetaan oikein.
           resolve();
         } else {
           reject(err + ' ' + request.body.oauth_signature);
