@@ -98,8 +98,10 @@ module.exports = {
       provider.valid_request(request, request.body, function(err, isValid) {
         if (isValid) {
           resolve();
+          console.log('lti 1.1 signature on oikein.');
         } else if (err == 'Error: Invalid Signature') {
           //TODO: Keksi miten signature tarkistetaan oikein.
+          console.log('lti 1.1 Invalid signature.');
           resolve();
         } else {
           reject(err + ' ' + request.body.oauth_signature);
