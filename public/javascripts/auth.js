@@ -97,14 +97,14 @@ module.exports = {
       console.log(consumerKey + ' ' + clientSecret);
       provider.valid_request(request, request.body, function(err, isValid) {
         if (isValid) {
-          resolve();
           console.log('lti 1.1 signature on oikein.');
+          return resolve();
         } else if (err == 'Error: Invalid Signature') {
           //TODO: Keksi miten signature tarkistetaan oikein.
           console.log('lti 1.1 Invalid signature.');
-          resolve();
+          return resolve();
         } else {
-          reject(err + ' ' + request.body.oauth_signature);
+          return reject(err);
         }
       });
     }); 
