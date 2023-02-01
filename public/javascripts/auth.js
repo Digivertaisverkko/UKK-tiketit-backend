@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { use } = require('express/lib/router');
 const sql = require('../../routes/sql');
 const ltiparser = require('./ltiparser');
+const lti = require('ims-lti')
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -80,6 +81,23 @@ module.exports = {
       let hash = module.exports.hash(password, salt);
       return sql.users.createAccount(username, hash, salt, newuserId);
     });
+  },
+
+  securityCheckLti1p1: function(request) {
+    //TODO: Toteuta oikea client secret -hallintamekanismi tietokantaan.
+    return new Promise(function(resolve, reject) {
+      let consumerKey = request.body.oauth_consumer_key;
+      let clientSecret = process.env.TEMP_CLIENT_SECRET;
+      let provider = new lti.Provider(consumerKey, clientSecret);
+      console.log(consumerKey + ' ' + clientSecret);
+      provider.valid_request(request, request.body, function(err, isValid) {
+        if (isValid) {
+          resolve();
+        } else {
+          reject(err + ' ' + request.body.oauth_signature);
+        }
+      });
+    }); 
   },
 
   ltiLoginWithToken: function(token) {

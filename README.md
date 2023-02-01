@@ -240,12 +240,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 
 ### /api/kurssi/:kurssi-id/
 #### GET
-##### Lähetä:
-```
-{
-  session-id: $UUID
-}
-``` 
+Tähän rajapintaan on pääsy kaikilla.
 ##### Vastaus: 
 ```
 {
