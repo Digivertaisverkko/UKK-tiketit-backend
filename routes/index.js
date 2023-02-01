@@ -238,7 +238,8 @@ router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
     return access.writeCourse(req, req.params.courseid);
   })
   .then((handle) => {
-    handle.methods.createFaqTicket(req.params.courseid, handle.userid, req.body.otsikko, req.body.kentat, req.body.viesti);
+    handle.methods.createFaqTicket(req.params.courseid, handle.userid, req.body.otsikko,
+       req.body.viesti, req.body.vastaus, req.body.kentat);
   })
   .then(() => {
     res.send({"success": true});
