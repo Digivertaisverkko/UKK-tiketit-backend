@@ -291,6 +291,7 @@ Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt
   otsikko: $string
   aikaleima: $string
   tyyppi: $string
+  tila: $int
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
