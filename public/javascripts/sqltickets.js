@@ -61,7 +61,10 @@ module.exports = {
 
   getFaqTickets: function(courseId) {
     const query = 'SELECT id, otsikko, aikaleima FROM core.tiketti WHERE kurssi=$1 AND ukk=TRUE';
-    return connection.queryAll(query, [courseId]);
+    return connection.queryAll(query, [courseId])
+    .then((ticketdata) => {
+      return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    });
   },
 
   isFaqTicket: function(ticketId) {
