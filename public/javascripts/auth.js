@@ -6,6 +6,7 @@ const ltiparser = require('./ltiparser');
 const lti = require('ims-lti');
 const { env } = require('process');
 const errorFactory = require('./error.js');
+const oauthSignature = require("oauth-signature");
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -95,6 +96,9 @@ module.exports = {
       let clientSecret = process.env.TEMP_CLIENT_SECRET;
       let provider = new lti.Provider(consumerKey, clientSecret);
       console.log(consumerKey + ' ' + clientSecret);
+
+      console.log(request.body);
+
       provider.valid_request(request, request.body, function(err, isValid) {
         if (isValid) {
           console.log('lti 1.1 signature on oikein.');
@@ -108,6 +112,46 @@ module.exports = {
         }
       });
     }); 
+  },
+
+  validate_lti_launch: function(request) {
+    return new Promise(function(resolve, reject) {
+      const consumer_key = process.env.TEMP_CLIENT_SECRET;
+      const consumer_secret = process.env.TEMP_CLIENT_SECRET;
+      const requestSignature = request.body.oauth_signature;
+    
+      const params = JSON.parse(JSON.stringify(request.body));
+      delete params.oauth_signature;
+      const token = null;
+      const httpMethod = "POST";
+      const url = 
+        request.protocol + "://" + request.get("host") + request.originalUrl;
+      console.log(request.body);
+
+      for (let key in params) {
+        if (params[key].length == 0) {
+          delete params[key];
+        }
+      }
+
+      // generate signature based on params, url, method. Check to see that it matches sig in request.
+      const generatedSignature = oauthSignature.generate(
+        httpMethod,
+        url,
+        params,
+        consumer_secret,
+        token,
+        { encodeSignature: false }
+      );
+    
+      if (generatedSignature != requestSignature) {
+        console.log('allekirjoitus ei onnistu: ' + generatedSignature + ' ' + requestSignature);
+        return reject('ei onnistu');
+      } else {
+        console.log('allekirjoitus kunnossa: ' + generatedSignature + ' ' + requestSignature);
+        return resolve();
+      }
+    });
   },
 
   ltiLoginWithToken: function(token) {
