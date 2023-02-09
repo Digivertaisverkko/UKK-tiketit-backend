@@ -71,7 +71,6 @@ const setupLti = async () => {
       let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
       url.searchParams.append('sessionID', logindata.sessionid);
       url.searchParams.append('lang', token.platformContext.launchPresentation.locale);
-      console.log('url: ' + url.toString());
       return lti.redirect(res, url.toString());
     });
   });

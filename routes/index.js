@@ -30,7 +30,6 @@ router.post('/lti/1p1/start/', function(req, res, next) {
   sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id', 'lis_outcome_service_url',
     'lis_person_name_full', 'context_title', 'roles', 'launch_presentation_locale'])
   .then(() => {
-    console.log(101);
     return auth.securityCheckLti1p1(req);
   })
   .then(() => {
@@ -50,7 +49,6 @@ router.post('/lti/1p1/start/', function(req, res, next) {
     let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
     url.searchParams.append('sessionID', logindata.sessionid);
     url.searchParams.append('lang', locale);
-    console.log('url ' + url.toString());
     res.redirect(url.toString());
   })
   .catch((error) => {
