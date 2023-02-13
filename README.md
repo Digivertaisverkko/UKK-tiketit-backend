@@ -681,6 +681,25 @@ Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin
 [Kurssilainen-olio](#kurssilainen-olio)
 
 
+## Liitteiden rajapinta
+Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/form-data** tiedostomuotoa.
+
+### /api/tiedosto/liite
+#### POST
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+  Content-type: multipart/form-data
+}
+```
+kentän nimi on tiedosto.
+##### Vastaus:
+
+
+
+
 <br><br><br>
 
 # Erikoisarvot

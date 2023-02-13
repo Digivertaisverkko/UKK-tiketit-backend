@@ -15,6 +15,9 @@ const { send } = require('process');
 const access = require('../public/javascripts/access management/access.js');
 const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
+const fs = require('fs');
+
+router.use(express.json());
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
