@@ -566,6 +566,10 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
     id: $int
     arvo: $string
   }]
+  liitteet:
+  [{
+    id: $UUID
+  }]
 }
 ```
 ##### Vastaus:

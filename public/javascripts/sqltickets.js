@@ -169,6 +169,21 @@ module.exports = {
     });
   },
 
+  addAttachmentListToTicket: function(ticketid, attachmentidList) {
+    return new Promise(function(resolve, reject) {
+      var promises = [];
+      attachmentidList.forEach(attachmentid => {
+        const query = '\
+        INSERT INTO core.liite (tiketti, liite) \
+        VALUES ($1, $2)';
+        promises.push(connection.queryNone(query, [ticketid, attachmentid]));
+      });
+      Promise.all(promises)
+      .then(() => resolve(ticketid))
+      .catch(() => reject(3004));
+    });
+  },
+
   insertTicketStateToTicketIdReferences: function(array, idReferenceKey) {
     var ids = arrayTools.extractAttributes(array, idReferenceKey);
     return module.exports.getTicketStates(ids)

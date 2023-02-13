@@ -18,4 +18,5 @@ DROP TABLE core.lti_login;
 DROP TABLE core.lti_kurssi;
 DROP TABLE core.kurssi;
 DROP TABLE core.profiili;
+DROP TABLE core.liite;
 \q
