@@ -2,6 +2,7 @@ const TicketState = require("../ticketstate");
 
 const sql = require('../../../routes/sql.js');
 const splicer = require('../sqlsplicer.js');
+const arrayTools = require("../arrayTools");
 
 
 
@@ -35,6 +36,13 @@ class TicketReads {
     return sql.tickets.getTicket(ticketId)
     .then((ticketdata) => {
       return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
+    })
+    .then((ticketdataList) => {
+      return sql.tickets.getAttachmentsForTicket(ticketId)
+      .then((attachments) => {
+        ticketdataList[0].liitteet = attachments;
+        return ticketdataList;
+      });
     });
   }
 

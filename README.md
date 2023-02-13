@@ -566,7 +566,7 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
     id: $int
     arvo: $string
   }]
-  liitteet:
+  liitteet: (ei pakollinen)
   [{
     id: $UUID
   }]
@@ -609,6 +609,10 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
   aloittaja: $kurssilainen-olio
   tila: $string
   kurssi: $int
+  liitteet: 
+  [{
+    id: $UUID
+  }]
 }
 ```
 [Kurssilainen-olio](#kurssilainen-olio)<br>

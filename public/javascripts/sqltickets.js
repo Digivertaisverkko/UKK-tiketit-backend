@@ -169,6 +169,14 @@ module.exports = {
     });
   },
 
+  getAttachmentsForTicket: function(ticketid) {
+    const query = '\
+    SELECT tiketti, liite \
+    FROM core.liite \
+    WHERE tiketti=$1';
+    return connection.queryAll(query, [ticketid]);
+  },
+
   addAttachmentListToTicket: function(ticketid, attachmentidList) {
     return new Promise(function(resolve, reject) {
       var promises = [];

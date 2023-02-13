@@ -280,10 +280,11 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     if (data.length == 1) {
       res.send(data[0]);
     } else {
-      Promise.reject(3004);
+      return Promise.reject(3004);
     }
   })
   .catch((error) => {
+    console.log(4);
     errorFactory.createError(res, error);
   });
 });
