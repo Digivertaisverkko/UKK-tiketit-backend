@@ -23,10 +23,11 @@ module.exports = {
                               'Member',
                               'Officer'];
 
-        if (ltiRoleList.some((r) => adminRoles.includes(r) )) {
+    
+        if (ltiRoleList.some((r) => teacherRoles.includes(r) )) {
             return 'opettaja';
-        } else if (ltiRoleList.some((r) => teacherRoles.includes(r) )) {
-            return 'opettaja';
+        } else if (ltiRoleList.some((r) => adminRoles.includes(r) )) {
+            return 'opiskelija'; 
         } else {
             return 'opiskelija';
         }

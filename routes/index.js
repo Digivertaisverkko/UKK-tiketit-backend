@@ -14,6 +14,7 @@ const sanitizer = require('../public/javascripts/sanitizer.js');
 const { send } = require('process');
 const access = require('../public/javascripts/access management/access.js');
 const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
+const path = require('path');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -26,16 +27,12 @@ router.get('/api/', function(req, res, next) {
 
 router.post('/lti/1p1/start/', function(req, res, next) {
 
-  console.log(req.body);
-
   sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id', 'lis_outcome_service_url',
     'lis_person_name_full', 'context_title', 'roles', 'launch_presentation_locale'])
   .then(() => {
-    console.log(1);
     return auth.securityCheckLti1p1(req);
   })
   .then(() => {
-    console.log(6);
     let userid = req.body.user_id;
     let contextid = req.body.context_id;
     let clientid = req.body.lis_outcome_service_url;
@@ -47,8 +44,9 @@ router.post('/lti/1p1/start/', function(req, res, next) {
   .then((logindata) => {
     let locale = req.body.launch_presentation_locale;
 
-    let url = new URL(process.env.LTI_REDIRECT + "/list-tickets");
-    url.searchParams.append('courseID', logindata.kurssi);
+    const coursePath = 'course';
+
+    let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
     url.searchParams.append('sessionID', logindata.sessionid);
     url.searchParams.append('lang', locale);
     res.redirect(url.toString());
