@@ -139,8 +139,9 @@ PRIMARY KEY (clientid, contextid)
 
 CREATE TABLE core.liite (
 tiketti INT NOT NULL,
-liite VARCHAR(36) NOT NULL,
-PRIMARY KEY (tiketti, liite),
+tiedosto VARCHAR(36) NOT NULL,
+nimi VARCHAR(256) NOT NULL,
+PRIMARY KEY (tiketti, tiedosto),
 FOREIGN KEY (tiketti) REFERENCES core.tiketti(id)
 );
 

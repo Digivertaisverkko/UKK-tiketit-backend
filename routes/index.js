@@ -284,7 +284,6 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     }
   })
   .catch((error) => {
-    console.log(4);
     errorFactory.createError(res, error);
   });
 });

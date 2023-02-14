@@ -171,7 +171,7 @@ module.exports = {
 
   getAttachmentsForTicket: function(ticketid) {
     const query = '\
-    SELECT tiketti, liite \
+    SELECT tiketti, tiedosto, nimi \
     FROM core.liite \
     WHERE tiketti=$1';
     return connection.queryAll(query, [ticketid]);
@@ -186,10 +186,17 @@ module.exports = {
         VALUES ($1, $2)';
         promises.push(connection.queryNone(query, [ticketid, attachmentid]));
       });
-      Promise.all(promises)
+      return Promise.all(promises)
       .then(() => resolve(ticketid))
       .catch(() => reject(3004));
     });
+  },
+
+  addAttachmentToTicket: function(ticketid, attachmentid, filename) {
+    const query = '\
+        INSERT INTO core.liite (tiketti, tiedosto, nimi) \
+        VALUES ($1, $2, $3)';
+    connection.queryNone(query, [ticketid, attachmentid, filename]);
   },
 
   insertTicketStateToTicketIdReferences: function(array, idReferenceKey) {

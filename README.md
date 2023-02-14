@@ -32,6 +32,7 @@ LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
 LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
 LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
 LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen on onnistunut]
+ATTACHMENT_DIRECTORY=[Polku siihen tiedostoon, jossa liitteet säilytetään]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 
@@ -692,7 +693,7 @@ Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin
 ## Liitteiden rajapinta
 Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/form-data** tiedostomuotoa.
 
-### /api/tiedosto/liite
+### /api/tiketti/:tiketti-id/liite
 #### POST
 ##### Lähetä:
 ```
@@ -704,6 +705,24 @@ Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/
 ```
 kentän nimi on tiedosto.
 ##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+### /api/tiketti/:tiketti-id/liite/:liite-id/lataa
+#### GET
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+  Content-type: multipart/form-data
+}
+```
+##### Vastaus:
+Lähettää tiedoston datan.
 
 
 

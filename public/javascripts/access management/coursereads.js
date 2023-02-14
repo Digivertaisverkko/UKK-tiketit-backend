@@ -46,7 +46,7 @@ class CourseReads extends CourseLists {
     return sql.courses.getFieldsOfTicketBaseForCourse(courseId);
   }
 
-  createTicket(courseId, creatorId, title, content, fieldList, fileList, isFaq=false) {
+  createTicket(courseId, creatorId, title, content, fieldList, isFaq=false) {
     return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
@@ -63,9 +63,6 @@ class CourseReads extends CourseLists {
         .then(() => resolve(ticketid))
         .catch(() => reject(3004));
       });
-    })
-    .then((ticketid) => {
-      return sql.tickets.addAttachmentListToTicket(ticketid, fileList);
     })
     .then((ticketid) => {
       return sql.tickets.createComment(ticketid, creatorId, content, 1)
