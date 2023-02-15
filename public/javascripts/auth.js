@@ -88,6 +88,9 @@ module.exports = {
   securityCheckLti1p1: function(request) {
     //TODO: Toteuta oikea client secret -hallintamekanismi tietokantaan.
     return new Promise(function(resolve, reject) {
+
+      console.log(request.body);
+
       let consumerKey = request.body.oauth_consumer_key;
       if (consumerKey !== process.env.TEMP_CLIENT_KEY) {
         console.warn('Väärä consumerKey');
@@ -96,16 +99,18 @@ module.exports = {
       let clientSecret = process.env.TEMP_CLIENT_SECRET;
       let provider = new lti.Provider(consumerKey, clientSecret);
 
-      console.log(request.body);
-
       provider.valid_request(request, request.body, function(err, isValid) {
         if (isValid) {
           console.log('lti 1.1 signature on oikein.');
           return resolve();
         } else if (err == 'Error: Invalid Signature') {
-          //TODO: Keksi miten signature tarkistetaan oikein.
           console.warn('lti 1.1 Invalid signature.');
-          return reject(err);
+          if (process.env.LTI_CHECK_SIGNATURE === 'false') {
+            console.warn('lti 1.1 hyväksytiin väärällä signaturella.')
+            return resolve();
+          } else {
+            return reject(err);
+          }
         } else {
           console.warn('lti 1.1 error: ' + err);
           return reject(err);

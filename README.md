@@ -32,6 +32,9 @@ LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
 LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
 LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
 LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen on onnistunut]
+TEMP_CLIENT_KEY=[LTI:n käyttämä oauth_consumer_key: tilapäinen, siirretään tulevaisuudessa kantaan]
+TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus: tilapäinen, siirretään tulevaisuudessa kantaan]
+LTI_CHECK_SIGNATURE=[Tarkistetaanko LTI-yhteyksissä signaturea, vai hyväksytäänkö yhteys pelkällä kuluttaja-avaimella]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 

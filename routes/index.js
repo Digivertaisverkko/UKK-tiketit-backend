@@ -43,7 +43,6 @@ router.post('/lti/1p1/start/', function(req, res, next) {
   })
   .then((logindata) => {
     let locale = req.body.launch_presentation_locale;
-
     const coursePath = 'course';
 
     let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
