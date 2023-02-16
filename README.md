@@ -559,6 +559,7 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 - header -
 {
   session-id: $UUID
+  tiketti: $int (luodun tiketin id)
 }
 ```
 ```
@@ -668,6 +669,7 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 - body -
 {
   success: true
+  kommentti: $int (luodun kommentin id)
 }
 ```
 
