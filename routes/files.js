@@ -6,7 +6,7 @@ const errorFactory = require('../public/javascripts/error.js')
 const access = require('../public/javascripts/access management/access.js');
 
 router.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
 }));
 
 
