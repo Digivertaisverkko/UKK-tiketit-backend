@@ -21,7 +21,8 @@ otsikko VARCHAR(255) NOT NULL,
 tyyppi INT NOT NULL,
 esitaytettava BOOL NOT NULL,
 pakollinen BOOL NOT NULL,
-ohje VARCHAR(255)
+ohje VARCHAR(255),
+valinnat VARCHAR(512)
 );
 
 CREATE TABLE core.tikettipohjankentat (
