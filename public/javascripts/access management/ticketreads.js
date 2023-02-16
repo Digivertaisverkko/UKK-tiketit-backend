@@ -2,6 +2,10 @@ const TicketState = require("../ticketstate");
 
 const sql = require('../../../routes/sql.js');
 const splicer = require('../sqlsplicer.js');
+const arrayTools = require("../arrayTools");
+const crypto = require('crypto');
+const fs = require('fs');
+const errorFactory = require('../error.js');
 
 
 
@@ -31,10 +35,52 @@ class TicketReads {
 
   }
 
+  addAttachment(ticketid, filedata, originalFilename) {
+    let fileid = crypto.randomUUID();
+    let filePath = process.env.ATTACHMENT_DIRECTORY + fileid;
+    return new Promise(function(resolve, reject) {
+      fs.writeFile(filePath, filedata, function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    })
+    .then(() => {
+      return sql.tickets.addAttachmentToTicket(ticketid, fileid, originalFilename);
+    });
+  }
+
+  getAttachment(ticketid, fileid) {
+    return sql.tickets.getAttachmentsForTicket(ticketid)
+    .then((attachmentList) => {
+      for (const index in attachmentList) {
+        const data = attachmentList[index];
+        if (data.tiedosto === fileid) {
+          return data;
+        }
+      }
+      return Promise.reject(errorFactory.code.noResults);
+    })
+    .then((foundData) => {
+      let filePath = process.env.ATTACHMENT_DIRECTORY + foundData.tiedosto;
+      foundData.polku = filePath;
+      return foundData;
+    });
+  }
+
   getTicketMetadata(ticketId) {
     return sql.tickets.getTicket(ticketId)
     .then((ticketdata) => {
       return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
+    })
+    .then((ticketdataList) => {
+      return sql.tickets.getAttachmentsForTicket(ticketId)
+      .then((attachments) => {
+        ticketdataList[0].liitteet = attachments;
+        return ticketdataList;
+      });
     });
   }
 

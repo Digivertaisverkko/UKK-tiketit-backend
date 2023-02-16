@@ -35,6 +35,7 @@ LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen 
 TEMP_CLIENT_KEY=[LTI:n käyttämä oauth_consumer_key: tilapäinen, siirretään tulevaisuudessa kantaan]
 TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus: tilapäinen, siirretään tulevaisuudessa kantaan]
 LTI_CHECK_SIGNATURE=[Tarkistetaanko LTI-yhteyksissä signaturea, vai hyväksytäänkö yhteys pelkällä kuluttaja-avaimella]
+ATTACHMENT_DIRECTORY=[Polku siihen tiedostoon, jossa liitteet säilytetään]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 ```
 
@@ -569,6 +570,10 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
     id: $int
     arvo: $string
   }]
+  liitteet: (ei pakollinen)
+  [{
+    id: $UUID
+  }]
 }
 ```
 ##### Vastaus:
@@ -608,6 +613,10 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
   aloittaja: $kurssilainen-olio
   tila: $string
   kurssi: $int
+  liitteet: 
+  [{
+    id: $UUID
+  }]
 }
 ```
 [Kurssilainen-olio](#kurssilainen-olio)<br>
@@ -682,6 +691,43 @@ Vaatii tiketinlukuoikeudet.
 ```
 Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin POSTilla.<br>
 [Kurssilainen-olio](#kurssilainen-olio)
+
+
+## Liitteiden rajapinta
+Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/form-data** tiedostomuotoa.
+
+### /api/tiketti/:tiketti-id/liite
+#### POST
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+  Content-type: multipart/form-data
+}
+```
+kentän nimi on tiedosto.
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+### /api/tiketti/:tiketti-id/liite/:liite-id/lataa
+#### GET
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+  Content-type: multipart/form-data
+}
+```
+##### Vastaus:
+Lähettää tiedoston datan.
+
+
 
 
 <br><br><br>

@@ -15,6 +15,9 @@ const { send } = require('process');
 const access = require('../public/javascripts/access management/access.js');
 const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
+const fs = require('fs');
+
+router.use(express.json());
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -276,7 +279,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     if (data.length == 1) {
       res.send(data[0]);
     } else {
-      Promise.reject(3004);
+      return Promise.reject(3004);
     }
   })
   .catch((error) => {
@@ -527,7 +530,7 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   .then(() => access.readCourse(req, req.params.courseid))
   .then((handle) => {
     return handle.methods.createTicket(req.params.courseid, handle.userid, req.body.otsikko,
-       req.body.viesti, req.body.kentat, false);
+       req.body.viesti, req.body.kentat, req.body.liitteet, false);
   })
   .then(() => {
     res.send({success: true});
