@@ -327,8 +327,8 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   .then((handle) => {
     return handle.methods.addComment(req.params.ticketid, handle.userid, req.body.viesti, req.body.tila);
   })
-  .then(() => {
-    res.send({ success: true });
+  .then((newCommentId) => {
+    res.send({ success: true, kommentti: newCommentId });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
