@@ -512,12 +512,13 @@ Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä
   pakollinen: $bool
   esitaytettava: $bool
   esitäyttö: $string
+  valinnat: [$string]
 }]
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 #### PUT
-Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset vanhoihin kenttiin uudesta kenttäpohjasta. Vanhalle kenttäpohjalla tehtyihin tiketteihin jää edelleen sen kenttäpohjan kentät, jonka perusteella se tiketti luotiin.
+Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset vanhoihin kenttiin uudesta kenttäpohjasta. Vanhalla kenttäpohjalla tehtyihin tiketteihin jää edelleen sen kenttäpohjan kentät, jonka perusteella se tiketti luotiin.
 
 ##### Lähetä:
 ```
@@ -535,10 +536,10 @@ Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset
       pakollinen: $bool
       esitaytettava: $bool
       ohje: $string
+      valinnat: [$string]
     }]
 }
 ```
-Lähetettäviin kenttiin **ei tarvitse** (eikä saa) laittaa oletuskenttiä (tehtävä ja tyyppi). Ne lisätään automaattisesti annettujen kenttien lisäksi.
 
 ##### Vastaus:
 ```

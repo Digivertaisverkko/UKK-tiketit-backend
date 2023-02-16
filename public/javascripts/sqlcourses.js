@@ -98,11 +98,21 @@ module.exports = {
 
   getFieldsOfTicketBase: function(ticketbaseid) {
     const query = '\
-    SELECT id, otsikko, pakollinen, esitaytettava, ohje FROM tikettipohjankentat tk \
+    SELECT id, otsikko, pakollinen, esitaytettava, valinnat, ohje FROM tikettipohjankentat tk \
     INNER JOIN kenttapohja kp \
     ON kp.id=tk.kentta \
     WHERE tk.tikettipohja=$1';
-    return connection.queryAll(query, [ticketbaseid]);
+    return connection.queryAll(query, [ticketbaseid])
+    .then((ticketBaseList) => {
+      console.log(1);
+      for (let index in ticketBaseList) {
+        console.log(2);
+        let base = ticketBaseList[index];
+        base.valinnat = base.valinnat.split(';');
+      }
+      console.log(3);
+      return ticketBaseList;
+    });
   },
 
   addUserToCourse: function(courseid, userid, isTeacher) {
@@ -154,7 +164,7 @@ module.exports = {
     .then((idList) => {
       const fieldQuery = '\
       DELETE FROM core.tikettipohjankentat \
-      WHERE tikettipohja=$1 AND kentta>2' //kentta id:t 1 ja 2 on varattu oletuskentille
+      WHERE tikettipohja=$1'
       return connection.queryNone(fieldQuery, [idList[0].id]);
     });
   },
@@ -166,24 +176,25 @@ module.exports = {
       let promises = [];
       storedTicketId = ticketIdList[0].id;
       const query = '\
-      INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje) \
-      VALUES ($1, $2, $3, $4, $5) \
+      INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) \
+      VALUES ($1, $2, $3, $4, $5, $6) \
       RETURNING id';
       for (index in fieldArray) {
         let element = fieldArray[index];
-        promises.push(connection.queryAll(query, [element.otsikko, 1, element.esitaytettava, element.pakollinen, element.ohje]));
+        let choices = element.valinnat.join(';');
+        promises.push(connection.queryAll(query, [element.otsikko, 1, element.esitaytettava, element.pakollinen, element.ohje, choices]));
       }
       return Promise.all(promises);
     })
-    .then((fieldIdList) => {
+    .then((fieldIdPromiseList) => {
       let promises = [];
       const query = '\
       INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) \
       VALUES ($1, $2)';
-      for (index in fieldIdList) {
+      for (index in fieldIdPromiseList) {
         /*Jokainen promise palauttaa erillisen taulun. 
         Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
-        let id = fieldIdList[index][0].id;
+        let id = fieldIdPromiseList[index][0].id;
         promises.push(connection.queryNone(query, [storedTicketId, id]));
       }
       return Promise.all(promises);
