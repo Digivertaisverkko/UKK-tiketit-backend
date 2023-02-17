@@ -9,13 +9,10 @@ router.use(fileUpload({
   limits: { fileSize: 10 * 1024 * 1024 },
 }));
 
-
-router.post('/tiketti/:ticketid/liite', function(req, res, next) {
-
-  //TODO: Oikeuksienhallinta
-  access.readTicket(req, req.params.ticketid)
+router.post('/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, next) {
+  access.writeComment(req, req.params.ticketid, req.params.commentid)
   .then((handle) => {
-    return handle.methods.addAttachment(req.params.ticketid, req.files.tiedosto.data, req.files.tiedosto.name);
+    return handle.methods.addAttachment(req.params.commentid, req.files.tiedosto.data, req.files.tiedosto.name);
   })
   .then(() => {
     res.send({ success: true });
@@ -23,12 +20,14 @@ router.post('/tiketti/:ticketid/liite', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   })
+
 });
 
-router.get('/tiketti/:ticketid/liite/:attachmentid/lataa', function(req, res, next) {
+router.get('/tiketti/:ticketid/kommentti/:commentid/liite/:attachmentid/lataa', function(req, res, next) {
   access.readTicket(req, req.params.ticketid)
   .then((handle) => {
-    return handle.methods.getAttachment(req.params.ticketid, req.params.attachmentid);
+    console.log(req.params.commentid + ' ' + req.params.attachmentid);
+    return handle.methods.getAttachment(req.params.commentid, req.params.attachmentid);
   })
   .then((attachmentData) => {
     res.download(attachmentData.polku, attachmentData.nimi);

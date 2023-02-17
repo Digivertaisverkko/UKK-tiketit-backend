@@ -21,6 +21,7 @@ const courselists = new CourseLists();
 const coursereads = new CourseReads();
 const coursewrites = new CourseWrites();
 const profilereads = new ProfileReads();
+const commentWrites = new CommentWrites();
 
 module.exports = {
 
@@ -75,6 +76,21 @@ module.exports = {
       storedTicketData = ticketData;
       return this.writeCourse(request, ticketData.kurssi);
     })
+  },
+
+  writeComment: function(request, ticketId, commentId) {
+    let storedUserId;
+    return module.exports.readTicket(request, ticketId)
+    .then((handle) => {
+      storedUserId = handle.userid;
+      return sql.tickets.getComment(commentId);
+    })
+    .then((commentDataList) => {
+      let commentData = commentDataList[0];
+      if (commentData.lahettaja === storedUserId) {
+        return {userid: storedUserId, methods: commentWrites};
+      }
+    });
   },
 
   writeCourse: function(request, courseId) {

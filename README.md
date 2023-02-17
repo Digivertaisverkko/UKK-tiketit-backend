@@ -559,7 +559,6 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 - header -
 {
   session-id: $UUID
-  tiketti: $int (luodun tiketin id)
 }
 ```
 ```
@@ -572,10 +571,6 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
     id: $int
     arvo: $string
   }]
-  liitteet: (ei pakollinen)
-  [{
-    id: $UUID
-  }]
 }
 ```
 ##### Vastaus:
@@ -583,10 +578,12 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 -body-
 {
   success: true
+  uusi: {
+    tiketti: $int (luodun tiketin id)
+    kommentti: $int (luodun tiketin ensimmäisen kommentin id)
+  }
 }
 ```
-
-**TODO:** Miten liitteet? 
 
 #### GET 
 Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat/*](#apikurssikurssi-idtiketinkentat). 
@@ -680,16 +677,24 @@ Vaatii tiketinlukuoikeudet.
 ##### Lähetä:
 ```
 { 
-  session-id: $UUID 
+  session-id: $UUID
 }
 ```
 ##### Vastaus:
 ```
 [{
+  id: $int
   lahettaja: $kurssilainen-olio
   aikaleima: $string 
   tila: $int 
-  viesti: $string 
+  viesti: $string
+  liitteet: [
+    {
+      kommentti: $int (sama kuin id yllä)
+      tiedosto: $UUID
+      nimi: $string
+    }
+  ] 
 }] 
 ```
 Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin POSTilla.<br>
@@ -699,7 +704,7 @@ Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin
 ## Liitteiden rajapinta
 Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/form-data** tiedostomuotoa.
 
-### /api/tiketti/:tiketti-id/liite
+### /api/tiketti/:tiketti-id/kommentti/:kommentti-id/liite
 #### POST
 ##### Lähetä:
 ```
@@ -717,14 +722,13 @@ kentän nimi on tiedosto.
 }
 ```
 
-### /api/tiketti/:tiketti-id/liite/:liite-id/lataa
+### /api/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/liite-id/lataa
 #### GET
 ##### Lähetä:
 ```
 - header -
 {
   session-id: $UUID
-  Content-type: multipart/form-data
 }
 ```
 ##### Vastaus:

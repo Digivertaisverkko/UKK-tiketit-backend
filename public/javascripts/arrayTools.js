@@ -76,6 +76,46 @@ module.exports = {
         return retArray;
     },
 
+    /**
+     * Yhdistää kaksi taulukkoa uudeksi taulukoksi siten, että ensimmäisen taulukon olioihin lisätään toisen taulukon kaikki 
+     * oliot avaimella newKey, kun ensimmäisen taulukon olion matchingKey on sama kuin toisen taulukon olion comparedKey.
+     * Uuden taulun newKey on taulukko, johon voi tallentaa useamman olion, joka täyttää ehdot.
+     * 
+     * Jos paria ei löydy, ensimmäisen taulukon olio pidetään sellaisenaan.
+     * Jos useampi pari löytyy, kaikki tallennetaan luotuun taulukkoon.
+     * 
+     * Eli esim:
+     * ensimmäinen taulu [{nimi: "asd", viite: 2}, {nimi: "fgh", viite: 3}, {nimi: "jkl", viite: 1}]
+     * toinen taulu [{otsikko: "qwe", id: 2}, {otsikko: "rty", id:3}, {otsikko: "uio", id: 4}]
+     * matchingKey = "viite"
+     * comparedKey = "id"
+     * newKey = "uusi"
+     * TULOS:
+     * [{nimi: "asd", viite: 2, uusi: [{otsikko: "qwe", id: 2}]},
+     *  {nimi: "fgh", viite: 3, uusi: [{otsikko: "rty", id: 3}]},
+     *  {nimi: "jkl", viite: 1}
+     * ]
+     * 
+     * @param {*} firstArray Ensimmäinen taulukko, jonka kaikki arvot palautetaan sellaisenaan, tai muokattuina
+     * @param {*} secondArray Toinen taulukko, josta otetaan arvoja ensimmäiseen taulukkoon.
+     * @param {*} matchingKey Ensimmäisen taulukon olion avain, jolle etsitään yhteensopivaa paria toisesta taulukosta.
+     * @param {*} comparedKey Toisen taulukon olion avain, jota verrataan ensimmäisen taulun olioiden avaimiin.
+     * @param {*} newKey Uusi avain, johon toisen taulukon olio liitetään.
+     * @returns 
+     */
+
+    arrayUnionByAddingObjectsToArray: function(firstArray, secondArray, matchingKey, comparedKey, newKey) {
+        let retArray = [...firstArray];
+        retArray.forEach(firstElement => {
+            var value = firstElement[matchingKey]
+            var secondElements = secondArray.filter(e => e[comparedKey] === value);
+            if (secondElements != undefined) {
+                firstElement[newKey] = secondElements;
+            }
+        });
+        return retArray;
+    },
+
 
     /**
      * Yhdistää kaksi taulukkoa uudeksi taulukoksi siten, että ensimmäisen taulukon olioihin lisätään toisen taulukon olion

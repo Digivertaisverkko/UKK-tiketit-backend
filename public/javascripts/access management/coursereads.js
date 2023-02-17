@@ -66,8 +66,8 @@ class CourseReads extends CourseLists {
     })
     .then((ticketid) => {
       return sql.tickets.createComment(ticketid, creatorId, content, 1)
-      .then(() => {
-        return ticketid;
+      .then((commentid) => {
+        return {tiketti: ticketid, kommentti: commentid};
       });
     });
   }

@@ -139,11 +139,11 @@ PRIMARY KEY (clientid, contextid)
 );
 
 CREATE TABLE core.liite (
-tiketti INT NOT NULL,
+kommentti INT NOT NULL,
 tiedosto VARCHAR(36) NOT NULL,
 nimi VARCHAR(256) NOT NULL,
-PRIMARY KEY (tiketti, tiedosto),
-FOREIGN KEY (tiketti) REFERENCES core.tiketti(id)
+PRIMARY KEY (kommentti, tiedosto),
+FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );
 
 INSERT INTO core.profiili (id, nimi, sposti) OVERRIDING SYSTEM VALUE VALUES (0, 'POISTETTU', '');

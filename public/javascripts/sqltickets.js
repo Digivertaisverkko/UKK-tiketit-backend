@@ -42,14 +42,14 @@ module.exports = {
   },
 
   getAllMyTickets: function(courseId, userId) {
-      const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
-      FROM core.tiketti \
-      WHERE aloittaja=$1 AND kurssi=$2 AND ukk=FALSE';
-      return connection.queryAll(query, [userId, courseId])
-      .then((ticketdata) => {
-        return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
-      });
-    },
+    const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
+    FROM core.tiketti \
+    WHERE aloittaja=$1 AND kurssi=$2 AND ukk=FALSE';
+    return connection.queryAll(query, [userId, courseId])
+    .then((ticketdata) => {
+      return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    });
+  },
   
   getAllTickets: function(courseId) {
     const query = 'SELECT * FROM core.tiketti WHERE kurssi=$1 AND ukk=FALSE';
@@ -110,9 +110,14 @@ module.exports = {
     return connection.queryAll(query, [ticketIdList, fieldid]);
   },
 
-  getComments: function(messageId) {
-    const query = 'SELECT viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
-    return connection.queryAll(query, [messageId]);
+  getComments: function(ticketId) {
+    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
+    return connection.queryAll(query, [ticketId]);
+  },
+
+  getComment: function(commentId) {
+    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE id=$1';
+    return connection.queryAll(query, [commentId]);
   },
 
   insertTicketMetadata: function(courseid, userid, title, isFaq=false) {
@@ -169,12 +174,20 @@ module.exports = {
     });
   },
 
-  getAttachmentsForTicket: function(ticketid) {
+  getAttachmentListForCommentList: function(commentIdList) {
     const query = '\
-    SELECT tiketti, tiedosto, nimi \
+    SELECT kommentti, tiedosto, nimi \
     FROM core.liite \
-    WHERE tiketti=$1';
-    return connection.queryAll(query, [ticketid]);
+    WHERE kommentti=ANY($1)';
+    return connection.queryAll(query, [commentIdList]);
+  },
+
+  getAttachmentForComment: function(commentid, fileid) {
+    const query = '\
+    SELECT kommentti, tiedosto, nimi \
+    FROM core.liite \
+    WHERE kommentti=$1 AND tiedosto=$2';
+    return connection.queryAll(query, [commentid, fileid]);
   },
 
   addAttachmentListToTicket: function(ticketid, attachmentidList) {
@@ -192,11 +205,11 @@ module.exports = {
     });
   },
 
-  addAttachmentToTicket: function(ticketid, attachmentid, filename) {
+  addAttachmentToComment: function(commentid, attachmentid, filename) {
     const query = '\
-        INSERT INTO core.liite (tiketti, tiedosto, nimi) \
+        INSERT INTO core.liite (kommentti, tiedosto, nimi) \
         VALUES ($1, $2, $3)';
-    connection.queryNone(query, [ticketid, attachmentid, filename]);
+    connection.queryNone(query, [commentid, attachmentid, filename]);
   },
 
   insertTicketStateToTicketIdReferences: function(array, idReferenceKey) {

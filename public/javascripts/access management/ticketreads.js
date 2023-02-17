@@ -35,35 +35,10 @@ class TicketReads {
 
   }
 
-  addAttachment(ticketid, filedata, originalFilename) {
-    let fileid = crypto.randomUUID();
-    let filePath = process.env.ATTACHMENT_DIRECTORY + fileid;
-    return new Promise(function(resolve, reject) {
-      fs.writeFile(filePath, filedata, function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    })
-    .then(() => {
-      return sql.tickets.addAttachmentToTicket(ticketid, fileid, originalFilename);
-    });
-  }
-
-  getAttachment(ticketid, fileid) {
-    return sql.tickets.getAttachmentsForTicket(ticketid)
-    .then((attachmentList) => {
-      for (const index in attachmentList) {
-        const data = attachmentList[index];
-        if (data.tiedosto === fileid) {
-          return data;
-        }
-      }
-      return Promise.reject(errorFactory.code.noResults);
-    })
-    .then((foundData) => {
+  getAttachment(commentid, fileid) {
+    return sql.tickets.getAttachmentForComment(commentid, fileid)
+    .then((foundDataList) => {
+      let foundData = foundDataList[0];
       let filePath = process.env.ATTACHMENT_DIRECTORY + foundData.tiedosto;
       foundData.polku = filePath;
       return foundData;
@@ -73,14 +48,7 @@ class TicketReads {
   getTicketMetadata(ticketId) {
     return sql.tickets.getTicket(ticketId)
     .then((ticketdata) => {
-      return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi)
-    })
-    .then((ticketdataList) => {
-      return sql.tickets.getAttachmentsForTicket(ticketId)
-      .then((attachments) => {
-        ticketdataList[0].liitteet = attachments;
-        return ticketdataList;
-      });
+      return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
     });
   }
 
@@ -93,6 +61,13 @@ class TicketReads {
     })
     .then((comments) => {
       return splicer.insertCourseUserInfoToUserIdReferences(comments, 'lahettaja', storedCourseId);
+    })
+    .then((comments) => {
+      let commentIdList = arrayTools.extractAttributes(comments, 'id');
+      return sql.tickets.getAttachmentListForCommentList(commentIdList)
+      .then((attachmentList) => {
+        return arrayTools.arrayUnionByAddingObjectsToArray(comments, attachmentList, 'id', 'kommentti', 'liitteet');
+      })
     });
   }
 
