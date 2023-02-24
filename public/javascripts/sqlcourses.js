@@ -108,7 +108,7 @@ module.exports = {
       for (let index in ticketBaseList) {
         console.log(2);
         let base = ticketBaseList[index];
-        if (base.valinnat !== null) { base.valinnat = base.valinnat.split(';'); }
+        base.valinnat = base.valinnat.split(';');
       }
       console.log(3);
       return ticketBaseList;
