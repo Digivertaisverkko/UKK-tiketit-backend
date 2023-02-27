@@ -235,6 +235,15 @@ module.exports = {
     .then((sqldata) => { return sqldata.id; });
   },
 
+  updateComment: function(commentid, content) {
+    console.log(12);
+    const query = '\
+    UPDATE core.kommentti \
+    SET viesti=$1 \
+    WHERE id=$2';
+    return connection.queryNone(query, [content, commentid]);
+  },
+
   getTicketStates: function(ticketidList) {
     const query = '\
     SELECT DISTINCT ON (tiketti) tila, tiketti FROM core.tiketintila \

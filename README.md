@@ -671,6 +671,32 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 ```
 
 
+### /api/tiketti/:tiketti-id/kommentti/:kommentti-id
+Tällä rajapinnalla voi lueskella ja muokata yksittäistä kommenttia.
+#### PUT
+Muokkaa kirjoitetun kommentin viestiä.
+Tähän on pääsy vain kommentin alkuperäisellä kirjoittajalla.
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+- body -
+{
+  viesti: $string
+}
+```
+
+##### Vastaus
+```
+{
+  success: true
+}
+```
+
+
+
 ### /api/tiketti/:tiketti-id/kommentit/
 Vaatii tiketinlukuoikeudet.
 #### GET

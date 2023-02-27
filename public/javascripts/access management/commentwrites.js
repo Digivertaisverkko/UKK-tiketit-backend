@@ -24,6 +24,12 @@ class CommentWrites extends TicketReads {
     });
   }
 
+
+  updateCommentText(commentid, content) {
+    console.log(11);
+    return sql.tickets.updateComment(commentid, content);
+  }
+
 }
 
 

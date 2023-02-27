@@ -336,6 +336,31 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 });
 
 
+// '/api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id' PUT
+router.put('/api/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
+  console.log(JSON.stringify(req.body));
+  sanitizer.hasRequiredParameters(req, ['viesti'])
+  .then(() => {
+    return access.writeComment(req, req.params.ticketid, req.params.commentid)
+  })
+  .then((handle) => {
+    console.log(1);
+    let commentid = req.params.commentid;
+    console.log(101);
+    let viesti = req.body.viesti;
+    console.dir(handle);
+    return handle.methods.updateCommentText(commentid, viesti);
+  })
+  .then(() => {
+    console.log(2);
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
+
 // '/api/kurssi/:kurssi-id/ukk/:tiketti-id/arkistoi
 router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
   //ACCESS

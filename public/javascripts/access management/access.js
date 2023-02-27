@@ -89,6 +89,8 @@ module.exports = {
       let commentData = commentDataList[0];
       if (commentData.lahettaja === storedUserId) {
         return {userid: storedUserId, methods: commentWrites};
+      } else {
+        return Promise.reject(1003);
       }
     });
   },
