@@ -7,11 +7,13 @@ const access = require('../public/javascripts/access management/access.js');
 
 router.use(fileUpload({
   limits: { fileSize: 10 * 1024 * 1024 },
+  defParamCharset: 'utf8'
 }));
 
 router.post('/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, next) {
   access.writeComment(req, req.params.ticketid, req.params.commentid)
   .then((handle) => {
+    console.log(req.files.tiedosto.name);
     return handle.methods.addAttachment(req.params.commentid, req.files.tiedosto.data, req.files.tiedosto.name);
   })
   .then(() => {
