@@ -840,7 +840,7 @@ Alla oleva taulukko kuvaa, mitä rooli vaaditaan millekin toiminnolle, kun kohte
 | **Kurssi**      | Osallistuja  | Opettaja |
 | **Tiketti**     | Opettaja/Luoja | Luoja |
 | **UKK-tiketti** | Kaikki       | Opettaja |
-| **Kommentti**   | Opettaja/Luoja | Kommentin luoja |
+| **Kommentti**   | ks. Tikettiluku | Luoja |
 | **Profiili**    | Luoja        | Luoja |
 | **Julkiset**    | Kaikki       | Opettaja |
 
