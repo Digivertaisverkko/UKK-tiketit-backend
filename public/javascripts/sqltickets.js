@@ -226,17 +226,14 @@ module.exports = {
     connection.queryNone(query, [commentid, attachmentid, filename]);
   },
 
+
   insertTicketStateToTicketIdReferences: function(array, idReferenceKey) {
+    console.log(1);
     var ids = arrayTools.extractAttributes(array, idReferenceKey);
     return module.exports.getTicketStates(ids)
     .then((stateData) => {
-      array.forEach(element => {
-        var state = stateData.find((stateElement) => stateElement.tiketti===element[idReferenceKey]);
-        if (state != undefined) {
-          element.tila = state.tila;
-        }          
-      });
-      return array;
+      console.log(3);
+      return arrayTools.arrayUnionByAddingPartsOfObjects(array, stateData, idReferenceKey, 'tiketti', 'tila', 'tila');
     });
   },
 
