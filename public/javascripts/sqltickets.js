@@ -64,6 +64,11 @@ module.exports = {
     return connection.queryAll(query, [courseId])
     .then((ticketdata) => {
       return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    })
+    .then((ticketdata) => {
+      return ticketdata.filter(function(value, index, array) {
+        return value.tila != TicketState.archived;
+      });
     });
   },
 
