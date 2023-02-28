@@ -226,13 +226,28 @@ module.exports = {
     connection.queryNone(query, [commentid, attachmentid, filename]);
   },
 
+  deleteTicket(ticketid) {
+    const fieldQuery = 'DELETE FROM core.tiketinkentat WHERE tiketti=$1';
+    const stateQuery = 'DELETE FROM core.tiketintila WHERE tiketti=$1';
+    const attachmentQuery = 'DELETE FROM core.liite WHERE kommentti=ANY($1)';
+    const commentQuery = 'DELETE FROM core.kommentti WHERE tiketti=$1';
+    const ticketQuery = 'DELETE FROM core.tiketti WHERE id=$1';
+    return connection.queryNone(fieldQuery, [ticketid])
+    .then(() => connection.queryNone(stateQuery, [ticketid]))
+    .then(() => module.exports.getComments(ticketid))
+    .then((commentList) => {
+      let commentIdList = arrayTools.extractAttributes(commentList, 'id');
+      return connection.queryNone(attachmentQuery, [commentIdList]);
+    })
+    .then(() => connection.queryNone(commentQuery, [ticketid]))
+    .then(() => connection.queryNone(ticketQuery, [ticketid]));
+  },
+
 
   insertTicketStateToTicketIdReferences: function(array, idReferenceKey) {
-    console.log(1);
     var ids = arrayTools.extractAttributes(array, idReferenceKey);
     return module.exports.getTicketStates(ids)
     .then((stateData) => {
-      console.log(3);
       return arrayTools.arrayUnionByAddingPartsOfObjects(array, stateData, idReferenceKey, 'tiketti', 'tila', 'tila');
     });
   },
@@ -247,7 +262,6 @@ module.exports = {
   },
 
   updateComment: function(commentid, content) {
-    console.log(12);
     const query = '\
     UPDATE core.kommentti \
     SET viesti=$1 \

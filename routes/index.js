@@ -288,6 +288,20 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
 });
 
 
+router.delete('/api/tiketti/:ticketid', function(req, res, next) {
+  access.writeTicket(req, req.params.ticketid)
+  .then((handle) => {
+    return handle.methods.deleteTicket(req.params.ticketid);
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
+
 //TODO: '/api/kurssi/:kurssi-id/tiketti/tiketti-id/kooste
 
 // '/api/kurssi/:kurssi-id/tiketti/:tiketti-id/kentat'
@@ -339,21 +353,17 @@ router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 
 // '/api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id' PUT
 router.put('/api/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
-  console.log(JSON.stringify(req.body));
   sanitizer.hasRequiredParameters(req, ['viesti'])
   .then(() => {
     return access.writeComment(req, req.params.ticketid, req.params.commentid)
   })
   .then((handle) => {
-    console.log(1);
     let commentid = req.params.commentid;
-    console.log(101);
     let viesti = req.body.viesti;
     console.dir(handle);
     return handle.methods.updateCommentText(commentid, viesti);
   })
   .then(() => {
-    console.log(2);
     res.send({ success: true });
   })
   .catch((error) => {

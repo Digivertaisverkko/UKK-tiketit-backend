@@ -27,7 +27,6 @@ router.post('/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, 
 router.get('/tiketti/:ticketid/kommentti/:commentid/liite/:attachmentid/lataa', function(req, res, next) {
   access.readTicket(req, req.params.ticketid)
   .then((handle) => {
-    console.log(req.params.commentid + ' ' + req.params.attachmentid);
     return handle.methods.getAttachment(req.params.commentid, req.params.attachmentid);
   })
   .then((attachmentData) => {
