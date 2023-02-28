@@ -835,14 +835,14 @@ Elementtejä on kuutta eri mallia:
 
 Alla oleva taulukko kuvaa, mitä rooli vaaditaan millekin toiminnolle, kun kohteena on jokin elementti.
 
-|  *Elementti*  |   **Luku**   | **Kirjoitus** |
-| ------------- | ------------ | ------------- |
-| *Kurssi*      | Osallistuja  | Opettaja |
-| *Tiketti*     | Opettaja/Luoja | Luoja |
-| *UKK-tiketti* | Kaikki       | Opettaja |
-| *Kommentti*   | Opettaja/Luoja | Kommentin luoja |
-| *Profiili*    | Luoja        | Luoja |
-| *Julkiset*    | Kaikki       | Opettaja |
+|   *Elementti*   |   **Luku**   | **Kirjoitus** |
+| --------------- | ------------ | ------------- |
+| **Kurssi**      | Osallistuja  | Opettaja |
+| **Tiketti**     | Opettaja/Luoja | Luoja |
+| **UKK-tiketti** | Kaikki       | Opettaja |
+| **Kommentti**   | Opettaja/Luoja | Kommentin luoja |
+| **Profiili**    | Luoja        | Luoja |
+| **Julkiset**    | Kaikki       | Opettaja |
 
 
 # Erikoisarvot
