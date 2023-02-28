@@ -4,6 +4,7 @@ const CourseLists = require('./courselists.js');
 
 const splicer = require('../sqlsplicer.js');
 const TicketState = require('../ticketstate.js');
+const sqlsplicer = require('../sqlsplicer.js');
 
 
 class CourseReads extends CourseLists {
@@ -35,6 +36,12 @@ class CourseReads extends CourseLists {
     })
     .then((ticketdata) => {
       return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', courseid);
+    })
+    .then((ticketdata) => {
+      return sql.tickets.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    })
+    .then((ticketdata) => {
+      return sqlsplicer.removeArchivedTickets(ticketdata);
     });
   }
 

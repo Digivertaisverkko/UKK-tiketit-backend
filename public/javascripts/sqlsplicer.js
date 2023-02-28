@@ -2,6 +2,7 @@
 var sql = require('../../routes/sql.js');
 const { arrayUnionByAddingPartsOfObjects } = require('./arrayTools.js');
 var arrayTools = require('./arrayTools.js');
+const TicketState = require('./ticketstate.js');
 
 
 module.exports = {
@@ -19,6 +20,12 @@ module.exports = {
     return sql.tickets.getFieldsOfTicketList(ids)
     .then((fields) => {
       return arrayTools.arrayUnionByAddingObjectsToArray(ticketArray, fields, 'id', 'tiketti', 'kentat');
+    });
+  },
+
+  removeArchivedTickets: function(ticketArray) {
+    return ticketArray.filter(function(value, index, array) {
+      return value.tila !== TicketState.archived;
     });
   }
 
