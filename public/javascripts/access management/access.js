@@ -70,11 +70,32 @@ module.exports = {
   },
 
   writeTicket: function(request, ticketId) {
+    let storedUserId;
+    return auth.authenticatedUser(request)
+    .then((userid) => {
+      storedUserId = userid;
+      return sql.tickets.getPlainTicket(ticketId);
+    })
+    .then((ticketData) => {
+      if (ticketData.ukk === true) {
+        return Promise.reject(3001);
+      } else if (ticketData.aloittaja != storedUserId) {
+        return Promise.reject(1003);
+      } else {
+        return { userid: storedUserId, methods: ticketwrites };
+      }
+    });
+  },
+
+  writeFaq: function(request, ticketId) {
     //Palauttaa saman kuin writeCourse, mutta hakee kurssi-id:n tiketistä.
     return sql.tickets.getPlainTicket(ticketId)
     .then((ticketData) => {
-      storedTicketData = ticketData;
-      return this.writeCourse(request, ticketData.kurssi);
+      if (ticketData.ukk === false) {
+        return Promise.reject(3001);
+      } else {
+        return this.writeCourse(request, ticketData.kurssi);
+      }
     })
   },
 

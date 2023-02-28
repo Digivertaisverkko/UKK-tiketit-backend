@@ -287,6 +287,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   });
 });
 
+
 //TODO: '/api/kurssi/:kurssi-id/tiketti/tiketti-id/kooste
 
 // '/api/kurssi/:kurssi-id/tiketti/:tiketti-id/kentat'
@@ -364,7 +365,7 @@ router.put('/api/tiketti/:ticketid/kommentti/:commentid', function(req, res, nex
 // '/api/kurssi/:kurssi-id/ukk/:tiketti-id/arkistoi
 router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
   //ACCESS
-  access.writeTicket(req, req.params.ticketid)
+  access.writeFaq(req, req.params.ticketid)
   .then((handle) => {
     return handle.methods.archiveFaqTicket(req.params.ticketid);
   })
@@ -382,7 +383,7 @@ router.post('/api/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
   //ACCESS
   sanitizer.objectHasRequiredParameters(req.body, ['otsikko', 'viesti', 'kentat', 'vastaus'])
   .then(() => {
-    return access.writeTicket(req, req.params.ticketid);
+    return access.writeFaq(req, req.params.ticketid);
   })
   .then((handle) => {
     return handle.methods.editFaqTicket(req.params.ticketid, req.body.otsikko, req.body.viesti, req.body.vastaus, req.body.kentat);
