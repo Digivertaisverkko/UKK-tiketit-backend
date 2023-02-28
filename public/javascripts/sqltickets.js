@@ -101,6 +101,15 @@ module.exports = {
     return connection.queryAll(query, [messageId]);
   },
 
+  getFieldsOfTicketList: function(ticketIdList) {
+    const query = '\
+    SELECT tk.tiketti, tk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat tk \
+    INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
+    ON tk.kentta = pohja.id \
+    WHERE tk.tiketti= ANY($1)';
+    return connection.queryAll(query, [ticketIdList]);
+  },
+
   getOneFieldOfTicketList: function(ticketIdList, fieldid) {
     const query = '\
     SELECT tk.tiketti, tk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat tk \

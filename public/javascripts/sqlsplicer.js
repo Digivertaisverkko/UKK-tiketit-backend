@@ -16,9 +16,9 @@ module.exports = {
 
   insertTicketFieldsToIdReferences: function(ticketArray, idReferenceKey) {
     var ids = arrayTools.extractAttributes(ticketArray, idReferenceKey);
-    return sql.tickets.getOneFieldOfTicketList(ids, 2)
+    return sql.tickets.getFieldsOfTicketList(ids)
     .then((fields) => {
-      return arrayUnionByAddingPartsOfObjects(ticketArray, fields, idReferenceKey, 'tiketti', 'tyyppi', 'arvo');
+      return arrayTools.arrayUnionByAddingObjectsToArray(ticketArray, fields, 'id', 'tiketti', 'kentat');
     });
   }
 

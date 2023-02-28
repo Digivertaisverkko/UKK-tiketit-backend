@@ -294,8 +294,15 @@ Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt
   id: $int
   otsikko: $string
   aikaleima: $string
-  tyyppi: $string
   tila: $int
+  kentat: [
+    {
+      arvo: $string
+      otsikko: $string
+      tyyppi: $string
+      ohje: $string
+    }
+  ]
 }]  
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
