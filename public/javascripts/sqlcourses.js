@@ -104,13 +104,10 @@ module.exports = {
     WHERE tk.tikettipohja=$1';
     return connection.queryAll(query, [ticketbaseid])
     .then((ticketBaseList) => {
-      console.log(1);
       for (let index in ticketBaseList) {
-        console.log(2);
         let base = ticketBaseList[index];
         base.valinnat = base.valinnat.split(';');
       }
-      console.log(3);
       return ticketBaseList;
     });
   },
