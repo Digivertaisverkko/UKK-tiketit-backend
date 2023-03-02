@@ -52,13 +52,7 @@ module.exports = {
           } else {
             return Promise.reject(1003)
           }
-        })
-        .then((access) => {
-          if (access.asema === 'opettaja') {
-            //TODO: Tämä ei kuuluu oikeuksien tarkistukseen, koska tämä kirjoittaa tietokantaan
-            return sql.tickets.setTicketStateIfAble(ticketId, 2);
-          }
-        })
+        });
       } else {
         //Jos on UKK
         storedUserId = undefined;

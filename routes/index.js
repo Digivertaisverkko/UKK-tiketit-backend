@@ -273,7 +273,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
   //ACCESS
   access.readTicket(req, req.params.ticketid)
   .then((handle) => {
-    return handle.methods.getTicketMetadata(req.params.ticketid);
+    return handle.methods.getTicketMetadata(handle.userid, req.params.ticketid);
   })
   .then((data) => {
     if (data.length == 1) {
