@@ -11,7 +11,7 @@ const Database = require('ltijs-sequelize');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files');
-var sqlSite = require('./routes/sql')
+var sqlSite = require('./routes/sql');
 
 var app = express();
 
@@ -20,31 +20,6 @@ const auth = require('./public/javascripts/auth');
 app.use(cors());
 
 const port = process.env.PORT || 3000;
-
-// Configure nodemailer
-const nodemailer = require('nodemailer');
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: process.env.SMTP_USERNAME,
-    pass: process.env.SMTP_PASSWORD
-  }
-});
-
-// Send one test e-mail
-const mailOptions = {
-  from: process.env.SMTP_USERNAME,
-  to: 'recipient@example.com',
-  subject: 'Test',
-  text: 'This is test email from UKK-Tiketit-backend :)'
-};
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
- console.log(error);
-  } else {
-    console.log('Email sent: ' + info.response);
-  }
-});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

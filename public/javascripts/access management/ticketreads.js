@@ -6,6 +6,7 @@ const arrayTools = require("../arrayTools");
 const crypto = require('crypto');
 const fs = require('fs');
 const errorFactory = require('../error.js');
+const mailer = require('./../mailer.js');
 
 
 
@@ -31,6 +32,10 @@ class TicketReads {
     })
     .then((newTicketState) => {
       return sql.tickets.createComment(ticketId, creatorId, content, wantedState);
+    })
+    .then((commentId) => {
+      mailer.sendMailNotifications(ticketId, [creatorId], content);
+      return commentId;
     })
 
   }
