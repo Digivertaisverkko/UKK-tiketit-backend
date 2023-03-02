@@ -11,7 +11,7 @@ const Database = require('ltijs-sequelize');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files');
-var sqlSite = require('./routes/sql')
+var sqlSite = require('./routes/sql');
 
 var app = express();
 

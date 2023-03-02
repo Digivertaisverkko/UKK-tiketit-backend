@@ -5,6 +5,7 @@ const CourseLists = require('./courselists.js');
 const splicer = require('../sqlsplicer.js');
 const TicketState = require('../ticketstate.js');
 const sqlsplicer = require('../sqlsplicer.js');
+const mailer = require('../mailer.js');
 
 
 class CourseReads extends CourseLists {
@@ -75,6 +76,12 @@ class CourseReads extends CourseLists {
       return sql.tickets.createComment(ticketid, creatorId, content, 1)
       .then((commentid) => {
         return {tiketti: ticketid, kommentti: commentid};
+      });
+    })
+    .then((results) => {
+      return mailer.sendMailNotifications(results.tiketti, [creatorId], content)
+      .then(() => {
+        return results;
       });
     });
   }

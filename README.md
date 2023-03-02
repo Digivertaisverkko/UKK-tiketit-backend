@@ -37,6 +37,8 @@ TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus: tilapäinen, siirr
 LTI_CHECK_SIGNATURE=[Tarkistetaanko LTI-yhteyksissä signaturea, vai hyväksytäänkö yhteys pelkällä kuluttaja-avaimella]
 ATTACHMENT_DIRECTORY=[Polku siihen tiedostoon, jossa liitteet säilytetään]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
+SMTP_USERNAME=[käytetyn SMTP palvelun käyttäjänimi]
+SMTP_PASSWORD=[käytetyn SMTP palvelun salasana]
 ```
 
 - Aja komento ```npm install```
