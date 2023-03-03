@@ -158,20 +158,6 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 
-router.post('/api/LTI/', function(req, res, next) {
-  sanitizer.hasRequiredParameters(req, ["token"])
-  .then(() => {
-    return auth.ltiLogin(req.body.token);
-  })
-  .then((logindata) => {
-    res.send(logindata);
-  })
-  .catch((error) => {
-    errorFactory.createError(res, error);
-  });
-});
-
-
 router.get('/api/minun/poistatili', function(req, res, next) {
 //TODO: Toteuta tilin poistaminen kannasta.
   auth.authenticatedUser(req)
