@@ -135,38 +135,30 @@ function checkObjectForRequirements(object, requirementsList) {
 
       //Tarkista null
       if (value == null && requirement.optional == false) {
-        console.log('Hups: ' + value + ' Ongelma1: ' + JSON.stringify(requirement));
         success = false;
       }
 
       //Tarkista arvo
       if (requirement.value && requirement.value.includes(value) == false) {
-        console.log('Hups: ' + value + ' Ongelma1.1: ' + JSON.stringify(requirement));
         success = false;
       }
       
       //Tarkista tyyppi
       if (requirement.type && typeof value !== requirement.type) {
-        console.log('Hups: ' + value + ' Ongelma2: ' + JSON.stringify(requirement));
-        console.log(typeof value);
         success = false;
       }
 
       //Tarkista koko
       if (typeof value === 'number') {
         if (requirement.max != null && value > requirement.max) {
-          console.log('Hups: ' + value + ' Ongelma3: ' + JSON.stringify(requirement));
           success = false;
         } else if (requirement.min && value < requirement.min) {
-          console.log('Hups: ' + value + ' Ongelma4: ' + JSON.stringify(requirement));
           success = false;
         }
       } else {
         if (requirement.max && value.length > requirement.max) {
-          console.log('Hups: ' + value + ' Ongelma5: ' + JSON.stringify(requirement));
           success = false;
         } else if (requirement.min && value.length < requirement.min) {
-          console.log('Hups: ' + value + ' Ongelma6: ' + JSON.stringify(requirement));
           success = false;
         }
       }
@@ -207,6 +199,8 @@ function findAttributes(object, key, keyPath, callback) {
     }
   }
 
-  callback(attribute);
+  if (attribute) {
+    callback(attribute);
+  }
 
 }
