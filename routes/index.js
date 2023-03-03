@@ -110,6 +110,19 @@ router.post('/api/luotili/', function(req, res, next) {
 
 
 
+router.get('/api/testi/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'piip', min: 0, value: 'terve!'},
+    {keyPath: ['a', 'b', 'c'], type: 'string', value: ['1', '2', '3', '4', 'asd']},
+    {key: 'r', min: 4, max: 10, optional: true}
+  ])
+  .then(() => {
+    res.send(true);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
+}); 
 
 router.get('/api/echoheaders/', function(req, res, next) {
   res.json(req.headers);
@@ -303,6 +316,12 @@ router.delete('/api/tiketti/:ticketid', function(req, res, next) {
 
 
 //TODO: '/api/kurssi/:kurssi-id/tiketti/tiketti-id/kooste
+router.get('/api/tiketti/:ticketid/kooste', function(req, res, next) {
+  access.readTicket(req, ticketid)
+  .then((handle) => {
+    return handle.methods.getTicketMetadata(handle.userid, ticketid);
+  })
+});
 
 // '/api/kurssi/:kurssi-id/tiketti/:tiketti-id/kentat'
 router.get('/api/tiketti/:ticketid/kentat', function(req, res, next) {
@@ -514,7 +533,14 @@ router.get('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
 // '/api/kurssi/:kurssi-id/tikettipohja/kentat' PUT
 router.put('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
   //ACCESS
-  sanitizer.hasRequiredParameters(req, ['kentat'])
+  sanitizer.test(req.body, [
+    {key: 'kentat', type: 'object'},
+    {keyPath: ['kentat', 'otsikko'], type: 'string', min: 1, max: 255},
+    {keyPath: ['kentat', 'pakollinen'], type: 'boolean'},
+    {keyPath: ['kentat', 'esitaytettava'], type: 'boolean'},
+    {keyPath: ['kentat', 'ohje'], type: 'string', max: 255},
+    {keyPath: ['kentat', 'valinnat'], type: 'object', optional: true}
+  ])
   .then(() => sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat, ['otsikko', 'pakollinen', 'esitaytettava', 'ohje', 'valinnat']))
   .then(() => access.writeCourse(req, req.params.courseid))
   .then((handle) => handle.methods.replaceFieldsOfTicketBase(req.params.courseid, req.body.kentat))

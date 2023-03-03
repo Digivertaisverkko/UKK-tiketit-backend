@@ -57,7 +57,7 @@ class TicketReads {
     })
     .then((results) => {
       if (currentUserId == null) {
-        //Koska UKK-käyttäjän ei ole välttämättä pitänyt kirjautua sisään.
+        //Koska käyttäjän ei ole välttämättä pitänyt kirjautua sisään UKK-tikettejä varten.
         return results;
       } else {
         return sql.courses.getUserInfoForCourse(currentUserId, results[0].kurssi)
