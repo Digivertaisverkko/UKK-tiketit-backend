@@ -55,7 +55,14 @@ module.exports = {
         });
       } else {
         //Jos on UKK
-        storedUserId = undefined;
+        return auth.authenticatedUser(request)
+        .then((userid) => {
+          storedUserId = userid
+        })
+        .catch(() => {
+          //UKK:t näkee, vaikka ei ole kirjautunut sisään.
+          storedUserId = undefined;
+        });
       }
     })
     .then(() => {
@@ -102,6 +109,9 @@ module.exports = {
     })
     .then((commentDataList) => {
       let commentData = commentDataList[0];
+      console.log('jee');
+      console.dir(commentData);
+      console.log(storedUserId);
       if (commentData.lahettaja === storedUserId) {
         return {userid: storedUserId, methods: commentWrites};
       } else {
