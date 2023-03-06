@@ -50,6 +50,10 @@ module.exports = {
     .then(() => {
       return module.exports.createTicketBase(instruction, storedcourseid);
     })
+    .then((ticketbaseid) => {
+      return module.exports.connectTicketBaseToField(ticketbaseid, 1)
+      .then(() => module.exports.connectTicketBaseToField(ticketbaseid, 2));
+    })
     .then(() => {
       return storedcourseid;
     });
@@ -195,18 +199,23 @@ module.exports = {
     })
     .then((fieldIdPromiseList) => {
       let promises = [];
-      const query = '\
-      INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) \
-      VALUES ($1, $2)';
       for (index in fieldIdPromiseList) {
         /*Jokainen promise palauttaa erillisen taulun. 
         Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
         let id = fieldIdPromiseList[index][0].id;
-        promises.push(connection.queryNone(query, [storedTicketId, id]));
+        promises.push(module.exports.connectTicketBaseToField(storedTicketId, id));
       }
       return Promise.all(promises);
     });
+  },
+
+  connectTicketBaseToField: function(ticketbaseid, fieldid) {
+    const query = '\
+    INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) \
+    VALUES ($1, $2)';
+    return connection.queryNone(query, [ticketbaseid, fieldid]);
   }
+
 
 };
 
