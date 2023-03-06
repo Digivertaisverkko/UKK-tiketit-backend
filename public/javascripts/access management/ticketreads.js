@@ -13,8 +13,10 @@ const mailer = require('./../mailer.js');
 class TicketReads {
 
   addComment(ticketId, creatorId, content, wantedState) {
+    var storedTicketData;
     return sql.tickets.getTicket(ticketId)
     .then((ticketdata) => {
+      storedTicketData = ticketdata;
       if (ticketdata.ukk == true) {
         return Promise.reject(errorcodes.operationNotPossible);
       }
@@ -34,7 +36,15 @@ class TicketReads {
       return sql.tickets.createComment(ticketId, creatorId, content, wantedState);
     })
     .then((commentId) => {
-      mailer.sendMailNotifications(ticketId, [creatorId], content);
+      if (creatorId === storedTicketData.aloittaja) {
+        mailer.sendMailNotifications(ticketId, [creatorId], content);
+      } else {
+        sql.courses.getTeachersOfCourse(storedTicketData.kurssi)
+        .then((teacherIdList) => {
+          let ids = arrayTools.extractAttributes(teacherIdList, 'id');
+          mailer.sendMailNotifications(ticketId, ids, content);
+        })
+      }
       return commentId;
     })
 

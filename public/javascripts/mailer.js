@@ -34,9 +34,7 @@ module.exports = {
       return sql.courses.getTeachersOfCourse(storedCourse);
     })
     .then((receiverList) => {
-      //TODO: Tällä hetkellä ei haluta laittaa sähköposti-ilmoituksia opiskelijoille. Ulkotyökalin sisäänkirjautumislogiikka LTI-käyttäjille pitää selvittää ennen sitä.
-      //receiverList.push(storedCreator);
-      
+      receiverList.push(storedCreator);
       receiverList = receiverList.filter(function(value, index, array) {
         return excludedList.indexOf(value.id) === -1;
       });
@@ -49,7 +47,7 @@ module.exports = {
         let url = new URL(path.join('course', storedCourse.toString(), 'ticket-view', ticketId.toString()), process.env.LTI_REDIRECT);
 
         content = content == null ? '' : content;
-  
+        
         const mailOptions = {
           from: process.env.SMTP_USERNAME,
           bcc: receiverAddressList,
