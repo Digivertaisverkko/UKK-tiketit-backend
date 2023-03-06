@@ -651,6 +651,36 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 [Tila](#tiketin-tila)<br>
 
 
+#### PUT
+[**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettikirjoitus
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+```
+-body- 
+{
+  otsikko: $string
+  viesti: $string (ei pakollinen)
+  kentat: 
+  [{
+    id: $int
+    arvo: $string
+  }]
+}
+```
+
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+
 #### DELETE
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettikirjoitus
 ##### Lähetä:

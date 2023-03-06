@@ -226,6 +226,21 @@ module.exports = {
     connection.queryNone(query, [commentid, attachmentid, filename]);
   },
 
+  updateTicket(ticketid, title, fieldList) {
+    const ticketQuery = 'UPDATE core.tiketti SET otsikko=$1 WHERE id=$2';
+    const fieldsQuery = 'UPDATE core.tiketinkentat SET arvo=$1 WHERE kentta=$2 AND tiketti=$3';
+    console.log(1);
+    return connection.queryNone(ticketQuery, [title, ticketid])
+    .then(() => {
+      console.log(2);
+      var promises = []
+      for (field of fieldList) {
+        promises.push(connection.queryNone(fieldsQuery, [field.arvo, field.id, ticketid]));
+      }
+      return Promise.all(promises);
+    })
+  },
+
   deleteTicket(ticketid) {
     const fieldQuery = 'DELETE FROM core.tiketinkentat WHERE tiketti=$1';
     const stateQuery = 'DELETE FROM core.tiketintila WHERE tiketti=$1';
