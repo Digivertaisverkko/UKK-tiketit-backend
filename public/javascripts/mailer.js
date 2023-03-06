@@ -54,7 +54,7 @@ module.exports = {
           from: process.env.SMTP_USERNAME,
           bcc: receiverAddressList,
           subject: 'Sinulle on DVVUKK-viesti',
-          text: 'Viestin sisältö:\n' + content + '\n\nVoit käydä vastaamassa siihen osoitteessa: ' + url
+          html: '<p>Viestin sisältö:</p>' + content + '<p>Voit käydä vastaamassa siihen osoitteessa: ' + url + '</p>'
         };
         transporter.sendMail(mailOptions, function(error, info){
           if (error) {
