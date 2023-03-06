@@ -296,21 +296,17 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
 
 
 router.put('/api/tiketti/:ticketid', function(req, res, next) {
-  console.log('asd');
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', min: 1, max: 255},
     {key: 'viesti', type: 'string', min: 1, optional: true},
     {key: 'kentat', type: 'object'},
     {keyPath: ['kentat', 'id'], type: 'number'},
-    {keyPath: ['kentat', 'arvo'], type: 'string', max: 255}
+    {keyPath: ['kentat', 'arvo'], type: 'string', min: 1, max: 255}
   ])
   .then(() => {
     return access.writeTicket(req, req.params.ticketid);
   })
   .then((handle) => {
-    console.dir(handle);
-    console.dir(req.body);
-    //return handle.methods.updateTicket(1, 'asd', 'dfg', [{id: 1, arvo: 'asd'}, {id:2, arvo: 'fdg'}]);
     return handle.methods.updateTicket(req.params.ticketid, req.body.otsikko, req.body.viesti, req.body.kentat);
   })
   .then(() => {

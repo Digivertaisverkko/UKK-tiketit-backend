@@ -25,18 +25,13 @@ class TicketWrites extends TicketReads {
   }
 
   updateTicket(ticketId, title, content, fieldList) {
-    console.log(0);
     return sql.tickets.updateTicket(ticketId, title, fieldList)
     .then(() => {
-      console.log(3);
       if (content) {
-        console.log(4);
         return sql.tickets.getComments(ticketId)
         .then((commentList) => {
-          console.log(5);
           commentList.sort(function(a,b) { a.aikaleima - b.aikaleima });
           let firstComment = commentList[0];
-          console.log(6);
           return sql.tickets.updateComment(firstComment.id, content);
         });
       }

@@ -128,15 +128,14 @@ function checkObjectForRequirements(object, requirementsList) {
     }
 
     var success = true;
-    var found = requirement.optional ? true : false;
 
     findAttributes(object, requirement.key, requirement.keyPath, function(value) {
-      found = true;
 
       //Tarkista null
-      if (value == null && requirement.optional == false) {
+      if (value == null && requirement.optional != true) {
         console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> puuttuu.');
         success = false;
+        return;
       }
 
       //Tarkista arvo
@@ -171,7 +170,8 @@ function checkObjectForRequirements(object, requirementsList) {
       }
     });
 
-    if ((found && success) == false) {
+    if (success == false) {
+      console.dir(requirement);
       return false;
     }
   }
@@ -206,8 +206,9 @@ function findAttributes(object, key, keyPath, callback) {
     }
   }
 
-  if (attribute) {
+  //console.dir(attribute);
+  //if (attribute !== undefined) {
     callback(attribute);
-  }
+  //}
 
 }
