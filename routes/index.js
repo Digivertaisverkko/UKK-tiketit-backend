@@ -301,7 +301,7 @@ router.put('/api/tiketti/:ticketid', function(req, res, next) {
     {key: 'viesti', type: 'string', min: 1, optional: true},
     {key: 'kentat', type: 'object'},
     {keyPath: ['kentat', 'id'], type: 'number'},
-    {keyPath: ['kentat', 'arvo'], type: 'string', min: 1, max: 255}
+    {keyPath: ['kentat', 'arvo'], type: 'string', max: 255}
   ])
   .then(() => {
     return access.writeTicket(req, req.params.ticketid);
