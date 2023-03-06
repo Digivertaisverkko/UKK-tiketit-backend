@@ -342,8 +342,11 @@ Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt
 ##### Vastaus:
 ```
 {
-  success: $bool
-  error: $error-olio
+  success: true
+  uusi: {
+    tiketti: $int (luodun tiketin id)
+    kommentti: $int (luodun kommentin id)
+  }
 } 
 ```
 
