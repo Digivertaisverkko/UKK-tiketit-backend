@@ -16,6 +16,7 @@ const access = require('../public/javascripts/access management/access.js');
 const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
 const fs = require('fs');
+const { sendMailNotifications } = require('../public/javascripts/mailer.js');
 
 router.use(express.json());
 
@@ -238,7 +239,14 @@ router.get('/api/kurssi/:courseid/ukk', function(req, res, next) {
 // '/api/kurssi/:kurssi-id/ukk' POST
 router.post('/api/kurssi/:courseid/ukk', function(req, res, next) {
   //ACCESS
-  sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat', 'vastaus'])
+  sanitizer.test(req.body, [
+    {key: 'otsikko', type: 'string', min: 1,  max: 255},
+    {key: 'viesti', type: 'string'},
+    {key: 'kentat', type: 'object'},
+    {keyPath: ['kentat', 'id'], type: 'number'},
+    {keyPath: ['kentat', 'arvo'], type: 'string', max: 255},
+    {key: 'vastaus', type: 'string'}
+  ])
   .then(() => {
     return access.writeCourse(req, req.params.courseid);
   })
@@ -340,7 +348,10 @@ router.get('/api/tiketti/:ticketid/kommentit', function(req, res, next) {
 // '/api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentit' POST
 router.post('/api/tiketti/:ticketid/uusikommentti', function(req, res, next) {
   //ACCESS
-  sanitizer.hasRequiredParameters(req, ['viesti', 'tila'])
+  sanitizer.test(req.body, [
+    {key: 'viesti', type: 'string'},
+    {key: 'tila', type: 'number', min: 0, max: 6}
+  ])
   .then(() => {
     return access.readTicket(req, req.params.ticketid);
   })
@@ -396,7 +407,14 @@ router.post('/api/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
 // '/api/kurssi/:kurssi-id/ukk/:tiketti-id/' PUT
 router.post('/api/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
   //ACCESS
-  sanitizer.objectHasRequiredParameters(req.body, ['otsikko', 'viesti', 'kentat', 'vastaus'])
+  sanitizer.test(req.body, [
+    {key: 'otsikko', type: 'string', max: 255},
+    {key: 'viesti', type: 'string'},
+    {key: 'kentat', type: 'object'},
+    {keyPath: ['kentat', 'id'], type: 'number', min: 0},
+    {keyPath: ['kentat', 'arvo'], type: 'string', max: 255},
+    {key: 'vastaus', type: 'string'}
+  ])
   .then(() => {
     return access.writeFaq(req, req.params.ticketid);
   })
@@ -574,7 +592,13 @@ router.get('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
 // '/api/kurssi/:kurssi-id/tiketti' POST
 router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   //ACCESS
-  sanitizer.hasRequiredParameters(req, ['otsikko', 'viesti', 'kentat'])
+  sanitizer.test(req.body, [
+    {key: 'otsikko', type: 'string', min: 1, max: 255},
+    {key: 'viesti', type: 'string'},
+    {key: 'kentat', type: 'object'},
+    {keyPath: ['kentat', 'id'], type: 'number'},
+    {keyPath: ['kentat', 'arvo'], type: 'string', max: 255}
+  ])
   .then(() => access.readCourse(req, req.params.courseid))
   .then((handle) => {
     return handle.methods.createTicket(req.params.courseid, handle.userid, req.body.otsikko,
