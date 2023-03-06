@@ -1,4 +1,5 @@
 
+const errorcodes = require('./errorcodes.js');
 
 module.exports = {
 
@@ -8,7 +9,7 @@ module.exports = {
       for (const key of keyList) {
         let value = request.header(key);
         if (value == null || value == undefined) {
-          return reject(3000);
+          return reject(errorcodes.wrongParameters);
         } else {
           object[key] = value;
         }
@@ -27,7 +28,7 @@ module.exports = {
         let element = array[index];
         let passedObject = checkObjectForRequiredParameters(element, keyList);
         if (passedObject == null) {
-          reject(3000);
+          reject(errorcodes.wrongParameters);
         }
       }
       resolve(array);
@@ -40,7 +41,7 @@ module.exports = {
       if (passedObject != null) {
         resolve(passedObject);
       } else {
-        reject(3000);
+        reject(errorcodes.wrongParameters);
       }
     });
   },
@@ -69,7 +70,7 @@ module.exports = {
       if (checkObjectForRequirements(object, requirementList)) {
         resolve(true);
       } else {
-        reject(3000);
+        reject(errorcodes.wrongParameters);
       }
     });
   }

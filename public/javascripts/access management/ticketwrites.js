@@ -2,6 +2,7 @@
 let TicketReads = require('./ticketreads.js');
 
 let sql = require('../../../routes/sql.js');
+const errorcodes = require('./../errorcodes.js');
 
 
 class TicketWrites extends TicketReads {
@@ -17,7 +18,7 @@ class TicketWrites extends TicketReads {
     return sql.tickets.getComments(ticketId)
     .then((commentList) => {
       if (commentList.length > 1) {
-        return Promise.reject(3001);
+        return Promise.reject(errorcodes.operationNotPossible);
       } else {
         return Promise.resolve(true);
       }

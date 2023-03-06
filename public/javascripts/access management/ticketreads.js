@@ -5,7 +5,7 @@ const splicer = require('../sqlsplicer.js');
 const arrayTools = require("../arrayTools");
 const crypto = require('crypto');
 const fs = require('fs');
-const errorFactory = require('../error.js');
+const errorcodes = require('./../errorcodes.js');
 const mailer = require('./../mailer.js');
 
 
@@ -16,7 +16,7 @@ class TicketReads {
     return sql.tickets.getTicket(ticketId)
     .then((ticketdata) => {
       if (ticketdata.ukk == true) {
-        return Promise.reject(3001);
+        return Promise.reject(errorcodes.operationNotPossible);
       }
       return sql.courses.getUserInfoForCourse(creatorId, ticketdata.kurssi);
     })

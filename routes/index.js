@@ -6,7 +6,7 @@ var router = express.Router();
 var sql = require('./sql.js');
 const crypto = require('crypto');
 const { setFlagsFromString } = require('v8');
-const errorFactory = require('../public/javascripts/error.js')
+const errorFactory = require('../public/javascripts/error.js');
 const splicer = require('../public/javascripts/sqlsplicer.js');
 const { use } = require('express/lib/application.js');
 const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
@@ -286,7 +286,7 @@ router.get('/api/tiketti/:ticketid', function(req, res, next) {
     if (data.length == 1) {
       res.send(data[0]);
     } else {
-      return Promise.reject(3004);
+      return Promise.reject(errorFactory.code.somethingWentWrong);
     }
   })
   .catch((error) => {
@@ -506,7 +506,7 @@ router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
   })
   .then((userinfo) => {
     if (userinfo.asema !== "opettaja") {
-      return Promise.reject(1003);
+      return Promise.reject(errorFactory.code.noPermission);
     } else {
       return sql.users.userIdsWithEmail(req.body.sposti);
     }
@@ -514,7 +514,7 @@ router.post('/api/kurssi/:courseid/kutsu', function(req, res, next) {
   .then((usersWithMatchingEmail) => {
     if (usersWithMatchingEmail.length == 0) {
       //TODO: Lähetä kutsu ihmiselle, joka ei käytä ohjelmaa tällä hetkellä.
-      return Promise.reject(2000);
+      return Promise.reject(errorFactory.code.noResults);
     } else {
       sql.courses.addUserToCourse(req.params.courseid, usersWithMatchingEmail[0], req.body.opettaja);
     }

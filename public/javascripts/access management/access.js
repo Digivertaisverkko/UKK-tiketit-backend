@@ -2,6 +2,7 @@
 const { use } = require('express/lib/application.js');
 const sql = require('../../../routes/sql.js')
 const auth = require('../auth.js');
+const errorcodes = require('./../errorcodes.js');
 const CommentWrites = require('./commentwrites.js');
 const CourseLists = require('./courselists.js');
 const CourseReads = require('./coursereads.js');
@@ -50,7 +51,7 @@ module.exports = {
           if (courseStatus.asema == 'opettaja' || storedTicketData.aloittaja == storedUserId) {
             return courseStatus;
           } else {
-            return Promise.reject(1003)
+            return Promise.reject(errorcodes.noPermission)
           }
         });
       } else {
@@ -79,9 +80,9 @@ module.exports = {
     })
     .then((ticketData) => {
       if (ticketData.ukk === true) {
-        return Promise.reject(3001);
+        return Promise.reject(errorcodes.operationNotPossible);
       } else if (ticketData.aloittaja != storedUserId) {
-        return Promise.reject(1003);
+        return Promise.reject(errorcodes.noPermission);
       } else {
         return { userid: storedUserId, methods: ticketwrites };
       }
@@ -93,7 +94,7 @@ module.exports = {
     return sql.tickets.getPlainTicket(ticketId)
     .then((ticketData) => {
       if (ticketData.ukk === false) {
-        return Promise.reject(3001);
+        return Promise.reject(errorcodes.operationNotPossible);
       } else {
         return this.writeCourse(request, ticketData.kurssi);
       }
@@ -115,7 +116,7 @@ module.exports = {
       if (commentData.lahettaja === storedUserId) {
         return {userid: storedUserId, methods: commentWrites};
       } else {
-        return Promise.reject(1003);
+        return Promise.reject(errorcodes.noPermission);
       }
     });
   },
@@ -131,7 +132,7 @@ module.exports = {
       if (courseStatus.asema === 'opettaja') {
         return courseStatus;
       } else {
-        return Promise.reject(1003)
+        return Promise.reject(errorcodes.noPermission)
       }
     })
     .then(() => {

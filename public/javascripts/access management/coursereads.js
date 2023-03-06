@@ -6,6 +6,7 @@ const splicer = require('../sqlsplicer.js');
 const TicketState = require('../ticketstate.js');
 const sqlsplicer = require('../sqlsplicer.js');
 const mailer = require('../mailer.js');
+const errorcodes = require('./../errorcodes.js');
 
 
 class CourseReads extends CourseLists {
@@ -17,7 +18,7 @@ class CourseReads extends CourseLists {
     })
     .then((data) => {
       if (data.length === 0) {
-        return Promise.reject(2000);
+        return Promise.reject(errorcodes.noResults);
       } else {
         return data;
       }
@@ -32,7 +33,7 @@ class CourseReads extends CourseLists {
       } else if (userdata != undefined) {
         return sql.tickets.getAllMyTickets(courseid, userdata.id);
       } else {
-        return Promise.reject(1003);
+        return Promise.reject(errorcodes.noPermission);
       }
     })
     .then((ticketdata) => {
@@ -69,7 +70,7 @@ class CourseReads extends CourseLists {
         });
         Promise.all(promises)
         .then(() => resolve(ticketid))
-        .catch(() => reject(3004));
+        .catch(() => reject(errorcodes.somethingWentWrong));
       });
     })
     .then((ticketid) => {

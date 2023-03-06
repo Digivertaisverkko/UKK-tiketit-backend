@@ -1,5 +1,6 @@
 const sql = require('../../../routes/sql.js');
 const TicketState = require('../ticketstate.js');
+const errorcodes = require('./../errorcodes.js');
 
 const CourseReads = require("./coursereads");
 
@@ -23,7 +24,7 @@ class CourseWrites extends CourseReads {
       if (isFaq === true) {
         sql.tickets.archiveTicket(ticketid);
       } else {
-        return Promise.reject(3001);
+        return Promise.reject(errorcodes.operationNotPossible);
       }
     })
   }
@@ -36,7 +37,7 @@ class CourseWrites extends CourseReads {
         return sql.tickets.getTicket(ticketid)
         .then((ticketData) => {
           if (ticketData.tila === TicketState.archived) {
-            return Promise.reject(3001);
+            return Promise.reject(errorcodes.operationNotPossible);
           } else {
             storedTicketData = ticketData;
             return this.archiveFaqTicket(ticketid);

@@ -5,6 +5,7 @@ const { Pool, Client } = require('pg');
 const connection = require('./connection.js');
 const arrayTools = require('./arrayTools.js');
 const con = connection.getConnection();
+const errorcodes = require('./errorcodes.js');
 
 const TicketState = require('./ticketstate.js');
 
@@ -35,10 +36,10 @@ module.exports = {
       if (courseStatus.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
         return courseStatus;
       } else {
-        return Promise.reject(1003)
+        return Promise.reject(errorcodes.noPermission)
       }
     })
-    .catch(() => Promise.reject(1003));
+    .catch(() => Promise.reject(errorcodes.noPermission));
   },
 
   getAllMyTickets: function(courseId, userId) {
@@ -164,7 +165,7 @@ module.exports = {
         });
         Promise.all(promises)
         .then(() => resolve(ticketid))
-        .catch(() => reject(3004));
+        .catch(() => reject(errorcodes.somethingWentWrong));
       });
     })
     .then((ticketid) => {
@@ -183,7 +184,7 @@ module.exports = {
         .then(() => resolve())
         .catch((error) => { reject(error); });
       } else {
-        reject(3000);
+        reject(errorcodes.wrongParameters);
       }
     });
   },
