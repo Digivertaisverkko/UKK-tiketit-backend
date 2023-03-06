@@ -34,7 +34,9 @@ module.exports = {
       return sql.courses.getTeachersOfCourse(storedCourse);
     })
     .then((receiverList) => {
-      receiverList.push(storedCreator);
+      //TODO: Tällä hetkellä ei haluta laittaa sähköposti-ilmoituksia opiskelijoille. Ulkotyökalin sisäänkirjautumislogiikka LTI-käyttäjille pitää selvittää ennen sitä.
+      //receiverList.push(storedCreator);
+      
       receiverList = receiverList.filter(function(value, index, array) {
         return excludedList.indexOf(value.id) === -1;
       });
