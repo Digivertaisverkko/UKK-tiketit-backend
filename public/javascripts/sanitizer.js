@@ -206,9 +206,5 @@ function findAttributes(object, key, keyPath, callback) {
     }
   }
 
-  //console.dir(attribute);
-  //if (attribute !== undefined) {
     callback(attribute);
-  //}
-
 }
