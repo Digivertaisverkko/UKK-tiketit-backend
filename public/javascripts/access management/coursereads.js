@@ -4,6 +4,9 @@ const CourseLists = require('./courselists.js');
 
 const splicer = require('../sqlsplicer.js');
 const TicketState = require('../ticketstate.js');
+const sqlsplicer = require('../sqlsplicer.js');
+const mailer = require('../mailer.js');
+const errorcodes = require('./../errorcodes.js');
 
 
 class CourseReads extends CourseLists {
@@ -15,7 +18,7 @@ class CourseReads extends CourseLists {
     })
     .then((data) => {
       if (data.length === 0) {
-        return Promise.reject(2000);
+        return Promise.reject(errorcodes.noResults);
       } else {
         return data;
       }
@@ -30,11 +33,17 @@ class CourseReads extends CourseLists {
       } else if (userdata != undefined) {
         return sql.tickets.getAllMyTickets(courseid, userdata.id);
       } else {
-        return Promise.reject(1003);
+        return Promise.reject(errorcodes.noPermission);
       }
     })
     .then((ticketdata) => {
       return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', courseid);
+    })
+    .then((ticketdata) => {
+      return sql.tickets.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    })
+    .then((ticketdata) => {
+      return sqlsplicer.removeArchivedTickets(ticketdata);
     });
   }
 
@@ -61,13 +70,19 @@ class CourseReads extends CourseLists {
         });
         Promise.all(promises)
         .then(() => resolve(ticketid))
-        .catch(() => reject(3004));
+        .catch(() => reject(errorcodes.somethingWentWrong));
       });
     })
     .then((ticketid) => {
       return sql.tickets.createComment(ticketid, creatorId, content, 1)
+      .then((commentid) => {
+        return {tiketti: ticketid, kommentti: commentid};
+      });
+    })
+    .then((results) => {
+      return mailer.sendMailNotifications(results.tiketti, [creatorId], content)
       .then(() => {
-        return ticketid;
+        return results;
       });
     });
   }

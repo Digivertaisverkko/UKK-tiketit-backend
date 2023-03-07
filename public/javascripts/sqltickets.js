@@ -5,6 +5,7 @@ const { Pool, Client } = require('pg');
 const connection = require('./connection.js');
 const arrayTools = require('./arrayTools.js');
 const con = connection.getConnection();
+const errorcodes = require('./errorcodes.js');
 
 const TicketState = require('./ticketstate.js');
 
@@ -35,21 +36,21 @@ module.exports = {
       if (courseStatus.asema == 'opettaja' || storedData.aloittaja == userid || storedData.ukk == true) {
         return courseStatus;
       } else {
-        return Promise.reject(1003)
+        return Promise.reject(errorcodes.noPermission)
       }
     })
-    .catch(() => Promise.reject(1003));
+    .catch(() => Promise.reject(errorcodes.noPermission));
   },
 
   getAllMyTickets: function(courseId, userId) {
-      const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
-      FROM core.tiketti \
-      WHERE aloittaja=$1 AND kurssi=$2 AND ukk=FALSE';
-      return connection.queryAll(query, [userId, courseId])
-      .then((ticketdata) => {
-        return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
-      });
-    },
+    const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
+    FROM core.tiketti \
+    WHERE aloittaja=$1 AND kurssi=$2 AND ukk=FALSE';
+    return connection.queryAll(query, [userId, courseId])
+    .then((ticketdata) => {
+      return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    });
+  },
   
   getAllTickets: function(courseId) {
     const query = 'SELECT * FROM core.tiketti WHERE kurssi=$1 AND ukk=FALSE';
@@ -64,6 +65,11 @@ module.exports = {
     return connection.queryAll(query, [courseId])
     .then((ticketdata) => {
       return module.exports.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    })
+    .then((ticketdata) => {
+      return ticketdata.filter(function(value, index, array) {
+        return value.tila != TicketState.archived;
+      });
     });
   },
 
@@ -101,6 +107,15 @@ module.exports = {
     return connection.queryAll(query, [messageId]);
   },
 
+  getFieldsOfTicketList: function(ticketIdList) {
+    const query = '\
+    SELECT tk.tiketti, tk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat tk \
+    INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
+    ON tk.kentta = pohja.id \
+    WHERE tk.tiketti= ANY($1)';
+    return connection.queryAll(query, [ticketIdList]);
+  },
+
   getOneFieldOfTicketList: function(ticketIdList, fieldid) {
     const query = '\
     SELECT tk.tiketti, tk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat tk \
@@ -110,9 +125,14 @@ module.exports = {
     return connection.queryAll(query, [ticketIdList, fieldid]);
   },
 
-  getComments: function(messageId) {
-    const query = 'SELECT viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
-    return connection.queryAll(query, [messageId]);
+  getComments: function(ticketId) {
+    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
+    return connection.queryAll(query, [ticketId]);
+  },
+
+  getComment: function(commentId) {
+    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE id=$1';
+    return connection.queryAll(query, [commentId]);
   },
 
   insertTicketMetadata: function(courseid, userid, title, isFaq=false) {
@@ -145,7 +165,7 @@ module.exports = {
         });
         Promise.all(promises)
         .then(() => resolve(ticketid))
-        .catch(() => reject(3004));
+        .catch(() => reject(errorcodes.somethingWentWrong));
       });
     })
     .then((ticketid) => {
@@ -164,22 +184,85 @@ module.exports = {
         .then(() => resolve())
         .catch((error) => { reject(error); });
       } else {
-        reject(3000);
+        reject(errorcodes.wrongParameters);
       }
     });
   },
+
+  getAttachmentListForCommentList: function(commentIdList) {
+    const query = '\
+    SELECT kommentti, tiedosto, nimi \
+    FROM core.liite \
+    WHERE kommentti=ANY($1)';
+    return connection.queryAll(query, [commentIdList]);
+  },
+
+  getAttachmentForComment: function(commentid, fileid) {
+    const query = '\
+    SELECT kommentti, tiedosto, nimi \
+    FROM core.liite \
+    WHERE kommentti=$1 AND tiedosto=$2';
+    return connection.queryAll(query, [commentid, fileid]);
+  },
+
+  addAttachmentListToTicket: function(ticketid, attachmentidList) {
+    return new Promise(function(resolve, reject) {
+      var promises = [];
+      attachmentidList.forEach(attachmentid => {
+        const query = '\
+        INSERT INTO core.liite (tiketti, liite) \
+        VALUES ($1, $2)';
+        promises.push(connection.queryNone(query, [ticketid, attachmentid]));
+      });
+      return Promise.all(promises)
+      .then(() => resolve(ticketid))
+      .catch(() => reject(3004));
+    });
+  },
+
+  addAttachmentToComment: function(commentid, attachmentid, filename) {
+    const query = '\
+        INSERT INTO core.liite (kommentti, tiedosto, nimi) \
+        VALUES ($1, $2, $3)';
+    connection.queryNone(query, [commentid, attachmentid, filename]);
+  },
+
+  updateTicket(ticketid, title, fieldList) {
+    const ticketQuery = 'UPDATE core.tiketti SET otsikko=$1 WHERE id=$2';
+    const fieldsQuery = 'UPDATE core.tiketinkentat SET arvo=$1 WHERE kentta=$2 AND tiketti=$3';
+    return connection.queryNone(ticketQuery, [title, ticketid])
+    .then(() => {
+      var promises = []
+      for (field of fieldList) {
+        promises.push(connection.queryNone(fieldsQuery, [field.arvo, field.id, ticketid]));
+      }
+      return Promise.all(promises);
+    })
+  },
+
+  deleteTicket(ticketid) {
+    const fieldQuery = 'DELETE FROM core.tiketinkentat WHERE tiketti=$1';
+    const stateQuery = 'DELETE FROM core.tiketintila WHERE tiketti=$1';
+    const attachmentQuery = 'DELETE FROM core.liite WHERE kommentti=ANY($1)';
+    const commentQuery = 'DELETE FROM core.kommentti WHERE tiketti=$1';
+    const ticketQuery = 'DELETE FROM core.tiketti WHERE id=$1';
+    return connection.queryNone(fieldQuery, [ticketid])
+    .then(() => connection.queryNone(stateQuery, [ticketid]))
+    .then(() => module.exports.getComments(ticketid))
+    .then((commentList) => {
+      let commentIdList = arrayTools.extractAttributes(commentList, 'id');
+      return connection.queryNone(attachmentQuery, [commentIdList]);
+    })
+    .then(() => connection.queryNone(commentQuery, [ticketid]))
+    .then(() => connection.queryNone(ticketQuery, [ticketid]));
+  },
+
 
   insertTicketStateToTicketIdReferences: function(array, idReferenceKey) {
     var ids = arrayTools.extractAttributes(array, idReferenceKey);
     return module.exports.getTicketStates(ids)
     .then((stateData) => {
-      array.forEach(element => {
-        var state = stateData.find((stateElement) => stateElement.tiketti===element[idReferenceKey]);
-        if (state != undefined) {
-          element.tila = state.tila;
-        }          
-      });
-      return array;
+      return arrayTools.arrayUnionByAddingPartsOfObjects(array, stateData, idReferenceKey, 'tiketti', 'tila', 'tila');
     });
   },
 
@@ -190,6 +273,14 @@ module.exports = {
     RETURNING id';
     return connection.queryOne(query, [ticketid, userid, content, state])
     .then((sqldata) => { return sqldata.id; });
+  },
+
+  updateComment: function(commentid, content) {
+    const query = '\
+    UPDATE core.kommentti \
+    SET viesti=$1 \
+    WHERE id=$2';
+    return connection.queryNone(query, [content, commentid]);
   },
 
   getTicketStates: function(ticketidList) {

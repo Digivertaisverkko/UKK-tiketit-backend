@@ -2,6 +2,7 @@
 const { use } = require('express/lib/application.js');
 const sql = require('../../../routes/sql.js')
 const auth = require('../auth.js');
+const errorcodes = require('./../errorcodes.js');
 const CommentWrites = require('./commentwrites.js');
 const CourseLists = require('./courselists.js');
 const CourseReads = require('./coursereads.js');
@@ -21,6 +22,7 @@ const courselists = new CourseLists();
 const coursereads = new CourseReads();
 const coursewrites = new CourseWrites();
 const profilereads = new ProfileReads();
+const commentWrites = new CommentWrites();
 
 module.exports = {
 
@@ -49,18 +51,19 @@ module.exports = {
           if (courseStatus.asema == 'opettaja' || storedTicketData.aloittaja == storedUserId) {
             return courseStatus;
           } else {
-            return Promise.reject(1003)
+            return Promise.reject(errorcodes.noPermission)
           }
-        })
-        .then((access) => {
-          if (access.asema === 'opettaja') {
-            //TODO: Tämä ei kuuluu oikeuksien tarkistukseen, koska tämä kirjoittaa tietokantaan
-            return sql.tickets.setTicketStateIfAble(ticketId, 2);
-          }
-        })
+        });
       } else {
         //Jos on UKK
-        storedUserId = undefined;
+        return auth.authenticatedUser(request)
+        .then((userid) => {
+          storedUserId = userid
+        })
+        .catch(() => {
+          //UKK:t näkee, vaikka ei ole kirjautunut sisään.
+          storedUserId = undefined;
+        });
       }
     })
     .then(() => {
@@ -69,12 +72,53 @@ module.exports = {
   },
 
   writeTicket: function(request, ticketId) {
+    let storedUserId;
+    return auth.authenticatedUser(request)
+    .then((userid) => {
+      storedUserId = userid;
+      return sql.tickets.getPlainTicket(ticketId);
+    })
+    .then((ticketData) => {
+      if (ticketData.ukk === true) {
+        return Promise.reject(errorcodes.operationNotPossible);
+      } else if (ticketData.aloittaja != storedUserId) {
+        return Promise.reject(errorcodes.noPermission);
+      } else {
+        return { userid: storedUserId, methods: ticketwrites };
+      }
+    });
+  },
+
+  writeFaq: function(request, ticketId) {
     //Palauttaa saman kuin writeCourse, mutta hakee kurssi-id:n tiketistä.
     return sql.tickets.getPlainTicket(ticketId)
     .then((ticketData) => {
-      storedTicketData = ticketData;
-      return this.writeCourse(request, ticketData.kurssi);
+      if (ticketData.ukk === false) {
+        return Promise.reject(errorcodes.operationNotPossible);
+      } else {
+        return this.writeCourse(request, ticketData.kurssi);
+      }
     })
+  },
+
+  writeComment: function(request, ticketId, commentId) {
+    let storedUserId;
+    return module.exports.readTicket(request, ticketId)
+    .then((handle) => {
+      storedUserId = handle.userid;
+      return sql.tickets.getComment(commentId);
+    })
+    .then((commentDataList) => {
+      let commentData = commentDataList[0];
+      console.log('jee');
+      console.dir(commentData);
+      console.log(storedUserId);
+      if (commentData.lahettaja === storedUserId) {
+        return {userid: storedUserId, methods: commentWrites};
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
+    });
   },
 
   writeCourse: function(request, courseId) {
@@ -88,7 +132,7 @@ module.exports = {
       if (courseStatus.asema === 'opettaja') {
         return courseStatus;
       } else {
-        return Promise.reject(1003)
+        return Promise.reject(errorcodes.noPermission)
       }
     })
     .then(() => {

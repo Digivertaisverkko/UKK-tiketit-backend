@@ -5,7 +5,7 @@ const sql = require('../../routes/sql');
 const ltiparser = require('./ltiparser');
 const lti = require('ims-lti');
 const { env } = require('process');
-const errorFactory = require('./error.js');
+const errorcodes = require('./errorcodes.js');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -21,7 +21,7 @@ module.exports = {
         storedData = {cc: codeChallenge, lid: loginid, fcode: fronttunnus};
         resolve(storedData)
       } else {
-        reject(1001);
+        reject(errorcodes.noConnection);
       }
     }).then((data) => {
       return sql.users.createLoginUrl(data.lid, data.cc, data.fcode);
@@ -42,16 +42,16 @@ module.exports = {
                   if (attemptData.length === 1) {
                     resolve({success: true, 'login-code': attemptData[0].fronttunnus});
                   } else {
-                    reject(1003);
+                    reject(errorcodes.noPermission);
                   }
                 });
               });
             } else {
-              reject(1002);
+              reject(errorcodes.wrongCredentials);
             }
           });
         } else {
-          reject(1002);
+          reject(errorcodes.wrongCredentials);
         }
       });
     });
@@ -67,7 +67,7 @@ module.exports = {
             resolve(sessionData);
           });
         } else {
-          reject(1003);
+          reject(errorcodes.noPermission);
         }
       })
       .catch((error) => {
@@ -94,7 +94,7 @@ module.exports = {
       let consumerKey = request.body.oauth_consumer_key;
       if (consumerKey !== process.env.TEMP_CLIENT_KEY) {
         console.warn('Väärä consumerKey');
-        return reject(errorFactory.code.noPermission);
+        return reject(errorcodes.noPermission);
       }
       let clientSecret = process.env.TEMP_CLIENT_SECRET;
       let provider = new lti.Provider(consumerKey, clientSecret);
@@ -120,17 +120,19 @@ module.exports = {
   },
 
   ltiLoginWithToken: function(token) {
+    console.dir(token);
     let userid = token.user;
     let contextid = token.platformContext.contextId;
     let clientid = token.clientId;
     let username = token.userInfo.name;
+    let email = token.userInfo.email;
     let coursename = token.platformContext.context.title;
     let courseroles = token.platformContext.roles;
 
-    return module.exports.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
+    return module.exports.ltiLogin(userid, contextid, clientid, username, email, coursename, courseroles);
   },
 
-  ltiLogin: function(userid, contextid, clientid, username, coursename, courseroles) {
+  ltiLogin: function(userid, contextid, clientid, username, email, coursename, courseroles) {
 
     let storedProfileId;
     let storedCourseId;
@@ -138,9 +140,9 @@ module.exports = {
     return sql.users.getLtiUser(clientid, userid)
     .then((userList) => {
       if (userList.length == 0) {
-        return sql.users.createLtiUser(username, clientid, userid);
-      } else if (userList[0].nimi !== username) {
-        return sql.users.updateUserProfile(userList[0].id, username)
+        return sql.users.createLtiUser(username, email, clientid, userid);
+      } else if (userList[0].nimi !== username || userList[0].sposti !== email) {
+        return sql.users.updateUserProfile(userList[0].id, username, email)
         .then(() => {
             return userList[0].id;
         });
@@ -185,7 +187,7 @@ module.exports = {
   authenticatedUser: function(httpRequest) {
     var sessionid = httpRequest.header('session-id');
     if (sessionid == undefined) {
-      return Promise.reject(3000);
+      return Promise.reject(errorcodes.wrongParameters);
     }
 
     return sql.users.userIdForSession(sessionid)
@@ -193,7 +195,7 @@ module.exports = {
       if (userids.length == 1) {
         return userids[0].profiili;
       } else {
-        return Promise.reject(1000);
+        return Promise.reject(errorcodes.notSignedIn);
       }
     });
   },
@@ -234,7 +236,7 @@ module.exports = {
         if (roledata.asema === 'opettaja' && ticketdata.ukk === true) {
           return;
         } else {
-          Promise.reject(1003);
+          Promise.reject(errorcodes.noPermission);
       }
       });
     })

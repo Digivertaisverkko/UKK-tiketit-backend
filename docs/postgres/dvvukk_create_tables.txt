@@ -21,7 +21,8 @@ otsikko VARCHAR(255) NOT NULL,
 tyyppi INT NOT NULL,
 esitaytettava BOOL NOT NULL,
 pakollinen BOOL NOT NULL,
-ohje VARCHAR(255)
+ohje VARCHAR(255),
+valinnat VARCHAR(512)
 );
 
 CREATE TABLE core.tikettipohjankentat (
@@ -135,6 +136,14 @@ contextid VARCHAR(256) NOT NULL,
 kurssi INT NOT NULL UNIQUE,
 FOREIGN KEY (kurssi) REFERENCES core.kurssi(id),
 PRIMARY KEY (clientid, contextid)
+);
+
+CREATE TABLE core.liite (
+kommentti INT NOT NULL,
+tiedosto VARCHAR(36) NOT NULL,
+nimi VARCHAR(256) NOT NULL,
+PRIMARY KEY (kommentti, tiedosto),
+FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );
 
 INSERT INTO core.profiili (id, nimi, sposti) OVERRIDING SYSTEM VALUE VALUES (0, 'POISTETTU', '');

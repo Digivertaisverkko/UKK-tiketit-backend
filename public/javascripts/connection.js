@@ -1,4 +1,5 @@
 const { Pool, Client } = require('pg');
+const errorcodes = require('./errorcodes.js');
 
 module.exports = {
     getConnection: function() {
@@ -9,7 +10,7 @@ module.exports = {
       return module.exports.queryAll(query, array)
       .then((sqldata) => {
         if (sqldata.length == 0) {
-          return Promise.reject(2000);
+          return Promise.reject(errorcodes.noResults);
         } else {
           return sqldata;
         }
@@ -22,7 +23,7 @@ module.exports = {
         if (sqldata.length == 1) {
           return sqldata[0];
         } else {
-          return Promise.reject(2000);
+          return Promise.reject(errorcodes.noResults);
         }
       }); 
     },
