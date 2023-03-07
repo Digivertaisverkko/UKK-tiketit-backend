@@ -47,7 +47,7 @@ class CourseWrites extends CourseReads {
           return this.createFaqTicket(storedTicketData.kurssi, storedTicketData.aloittaja, newTitle, newBody, newAnswer, newFields)
         });
       } else {
-        return Promise.reject(3001);
+        return Promise.reject(errorcodes.operationNotPossible);
       }
     })
   }
