@@ -37,13 +37,15 @@ router.post('/lti/1p1/start/', function(req, res, next) {
     return auth.securityCheckLti1p1(req);
   })
   .then(() => {
+    console.dir(req.body);
     let userid = req.body.user_id;
     let contextid = req.body.context_id;
     let clientid = req.body.lis_outcome_service_url;
     let username = req.body.lis_person_name_full;
+    let email = req.body.lis_person_contact_email_primary;
     let coursename = req.body.context_title;
     let courseroles = req.body.roles.split(',');
-    return auth.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
+    return auth.ltiLogin(userid, contextid, clientid, username, email, coursename, courseroles);
   })
   .then((logindata) => {
     let locale = req.body.launch_presentation_locale;

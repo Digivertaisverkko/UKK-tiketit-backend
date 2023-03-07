@@ -58,10 +58,10 @@ module.exports = {
     return connection.queryAll(query, [ltiClientId, ltiUserId])
   },
 
-  createLtiUser: function(name, ltiClientId, ltiUserId) {
+  createLtiUser: function(name, email, ltiClientId, ltiUserId) {
     const ltiQuery = 'INSERT INTO core.lti_login (clientid, userid, profiili) VALUES ($1, $2, $3)';
     let storedProfileId;
-    return module.exports.createEmptyUser(name, "")
+    return module.exports.createEmptyUser(name, email)
     .then((profileId) => {
       storedProfileId = profileId;
       return connection.queryNone(ltiQuery, [ltiClientId, ltiUserId, profileId]);
@@ -105,12 +105,12 @@ module.exports = {
     return connection.queryAll(query, [email]);
   },
 
-  updateUserProfile: function(userid, newName) {
+  updateUserProfile: function(userid, newName, newEmail) {
     const query = '\
     UPDATE core.profiili \
-    SET nimi=$1 \
-    WHERE id=$2';
-    return connection.queryNone(query, [newName, userid]);
+    SET nimi=$1, sposti=$2 \
+    WHERE id=$3';
+    return connection.queryNone(query, [newName, newEmail, userid]);
   }
  
 

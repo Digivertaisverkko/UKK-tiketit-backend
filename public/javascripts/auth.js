@@ -120,17 +120,19 @@ module.exports = {
   },
 
   ltiLoginWithToken: function(token) {
+    console.dir(token);
     let userid = token.user;
     let contextid = token.platformContext.contextId;
     let clientid = token.clientId;
     let username = token.userInfo.name;
+    let email = token.userInfo.email;
     let coursename = token.platformContext.context.title;
     let courseroles = token.platformContext.roles;
 
-    return module.exports.ltiLogin(userid, contextid, clientid, username, coursename, courseroles);
+    return module.exports.ltiLogin(userid, contextid, clientid, username, email, coursename, courseroles);
   },
 
-  ltiLogin: function(userid, contextid, clientid, username, coursename, courseroles) {
+  ltiLogin: function(userid, contextid, clientid, username, email, coursename, courseroles) {
 
     let storedProfileId;
     let storedCourseId;
@@ -138,9 +140,9 @@ module.exports = {
     return sql.users.getLtiUser(clientid, userid)
     .then((userList) => {
       if (userList.length == 0) {
-        return sql.users.createLtiUser(username, clientid, userid);
-      } else if (userList[0].nimi !== username) {
-        return sql.users.updateUserProfile(userList[0].id, username)
+        return sql.users.createLtiUser(username, email, clientid, userid);
+      } else if (userList[0].nimi !== username || userList[0].sposti !== email) {
+        return sql.users.updateUserProfile(userList[0].id, username, email)
         .then(() => {
             return userList[0].id;
         });
