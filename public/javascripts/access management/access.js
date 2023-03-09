@@ -22,6 +22,7 @@ const courselists = new CourseLists();
 const coursereads = new CourseReads();
 const coursewrites = new CourseWrites();
 const profilereads = new ProfileReads();
+const profilewrites = new ProfileWrites();
 const commentWrites = new CommentWrites();
 
 module.exports = {
@@ -162,12 +163,19 @@ module.exports = {
   readProfile: function(request, profileId) {
     return auth.authenticatedUser(request)
     .then((userid) => {
-      return { userid: userid, methods: profileread }
+      return { userid: userid, methods: profilereads }
     });
   },
 
   writeProfile: function(request, profileId) {
-
+    return auth.authenticatedUser(request)
+    .then((userid) => {
+      if (userid === profileId) {
+        return { userid: userid, methods: profilewrites};
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
+    });
   }
 
 };

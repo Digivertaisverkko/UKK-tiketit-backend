@@ -17,6 +17,7 @@ const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
 const fs = require('fs');
 const { sendMailNotifications } = require('../public/javascripts/mailer.js');
+const { profile } = require('console');
 
 router.use(express.json());
 
@@ -161,11 +162,29 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 
-router.get('/api/minun/poistatili', function(req, res, next) {
-//TODO: Toteuta tilin poistaminen kannasta.
-  auth.authenticatedUser(req)
-  .then((userid) =>  {
-    res.send();
+router.delete('/api/minun/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'id', type: 'int'},
+    {key: 'sposti', type: 'string', optional: true}
+  ])
+  .then(() => {
+    return access.writeProfile(req);
+  })
+  .then((handle) => {
+    return handle.methods.getProfile(handle.userid)
+    .then((profileData) => {
+      if (profileData.sposti == req.body.sposti || (profileData.sposti === undefined && profileData.sposti === undefined)) {
+        return handle.methods.deleteProfile(handle.userid);
+      } else {
+        return Promise.reject(errorFactory.code.noPermission);
+      }
+    });
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
   });
 });
 

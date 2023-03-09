@@ -105,12 +105,38 @@ module.exports = {
     return connection.queryAll(query, [email]);
   },
 
+  getUserProfile: function(userid) {
+    const query = 'SELECT * from core.profiili WHERE id=$1';
+    return connection.queryOne(query, [userid]);
+  },
+
   updateUserProfile: function(userid, newName, newEmail) {
     const query = '\
     UPDATE core.profiili \
     SET nimi=$1, sposti=$2 \
     WHERE id=$3';
     return connection.queryNone(query, [newName, newEmail, userid]);
+  },
+
+  removeProfile: function(profileid) {
+    const query = '\
+    DELETE FROM core.profiili \
+    WHERE id=$1';
+    return connection.queryNone(query, [profileid]);
+  },
+
+  removeAccount: function(profileid) {
+    const defaultQuery = 'DELETE FROM core.login WHERE profiili=$1';
+    const ltiQuery     = 'DELETE FROM core.lti_login WHERE profiili=$1';
+    return connection.queryNone(defaultQuery, [profileid])
+    .then(() => {
+      return connection.queryNone(ltiQuery, [profileid]);
+    });
+  },
+
+  removeSession: function(profileid) {
+    const query = 'DELETE FROM core.sessio WHERE profiili=$1';
+    return connection.queryNone(query, [profileid]);
   }
  
 

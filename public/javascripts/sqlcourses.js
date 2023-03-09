@@ -125,6 +125,11 @@ module.exports = {
     return connection.queryNone(query, [courseid, userid, position]);
   },
 
+  removeUserFromAllCourses: function(userid) {
+    const query = 'DELETE FROM core.kurssinosallistujat WHERE profiili=$1';
+    return connection.queryNone(query, [userid]);
+  },  
+
   getUserInfoForCourse(userid, courseid) {
     const query = '\
     SELECT t.id, t.nimi, t.sposti, ko.asema FROM core.kurssinosallistujat ko \
