@@ -224,7 +224,7 @@ module.exports = {
     const query = '\
         INSERT INTO core.liite (kommentti, tiedosto, nimi) \
         VALUES ($1, $2, $3)';
-    connection.queryNone(query, [commentid, attachmentid, filename]);
+    return connection.queryNone(query, [commentid, attachmentid, filename]);
   },
 
   updateTicket(ticketid, title, fieldList) {
