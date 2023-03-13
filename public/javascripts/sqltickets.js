@@ -251,17 +251,16 @@ module.exports = {
     const attachmentQuery = 'DELETE FROM core.liite WHERE kommentti=ANY($1)';
     const commentQuery = 'DELETE FROM core.kommentti WHERE tiketti=ANY($1)';
     const ticketQuery = 'DELETE FROM core.tiketti WHERE id=ANY($1)';
-    console.log(1);
+
     return connection.queryNone(fieldQuery, [ticketidList])
     .then(() => connection.queryNone(stateQuery, [ticketidList]))
     .then(() => connection.queryAll(getComments, [ticketidList]))
     .then((commentList) => {
-      console.log(2);
       let commentIdList = arrayTools.extractAttributes(commentList, 'id');
       return connection.queryNone(attachmentQuery, [commentIdList]);
     })
-    .then(() => { console.log(3); return connection.queryNone(commentQuery, [ticketidList]); })
-    .then(() => { console.log(4); return connection.queryNone(ticketQuery, [ticketidList]); });
+    .then(() => { return connection.queryNone(commentQuery, [ticketidList]); })
+    .then(() => { return connection.queryNone(ticketQuery, [ticketidList]); });
   },
 
   deleteCommentsFromUser: function(userid) {

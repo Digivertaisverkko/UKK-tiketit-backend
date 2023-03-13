@@ -133,10 +133,14 @@ function checkObjectForRequirements(object, requirementsList) {
     findAttributes(object, requirement.key, requirement.keyPath, function(value) {
 
       //Tarkista null
-      if (value == null && requirement.optional != true) {
-        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> puuttuu.');
-        success = false;
-        return;
+      if (value == null) {
+        if (requirement.optional == true) {
+          return;
+        } else {
+          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> puuttuu.');
+          success = false;
+          return;
+        }
       }
 
       //Tarkista arvo

@@ -27,6 +27,10 @@ const commentWrites = new CommentWrites();
 
 module.exports = {
 
+  authenticatedUser: function(request) {
+    return auth.authenticatedUser(request);
+  },
+
   publicMethods: function() {
     return new Promise(function(resolve, reject) {
       resolve({ userid: undefined, methods: publicmethds });
@@ -111,9 +115,6 @@ module.exports = {
     })
     .then((commentDataList) => {
       let commentData = commentDataList[0];
-      console.log('jee');
-      console.dir(commentData);
-      console.log(storedUserId);
       if (commentData.lahettaja === storedUserId) {
         return {userid: storedUserId, methods: commentWrites};
       } else {
@@ -160,10 +161,14 @@ module.exports = {
     });
   },
 
-  readProfile: function(request, profileId) {
+  readProfile: function(request, profileid) {
     return auth.authenticatedUser(request)
     .then((userid) => {
-      return { userid: userid, methods: profilereads }
+      if (profileid === userid) {
+        return { userid: userid, methods: profilereads }
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
     });
   },
 

@@ -162,18 +162,35 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 
+router.get('/api/minun/', function(req, res, next) {
+  access.authenticatedUser(req)
+  .then((userid) => {
+    return access.readProfile(req, userid);
+  })
+  .then((handle) => {
+    return handle.methods.getProfile(handle.userid);
+  })
+  .then((userData) => {
+    res.send(userData);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
+});
+
+
 router.delete('/api/minun/', function(req, res, next) {
   sanitizer.test(req.body, [
-    {key: 'id', type: 'int'},
+    {key: 'id', type: 'number'},
     {key: 'sposti', type: 'string', optional: true}
   ])
   .then(() => {
-    return access.writeProfile(req);
+    return access.writeProfile(req, req.body.id);
   })
   .then((handle) => {
     return handle.methods.getProfile(handle.userid)
     .then((profileData) => {
-      if (profileData.sposti == req.body.sposti || (profileData.sposti === undefined && profileData.sposti === undefined)) {
+      if (profileData.sposti == req.body.sposti || (profileData.sposti === undefined && req.body.sposti === undefined)) {
         return handle.methods.deleteProfile(handle.userid);
       } else {
         return Promise.reject(errorFactory.code.noPermission);
@@ -420,7 +437,6 @@ router.put('/api/tiketti/:ticketid/kommentti/:commentid', function(req, res, nex
   .then((handle) => {
     let commentid = req.params.commentid;
     let viesti = req.body.viesti;
-    console.dir(handle);
     return handle.methods.updateCommentText(commentid, viesti);
   })
   .then(() => {

@@ -106,7 +106,7 @@ module.exports = {
   },
 
   getUserProfile: function(userid) {
-    const query = 'SELECT * from core.profiili WHERE id=$1';
+    const query = 'SELECT nimi, sposti from core.profiili WHERE id=$1';
     return connection.queryOne(query, [userid]);
   },
 
