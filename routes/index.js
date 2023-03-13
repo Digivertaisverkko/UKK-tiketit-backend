@@ -38,7 +38,6 @@ router.post('/lti/1p1/start/', function(req, res, next) {
     return auth.securityCheckLti1p1(req);
   })
   .then(() => {
-    console.dir(req.body);
     let userid = req.body.user_id;
     let contextid = req.body.context_id;
     let clientid = req.body.lis_outcome_service_url;
@@ -176,6 +175,20 @@ router.get('/api/minun/', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   });
+});
+
+router.get('/api/minun/gdpr/', function(req, res, next) {
+  access.authenticatedUser(req)
+  .then((userid) => access.writeProfile(req, userid))
+  .then((handle) => {
+    return handle.methods.exportAllUserData(handle.userid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
 });
 
 

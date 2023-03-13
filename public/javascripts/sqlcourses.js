@@ -11,6 +11,10 @@ module.exports = {
     return connection.query('SELECT id, nimi FROM core.kurssi', []);
   },
 
+  getCoursesWithIdList: function(courseIdList) {
+    return connection.query('SELECT nimi FROM core.kurssi WHERE id=ANY($1)', [courseIdList]);
+  },
+
   getAllCoursesWithUser: function(userid) {
     const query = 'SELECT kurssi, asema FROM core.kurssinosallistujat WHERE profiili=$1'
     return connection.query(query, [userid]);
@@ -128,7 +132,7 @@ module.exports = {
   removeUserFromAllCourses: function(userid) {
     const query = 'DELETE FROM core.kurssinosallistujat WHERE profiili=$1';
     return connection.queryNone(query, [userid]);
-  },  
+  },
 
   getUserInfoForCourse(userid, courseid) {
     const query = '\

@@ -60,6 +60,11 @@ module.exports = {
     });
   },
 
+  getAllTicketsCreatedBy(userId) {
+    const query = 'SELECT * from core.tiketti WHERE aloittaja=$1';
+    return connection.queryAll(query, [userId]);
+  },
+
   getFaqTickets: function(courseId) {
     const query = 'SELECT id, otsikko, aikaleima FROM core.tiketti WHERE kurssi=$1 AND ukk=TRUE';
     return connection.queryAll(query, [courseId])
@@ -128,6 +133,11 @@ module.exports = {
   getComments: function(ticketId) {
     const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
     return connection.queryAll(query, [ticketId]);
+  },
+
+  getAllCommentCreatedBy: function(userId) {
+    const query = 'SELECT tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
+    return connection.queryAll(query, [userId]);
   },
 
   getComment: function(commentId) {
