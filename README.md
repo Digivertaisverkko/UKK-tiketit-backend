@@ -213,6 +213,52 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
   success: true
 }
 ```
+
+### /api/minun/gdpr/
+#### GET
+[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+##### Vastaus:
+```
+{
+  profiili: {
+    nimi
+    sposti
+  }
+  tiketit: [{
+    id
+    kurssi
+    otsikko
+    aikaleima
+    aloittaja
+    ukk
+    omat kommentit: [{
+      tiketti
+      lahettaja
+      viesti
+      aikaleima
+      liitteet: [{
+        kommentti
+        tiedosto
+        nimi
+      }]
+    }]
+  }]
+  kommentit: [{
+    tiketti
+    lahettajaviesti
+  }]
+  kurssit: [{
+    nimi
+  }]
+}
+```
  
 
 ## Kurssien rajapinta 
