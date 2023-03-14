@@ -622,7 +622,7 @@ router.put('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
   .then(() => access.writeCourse(req, req.params.courseid))
   .then((handle) => handle.methods.replaceFieldsOfTicketBase(req.params.courseid, req.body.kentat))
   .then(() => {
-    res.send({success: true});
+    res.send({ success: true });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
