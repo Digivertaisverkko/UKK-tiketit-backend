@@ -675,7 +675,7 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   .then(() => access.readCourse(req, req.params.courseid))
   .then((handle) => {
     return handle.methods.createTicket(req.params.courseid, handle.userid, req.body.otsikko,
-       req.body.viesti, req.body.kentat, req.body.liitteet, false);
+       req.body.viesti, req.body.kentat, false);
   })
   .then((newData) => {
     res.send({success: true, uusi: newData});
