@@ -56,7 +56,7 @@ module.exports = {
         };
         transporter.sendMail(mailOptions, function(error, info){
           if (error) {
-            console.log(error);
+            console.log('Sähköpostin lähetyksessä virhe: ' + error);
           } else {
             console.log('Sähköposti lähetettiin: ' + info.response);
           }
