@@ -18,6 +18,7 @@ const path = require('path');
 const fs = require('fs');
 const { sendMailNotifications } = require('../public/javascripts/mailer.js');
 const { profile } = require('console');
+var session = require('express-session');
 
 router.use(express.json());
 
@@ -38,12 +39,12 @@ router.post('/lti/1p1/start/', function(req, res, next) {
     return auth.securityCheckLti1p1(req);
   })
   .then(() => {
-    let userid = req.body.user_id;
-    let contextid = req.body.context_id;
-    let clientid = req.body.lis_outcome_service_url;
-    let username = req.body.lis_person_name_full;
-    let email = req.body.lis_person_contact_email_primary;
-    let coursename = req.body.context_title;
+    let userid      = req.body.user_id;
+    let contextid   = req.body.context_id;
+    let clientid    = req.body.lis_outcome_service_url;
+    let username    = req.body.lis_person_name_full;
+    let email       = req.body.lis_person_contact_email_primary;
+    let coursename  = req.body.context_title;
     let courseroles = req.body.roles.split(',');
     return auth.ltiLogin(userid, contextid, clientid, username, email, coursename, courseroles);
   })
@@ -81,10 +82,21 @@ router.get('/api/authtoken/', function(req, res, next) {
   if (logintype === 'own') {
     auth.requestAccess(logincode, codeVerify)
     .then((data) => {
-      res.send({'success': true, 'session-id': data[0].sessionid});
-      return data;
+      return new Promise(function(resolve, reject) {
+        req.session.regenerate( function(error) {
+          if (error) return reject(error);
+          req.session.profiili = data[0].profiili;
+          req.session.save(function(error) {
+            if (error) return reject(error);
+            resolve(data);
+          })
+        });
+      });
     })
     .then((data) => {
+      res.send({'success': true, 'session-id': data[0].sessionid});
+    })
+    .then(() => {
       return sql.users.removeLoginAttempt(logincode);
     })
     .catch((error) => {

@@ -6,6 +6,7 @@ const ltiparser = require('./ltiparser');
 const lti = require('ims-lti');
 const { env } = require('process');
 const errorcodes = require('./errorcodes.js');
+const { connect } = require('http2');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -185,6 +186,14 @@ module.exports = {
   },
 
   authenticatedUser: function(httpRequest) {
+    return new Promise(function(resolve, reject) {
+      if (httpRequest.session.profiili) {
+        return resolve(httpRequest.session.profiili);
+      } else {
+        return reject(errorcodes.notSignedIn);
+      }
+    });
+    /*
     var sessionid = httpRequest.header('session-id');
     if (sessionid == undefined) {
       return Promise.reject(errorcodes.wrongParameters);
@@ -198,6 +207,7 @@ module.exports = {
         return Promise.reject(errorcodes.notSignedIn);
       }
     });
+    */
   },
 
   hasTicketAccess: function(request, ticketId) {

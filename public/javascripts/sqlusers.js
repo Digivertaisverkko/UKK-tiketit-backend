@@ -40,6 +40,16 @@ module.exports = {
     });
   },
 
+  getSession: function(sessionid) {
+    const query = 'SELECT * from core.sessio WHERE sessionid=$1';
+    return connection.queryAll(query, [sessionid]);
+  },
+
+  getAllSessions: function() {
+    const query = 'SELECT * from core.sessio';
+    return connection.queryAll(query);
+  },
+
   getSalt: function(username) {
     const query = 'SELECT salt FROM core.login WHERE ktunnus=$1';
     return connection.queryAll(query, [username]);
@@ -137,6 +147,11 @@ module.exports = {
   removeSession: function(profileid) {
     const query = 'DELETE FROM core.sessio WHERE profiili=$1';
     return connection.queryNone(query, [profileid]);
+  },
+
+  removeSessionWithId: function(sessionid) {
+    const query = 'DELETE FROM core.sessio WHERE sessionid=$1';
+    return connection.queryNone(query, [sessionid]);
   }
  
 

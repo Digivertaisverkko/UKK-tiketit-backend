@@ -13,6 +13,10 @@ var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files');
 var sqlSite = require('./routes/sql');
 
+var express_session = require('express-session');
+var pgSessionStore = require('connect-pg-simple')(express_session);
+const connection = require('./public/javascripts/connection.js');
+
 var app = express();
 
 const cors = require('cors');
@@ -20,6 +24,14 @@ const auth = require('./public/javascripts/auth');
 app.use(cors());
 
 const port = process.env.PORT || 3000;
+
+
+const sessionStoreManager = new pgSessionStore({
+  pool : connection.getConnection(), // Connection pool
+  schemaName: 'core',
+  tableName : 'session'          // Use another table-name than the default "session" one
+  // Insert connect-pg-simple options here
+})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,6 +41,16 @@ app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("salaisuus"));
 app.use(express.static(path.join(__dirname, 'public')));
+
+const day = 86400000;
+//app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
+app.use(express_session({
+  secret: 'salaisuus',
+  resave: false,
+  store: sessionStoreManager,
+  saveUninitialized: true,
+  cookie: { maxAge: day * 14, /*secure: true*/ }
+}));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

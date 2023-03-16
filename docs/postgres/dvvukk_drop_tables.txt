@@ -3,7 +3,6 @@
 -- $ sudo -u postgres psql -d "dvvukk"
 
 DROP TABLE core.liite;
-DROP TABLE core.tiedosto;
 DROP TABLE core.kurssinosallistujat;
 DROP TABLE core.tikettipohjankentat;
 DROP TABLE core.tiketinkentat;
@@ -20,4 +19,6 @@ DROP TABLE core.lti_login;
 DROP TABLE core.lti_kurssi;
 DROP TABLE core.kurssi;
 DROP TABLE core.profiili;
+DROP TABLE core.session;
+
 \q
