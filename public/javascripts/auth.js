@@ -195,11 +195,11 @@ module.exports = {
     });
   },
 
-  regenerateSession: function(request) {
+  regenerateSession: function(request, profileid) {
     return new Promise(function(resolve, reject) {
       request.session.regenerate(function(error) {
         if (error) return reject(error);
-        request.session.profiili = data[0].profiili;
+        request.session.profiili = profileid;
         resolve();
       });
     });
@@ -208,6 +208,15 @@ module.exports = {
   saveSession: function(request) {
     return new Promise(function(resolve, reject) {
       request.session.save(function(error) {
+        if (error) return reject(error);
+        resolve();
+      })
+    });
+  },
+
+  destroySession: function(request) {
+    return new Promise(function(resolve, reject) {
+      request.session.destroy(function(error) {
         if (error) return reject(error);
         resolve();
       })

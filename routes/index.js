@@ -82,7 +82,7 @@ router.get('/api/authtoken/', function(req, res, next) {
   if (logintype === 'own') {
     auth.requestAccess(logincode, codeVerify)
     .then((data) => {
-      return auth.regenerateSession(req)
+      return auth.regenerateSession(req, data[0].profiili)
       .then(() => {
         return auth.saveSession(req);
       })
@@ -107,6 +107,17 @@ router.post('/api/omalogin/', function(req, res, next) {
   .then((header) => auth.login(header.ktunnus, header.salasana, header['login-id']))
   .then((data) => res.send(data))
   .catch((error) => errorFactory.createError(res, error));
+});
+
+router.post('/api/kirjauduulos/', function(req, res, next) {
+  auth.authenticatedUser(req)
+  .then((userid) => auth.destroySession(req))
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
 });
 
 router.post('/api/luotili/', function(req, res, next) {

@@ -48,8 +48,8 @@ app.use(express_session({
   secret: 'salaisuus',
   resave: false,
   store: sessionStoreManager,
-  saveUninitialized: true,
-  cookie: { maxAge: day * 14, /*secure: true*/ }
+  saveUninitialized: false,
+  cookie: { maxAge: 60000/*day * 14,*/ /*secure: true*/ }
 }));
 
 app.use('/', indexRouter);
