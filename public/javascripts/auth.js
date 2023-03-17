@@ -195,48 +195,6 @@ module.exports = {
     });
   },
 
-  hasTicketAccess: function(request, ticketId) {
-    return sql.tickets.isFaqTicket(ticketId)
-    .then((isFaq) => {
-      if (isFaq === false) {
-        return module.exports.authenticatedUser(request)
-        .then((userid) => {
-          return sql.tickets.hasAccess(userid, ticketId);
-        })
-        .then((access) => {
-          if (access.asema === 'opettaja') {
-            return sql.tickets.setTicketStateIfAble(ticketId, 2);
-          }
-        })
-      } else {
-        return;
-      }
-    });
-  },
-
-  hasTicketModifyAccess: function(request, ticketId) {
-    let storedUserid;
-    auth.authenticatedUser(req)
-    .then((userid) => {
-      storedUserid = userid;
-      //TODO: hasTicketAccess ei riitä oikeuksien tarkistamiseen
-      return auth.hasTicketAccess(req, req.params.ticketid);
-    })
-    .then(() => {
-      return sql.tickets.getTicket(req.params.ticketid);
-    })
-    .then((ticketdata) => {
-      return module.exports.roleInCourse(ticketdata.kurssi, storedUserId)
-      .then((roledata) => {
-        if (roledata.asema === 'opettaja' && ticketdata.ukk === true) {
-          return;
-        } else {
-          Promise.reject(errorcodes.noPermission);
-      }
-      });
-    })
-  },
-
   regenerateSession: function(request) {
     return new Promise(function(resolve, reject) {
       request.session.regenerate(function(error) {
