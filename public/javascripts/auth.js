@@ -193,21 +193,6 @@ module.exports = {
         return reject(errorcodes.notSignedIn);
       }
     });
-    /*
-    var sessionid = httpRequest.header('session-id');
-    if (sessionid == undefined) {
-      return Promise.reject(errorcodes.wrongParameters);
-    }
-
-    return sql.users.userIdForSession(sessionid)
-    .then((userids) => {
-      if (userids.length == 1) {
-        return userids[0].profiili;
-      } else {
-        return Promise.reject(errorcodes.notSignedIn);
-      }
-    });
-    */
   },
 
   hasTicketAccess: function(request, ticketId) {
@@ -250,6 +235,25 @@ module.exports = {
       }
       });
     })
+  },
+
+  regenerateSession: function(request) {
+    return new Promise(function(resolve, reject) {
+      request.session.regenerate(function(error) {
+        if (error) return reject(error);
+        request.session.profiili = data[0].profiili;
+        resolve();
+      });
+    });
+  },
+
+  saveSession: function(request) {
+    return new Promise(function(resolve, reject) {
+      request.session.save(function(error) {
+        if (error) return reject(error);
+        resolve();
+      })
+    });
   }
   
 };

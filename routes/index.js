@@ -82,15 +82,12 @@ router.get('/api/authtoken/', function(req, res, next) {
   if (logintype === 'own') {
     auth.requestAccess(logincode, codeVerify)
     .then((data) => {
-      return new Promise(function(resolve, reject) {
-        req.session.regenerate( function(error) {
-          if (error) return reject(error);
-          req.session.profiili = data[0].profiili;
-          req.session.save(function(error) {
-            if (error) return reject(error);
-            resolve(data);
-          })
-        });
+      return auth.regenerateSession(req)
+      .then(() => {
+        return auth.saveSession(req);
+      })
+      .then(() => {
+        return data;
       });
     })
     .then((data) => {
