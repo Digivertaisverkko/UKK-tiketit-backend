@@ -127,7 +127,6 @@ LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäj�
 {
   success: $bool
   error: $error-olio
-  session-id: $uuid
 }
 ```
 
@@ -174,13 +173,6 @@ LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäj�
 ### /api/minun/
 #### GET
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin luku
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ##### Vastaus: 
 ```
 {
@@ -193,13 +185,6 @@ LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäj�
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
 Tällä rajapinnalla tuhotaan tili, ja kaikki tiliin yhdistetty tieto.
 Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannassa, jotta tili poistuisi.
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ```
 - body -
 {
@@ -217,13 +202,6 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
 ### /api/minun/gdpr/
 #### GET
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ##### Vastaus:
 ```
 {
@@ -275,16 +253,11 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ### /api/kirjaudu-ulos/
 #### POST
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssiluku
-##### Lähetä:
-```
-{
-  session-id: $UUID
-}
-```
+
 ##### Vastaus: 
 ```
 {
-  success: $bool
+  success: true
 }
 ```
 <br><br><br>
@@ -303,14 +276,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ### /api/kurssit/
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Ei tarkisteta
-##### Lähetä:
-```
--header-
-{
-  session-id: $UUID
-}
-```
-##### Vasstaus: 
+##### Vastaus: 
 ```
 [{
   nimi: $string
@@ -322,13 +288,6 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ### /api/kurssi/omatkurssit/
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Profiililuku
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ##### Vastaus:
 ```
 [{
@@ -357,12 +316,6 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 * /kaikki lähettää kirjautuneen käyttäjän luomat tiketit, jos hän on kurssilla opiskelijana. Jos on kirjautunut opettajana, niin palautetaan kaikki kurssin tiketit.
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssiluku
-##### Lähetä:
-```
-{
-  session-id: $UUID
-}
-```
 ##### Vastaus:
 ```
 [{
@@ -382,12 +335,6 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt UKK-tiketeiksi. Tällä on myös POST-muoto, jolla voidaan lisätä UKK-tikettejä kantaan.
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Julkinen luku
-##### Lähetä:
-```
-{
-   session-id: $UUID
-} 
-```
 ##### Vastaus:
 ```
 [{
@@ -412,10 +359,6 @@ Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssikirjoitus
 ##### Lähetä:
 ```
--header- 
-{
-  session-id: $UUID
-}
 -body-
 {
   otsikko: $string
@@ -465,10 +408,6 @@ Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuill
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) UKK-kirjoitus
 ##### Lähetä:
 ```
-- header - 
-{
-  session-id: $UUID
-}
 - body -
 {
   otsikko: $string
@@ -494,10 +433,6 @@ Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuill
 #### POST
 ##### Lähetä:
 ```
-- header -
-{
-   session-id: $UUID
-}
 - body -
 {
   nimi: $string
@@ -530,13 +465,6 @@ Tulevaisuudessa lisäksi pitää lähettää:
 ### /api/kurssi/:kurssi-id/liity/
 Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi. *Tämä rajapinta tullaan poistamaan tulevaisuudessa.*
 #### POST
-##### Lähetä
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ##### Vastaus:
 ```
 - body - 
@@ -551,13 +479,6 @@ Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. **
 Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, niin kyseinen käyttäjä lisätään kurssille. Jos käyttäjää ei ole vielä kannassa, käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin. (Toteutus kesken.)
 #### POST
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssikirjoitus
-##### Lähetä
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ```
 - body -
 {
@@ -578,13 +499,6 @@ Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, ni
 Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Profiililuku
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 #### Vastaus:
 Vastauksena tulee [kurssilainen-olio](#kurssilainen-olio)
 
@@ -612,13 +526,6 @@ Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä
 
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssiluku
-##### Lähetä:
-```
-- header -
-{
-   session-id: $UUID
-}
-```
 ##### Vastaus:
 ```
 - body - 
@@ -636,14 +543,6 @@ Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä
 #### PUT
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssikirjoitus
 Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset vanhoihin kenttiin uudesta kenttäpohjasta. Vanhalla kenttäpohjalla tehtyihin tiketteihin jää edelleen sen kenttäpohjan kentät, jonka perusteella se tiketti luotiin.
-
-##### Lähetä:
-```
-- header -
-{
-   session-id: $UUID
-}
-```
 ```
 - body -
 {
@@ -672,13 +571,6 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
 
 #### POST
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssiluku
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ```
 -body- 
 {
@@ -719,12 +611,6 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 ### /api/tiketti/:tiketti-id/
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettiluku
-##### Lähetä:  
-```
-{
-   session-id: $UUID 
-}
-```
 ##### Vastaus:
 ```
 {
@@ -745,13 +631,6 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 #### PUT
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettikirjoitus
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ```
 -body- 
 {
@@ -775,12 +654,6 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 #### DELETE
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettikirjoitus
-##### Lähetä:
-```
-{
-   session-id: $UUID 
-}
-```
 #### Vastaus:
 ```
 {
@@ -794,12 +667,6 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 ### /api/tiketti/:tiketti-id/kentat/
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettiluku
-##### Lähetä:
-```
-{
-   session-id: $UUID 
-} 
-```
 ##### Vastaus:
 ```
 [{
@@ -847,10 +714,6 @@ Muokkaa kirjoitetun kommentin viestiä.
 Tähän on pääsy vain kommentin alkuperäisellä kirjoittajalla.
 ##### Lähetä:
 ```
-- header -
-{
-  session-id: $UUID
-}
 - body -
 {
   viesti: $string
@@ -869,12 +732,6 @@ Tähän on pääsy vain kommentin alkuperäisellä kirjoittajalla.
 ### /api/tiketti/:tiketti-id/kommentit/
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettiluku
 #### GET
-##### Lähetä:
-```
-{ 
-  session-id: $UUID
-}
-```
 ##### Vastaus:
 ```
 [{
@@ -906,7 +763,6 @@ Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/
 ```
 - header -
 {
-  session-id: $UUID
   Content-type: multipart/form-data
 }
 ```
@@ -921,13 +777,6 @@ kentän nimi on tiedosto.
 ### /api/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/liite-id/lataa
 #### GET
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Tikettiluku
-##### Lähetä:
-```
-- header -
-{
-  session-id: $UUID
-}
-```
 ##### Vastaus:
 Lähettää tiedoston datan.
 
