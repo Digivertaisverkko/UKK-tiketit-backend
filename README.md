@@ -170,6 +170,95 @@ LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäj�
   login-code: $string
 }
 ```
+
+### /api/minun/
+#### GET
+[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin luku
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+##### Vastaus: 
+```
+{
+  nimi: $string
+  sposti: $string
+}
+```
+
+#### DELETE
+[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
+Tällä rajapinnalla tuhotaan tili, ja kaikki tiliin yhdistetty tieto.
+Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannassa, jotta tili poistuisi.
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+```
+- body -
+{
+  id: $int (tuhottavan profiilin id)
+  sposti: $string (tuhottavan profiilin sähköpostiosoite)
+}
+```
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+### /api/minun/gdpr/
+#### GET
+[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
+##### Lähetä:
+```
+- header -
+{
+  session-id: $UUID
+}
+```
+##### Vastaus:
+```
+{
+  profiili: {
+    nimi
+    sposti
+  }
+  tiketit: [{
+    id
+    kurssi
+    otsikko
+    aikaleima
+    aloittaja
+    ukk
+    omat kommentit: [{
+      tiketti
+      lahettaja
+      viesti
+      aikaleima
+      liitteet: [{
+        kommentti
+        tiedosto
+        nimi
+      }]
+    }]
+  }]
+  kommentit: [{
+    tiketti
+    lahettajaviesti
+  }]
+  kurssit: [{
+    nimi
+  }]
+}
+```
  
 
 ## Kurssien rajapinta 

@@ -179,6 +179,32 @@ module.exports = {
         return retArray;
     },
 
+    /**
+     * Palauttaa uuden taulukon, joka on kopio annetusta taulukosta (array), mutta jokaisesta alkiosta on poistettu 
+     * annetut (keyList) attribuutit.
+     * Eli esim:
+     * array = [{nimi: "asd", viite: 2, avain: 'arvo'}, {nimi: "fgh", viite: 3, avain: 'toinen'}, {nimi: "jkl", viite: 1, avain: 'kolmas'}]
+     * key = ['viite']
+     * TULOS
+     * [{nimi: "asd", avain: 'arvo'}, {nimi: "fgh", avain: 'toinen'}, {nimi: "jkl", avain: 'kolmas'}]
+     * @param {*} array Taulukko, jonka alkioista poistetaan attribuutteja.
+     * @param {*} removedKeyList Taulukko poistettavista attribuuttien avaimista
+     * @returns Taulukko, jonka alkioista on poistettu kaikki keyListassa olevat attribuutit
+     */
+    removeAttributes: function(array, removedKeyList) {
+        let retArray = [];
+        array.forEach(element => {
+            let newObject = {};
+            for (const [key, value] of Object.entries(element)) {
+                if (removedKeyList.includes(key) == false) {
+                    newObject[key] = value;
+                }
+            }
+            retArray.push(newObject);
+        });
+        return retArray;
+    },
+
 
     /**
      * Palauttaa uuden taulukon, jossa on on kaikki ensimmäisen taulukon oliot, mutta niihin on lisätty attribuutti newKey,

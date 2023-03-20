@@ -22,9 +22,14 @@ const courselists = new CourseLists();
 const coursereads = new CourseReads();
 const coursewrites = new CourseWrites();
 const profilereads = new ProfileReads();
+const profilewrites = new ProfileWrites();
 const commentWrites = new CommentWrites();
 
 module.exports = {
+
+  authenticatedUser: function(request) {
+    return auth.authenticatedUser(request);
+  },
 
   publicMethods: function() {
     return new Promise(function(resolve, reject) {
@@ -110,9 +115,6 @@ module.exports = {
     })
     .then((commentDataList) => {
       let commentData = commentDataList[0];
-      console.log('jee');
-      console.dir(commentData);
-      console.log(storedUserId);
       if (commentData.lahettaja === storedUserId) {
         return {userid: storedUserId, methods: commentWrites};
       } else {
@@ -159,15 +161,26 @@ module.exports = {
     });
   },
 
-  readProfile: function(request, profileId) {
+  readProfile: function(request, profileid) {
     return auth.authenticatedUser(request)
     .then((userid) => {
-      return { userid: userid, methods: profileread }
+      if (profileid === userid) {
+        return { userid: userid, methods: profilereads }
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
     });
   },
 
   writeProfile: function(request, profileId) {
-
+    return auth.authenticatedUser(request)
+    .then((userid) => {
+      if (userid === profileId) {
+        return { userid: userid, methods: profilewrites};
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
+    });
   }
 
 };

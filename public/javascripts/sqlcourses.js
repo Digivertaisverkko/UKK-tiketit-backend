@@ -11,6 +11,10 @@ module.exports = {
     return connection.query('SELECT id, nimi FROM core.kurssi', []);
   },
 
+  getCoursesWithIdList: function(courseIdList) {
+    return connection.query('SELECT nimi FROM core.kurssi WHERE id=ANY($1)', [courseIdList]);
+  },
+
   getAllCoursesWithUser: function(userid) {
     const query = 'SELECT kurssi, asema FROM core.kurssinosallistujat WHERE profiili=$1'
     return connection.query(query, [userid]);
@@ -125,6 +129,11 @@ module.exports = {
     return connection.queryNone(query, [courseid, userid, position]);
   },
 
+  removeUserFromAllCourses: function(userid) {
+    const query = 'DELETE FROM core.kurssinosallistujat WHERE profiili=$1';
+    return connection.queryNone(query, [userid]);
+  },
+
   getUserInfoForCourse(userid, courseid) {
     const query = '\
     SELECT t.id, t.nimi, t.sposti, ko.asema FROM core.kurssinosallistujat ko \
@@ -184,29 +193,37 @@ module.exports = {
     let storedTicketId;
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((ticketIdList) => {
-      let promises = [];
       storedTicketId = ticketIdList[0].id;
       const query = '\
       INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) \
       VALUES ($1, $2, $3, $4, $5, $6) \
       RETURNING id';
+      let promiseChain = Promise.resolve();
       for (index in fieldArray) {
         let element = fieldArray[index];
         let choices = element.valinnat.join(';');
-        promises.push(connection.queryAll(query, [element.otsikko, 1, element.esitaytettava, element.pakollinen, element.ohje, choices]));
+        promiseChain = promiseChain.then(() => {
+          return connection.queryAll(query, [element.otsikko, 1, element.esitaytettava, element.pakollinen, element.ohje, choices])
+        })
+        .then((fieldIdList) => {
+          let id = fieldIdList[0].id;
+          return module.exports.connectTicketBaseToField(storedTicketId, id);
+        });
       }
-      return Promise.all(promises);
+      return promiseChain;
     })
+    /*
     .then((fieldIdPromiseList) => {
       let promises = [];
       for (index in fieldIdPromiseList) {
         /*Jokainen promise palauttaa erillisen taulun. 
         Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
-        let id = fieldIdPromiseList[index][0].id;
+        /*let id = fieldIdPromiseList[index][0].id;
         promises.push(module.exports.connectTicketBaseToField(storedTicketId, id));
       }
       return Promise.all(promises);
     });
+    */
   },
 
   connectTicketBaseToField: function(ticketbaseid, fieldid) {

@@ -60,6 +60,11 @@ module.exports = {
     });
   },
 
+  getAllTicketsCreatedBy(userId) {
+    const query = 'SELECT * from core.tiketti WHERE aloittaja=$1';
+    return connection.queryAll(query, [userId]);
+  },
+
   getFaqTickets: function(courseId) {
     const query = 'SELECT id, otsikko, aikaleima FROM core.tiketti WHERE kurssi=$1 AND ukk=TRUE';
     return connection.queryAll(query, [courseId])
@@ -128,6 +133,11 @@ module.exports = {
   getComments: function(ticketId) {
     const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
     return connection.queryAll(query, [ticketId]);
+  },
+
+  getAllCommentCreatedBy: function(userId) {
+    const query = 'SELECT tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
+    return connection.queryAll(query, [userId]);
   },
 
   getComment: function(commentId) {
@@ -216,7 +226,7 @@ module.exports = {
       });
       return Promise.all(promises)
       .then(() => resolve(ticketid))
-      .catch(() => reject(3004));
+      .catch(() => reject(errorcodes.somethingWentWrong));
     });
   },
 
@@ -224,7 +234,7 @@ module.exports = {
     const query = '\
         INSERT INTO core.liite (kommentti, tiedosto, nimi) \
         VALUES ($1, $2, $3)';
-    connection.queryNone(query, [commentid, attachmentid, filename]);
+    return connection.queryNone(query, [commentid, attachmentid, filename]);
   },
 
   updateTicket(ticketid, title, fieldList) {
@@ -241,20 +251,50 @@ module.exports = {
   },
 
   deleteTicket(ticketid) {
-    const fieldQuery = 'DELETE FROM core.tiketinkentat WHERE tiketti=$1';
-    const stateQuery = 'DELETE FROM core.tiketintila WHERE tiketti=$1';
+    return module.exports.deleteTickets([ticketid]);
+  },
+
+  deleteTickets(ticketidList) {
+    const fieldQuery = 'DELETE FROM core.tiketinkentat WHERE tiketti=ANY($1)';
+    const stateQuery = 'DELETE FROM core.tiketintila WHERE tiketti=ANY($1)';
+    const getComments= 'SELECT * FROM core.kommentti WHERE tiketti=ANY($1)';
     const attachmentQuery = 'DELETE FROM core.liite WHERE kommentti=ANY($1)';
-    const commentQuery = 'DELETE FROM core.kommentti WHERE tiketti=$1';
-    const ticketQuery = 'DELETE FROM core.tiketti WHERE id=$1';
-    return connection.queryNone(fieldQuery, [ticketid])
-    .then(() => connection.queryNone(stateQuery, [ticketid]))
-    .then(() => module.exports.getComments(ticketid))
+    const commentQuery = 'DELETE FROM core.kommentti WHERE tiketti=ANY($1)';
+    const ticketQuery = 'DELETE FROM core.tiketti WHERE id=ANY($1)';
+
+    return connection.queryNone(fieldQuery, [ticketidList])
+    .then(() => connection.queryNone(stateQuery, [ticketidList]))
+    .then(() => connection.queryAll(getComments, [ticketidList]))
     .then((commentList) => {
       let commentIdList = arrayTools.extractAttributes(commentList, 'id');
       return connection.queryNone(attachmentQuery, [commentIdList]);
     })
-    .then(() => connection.queryNone(commentQuery, [ticketid]))
-    .then(() => connection.queryNone(ticketQuery, [ticketid]));
+    .then(() => { return connection.queryNone(commentQuery, [ticketidList]); })
+    .then(() => { return connection.queryNone(ticketQuery, [ticketidList]); });
+  },
+
+  deleteCommentsFromUser: function(userid) {
+    var commentIds;
+    const getComments     = 'SELECT * FROM core.kommentti WHERE lahettaja=$1';
+    const commentQuery    = 'DELETE FROM core.kommentti WHERE id=ANY($1)';
+    const attachmentQuery = 'DELETE FROM core.liite WHERE kommentti=ANY($1)';
+    return connection.queryAll(getComments, [userid])
+    .then((commentList) => {
+      commentIds = arrayTools.extractAttributes(commentList, 'id');
+      return connection.queryNone(attachmentQuery, [commentIds]);
+    })
+    .then(() => {
+      return connection.queryNone(commentQuery, [commentIds]);
+    });
+  },
+
+  deleteTicketsFromUser: function(userid) {
+    const query = 'SELECT * FROM core.tiketti WHERE aloittaja=$1';
+    return connection.queryAll(query, [userid])
+    .then((ticketList) => {
+      let ticketIds = arrayTools.extractAttributes(ticketList, 'id');
+      return module.exports.deleteTickets(ticketIds);
+    })
   },
 
 
@@ -281,6 +321,20 @@ module.exports = {
     SET viesti=$1 \
     WHERE id=$2';
     return connection.queryNone(query, [content, commentid]);
+  },
+
+  updatePrefilledAnswer: function(userid, fieldId, value) {
+    const query = '\
+    INSERT INTO core.esitaytetytvastaukset (kentta, profiili, arvo) \
+    VALUES ($1, $2, $3) \
+    ON CONFLICT (kentta, profiili) DO \
+    UPDATE SET arvo = excluded.arvo';
+    return connection.queryNone(query, [fieldId, userid, value]);
+  },
+
+  removePrefilledAnswersFromUser: function(userid) {
+    const query = 'DELETE FROM core.esitaytetytvastaukset WHERE profiili=$1';
+    return connection.queryNone(query, [userid]);
   },
 
   getTicketStates: function(ticketidList) {

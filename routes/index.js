@@ -17,6 +17,7 @@ const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
 const fs = require('fs');
 const { sendMailNotifications } = require('../public/javascripts/mailer.js');
+const { profile } = require('console');
 
 router.use(express.json());
 
@@ -37,7 +38,6 @@ router.post('/lti/1p1/start/', function(req, res, next) {
     return auth.securityCheckLti1p1(req);
   })
   .then(() => {
-    console.dir(req.body);
     let userid = req.body.user_id;
     let contextid = req.body.context_id;
     let clientid = req.body.lis_outcome_service_url;
@@ -161,11 +161,60 @@ router.get('/api/hash/:password', function(req, res) {
 });
 
 
-router.get('/api/minun/poistatili', function(req, res, next) {
-//TODO: Toteuta tilin poistaminen kannasta.
-  auth.authenticatedUser(req)
-  .then((userid) =>  {
-    res.send();
+router.get('/api/minun/', function(req, res, next) {
+  access.authenticatedUser(req)
+  .then((userid) => {
+    return access.readProfile(req, userid);
+  })
+  .then((handle) => {
+    return handle.methods.getProfile(handle.userid);
+  })
+  .then((userData) => {
+    res.send(userData);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
+});
+
+router.get('/api/minun/gdpr/', function(req, res, next) {
+  access.authenticatedUser(req)
+  .then((userid) => access.writeProfile(req, userid))
+  .then((handle) => {
+    return handle.methods.exportAllUserData(handle.userid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
+
+router.delete('/api/minun/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'id', type: 'number'},
+    {key: 'sposti', type: 'string', optional: true}
+  ])
+  .then(() => {
+    return access.writeProfile(req, req.body.id);
+  })
+  .then((handle) => {
+    return handle.methods.getProfile(handle.userid)
+    .then((profileData) => {
+      if (profileData.sposti == req.body.sposti || (profileData.sposti === undefined && req.body.sposti === undefined)) {
+        return handle.methods.deleteProfile(handle.userid);
+      } else {
+        return Promise.reject(errorFactory.code.noPermission);
+      }
+    });
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
   });
 });
 
@@ -401,7 +450,6 @@ router.put('/api/tiketti/:ticketid/kommentti/:commentid', function(req, res, nex
   .then((handle) => {
     let commentid = req.params.commentid;
     let viesti = req.body.viesti;
-    console.dir(handle);
     return handle.methods.updateCommentText(commentid, viesti);
   })
   .then(() => {
@@ -574,7 +622,7 @@ router.put('/api/kurssi/:courseid/tiketinkentat', function(req, res, next) {
   .then(() => access.writeCourse(req, req.params.courseid))
   .then((handle) => handle.methods.replaceFieldsOfTicketBase(req.params.courseid, req.body.kentat))
   .then(() => {
-    res.send({success: true});
+    res.send({ success: true });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
@@ -627,7 +675,7 @@ router.post('/api/kurssi/:courseid/uusitiketti', function(req, res, next) {
   .then(() => access.readCourse(req, req.params.courseid))
   .then((handle) => {
     return handle.methods.createTicket(req.params.courseid, handle.userid, req.body.otsikko,
-       req.body.viesti, req.body.kentat, req.body.liitteet, false);
+       req.body.viesti, req.body.kentat, false);
   })
   .then((newData) => {
     res.send({success: true, uusi: newData});
