@@ -159,7 +159,7 @@ module.exports = {
       return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
       .then((userInfo) => {
         let position = ltiparser.coursePositionFromLtiRoles(courseroles);
-        if (userInfo.asema !== position) {
+        if (userInfo.asema !== position && userInfo.asema !== 'opettaja') {
           return sql.courses.updateUserPositionInCourse(userInfo.id, storedCourseId, position);
         }
       })
