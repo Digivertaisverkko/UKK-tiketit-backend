@@ -39,17 +39,18 @@ app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser("salaisuus"));
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const day = 86400000;
-//app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
+const day = 86400000;app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
 app.use(express_session({
-  secret: 'salaisuus',
+  secret: process.env.COOKIE_SECRET,
   resave: false,
   store: sessionStoreManager,
   saveUninitialized: false,
-  cookie: { maxAge: 60000/*day * 14,*/ /*secure: true*/ }
+  proxy: true,
+  rolling: true,
+  cookie: { sameSite: 'none', domain: 'localhost:4200', maxAge: day * 14/*, secure: true*/ }
 }));
 
 app.use('/', indexRouter);
