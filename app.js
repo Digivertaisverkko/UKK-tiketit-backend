@@ -21,7 +21,11 @@ var app = express();
 
 const cors = require('cors');
 const auth = require('./public/javascripts/auth');
-app.use(cors());
+app.use(cors(/*{
+  credentials: true,
+  origin: ['http://localhost:4200'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}*/));
 
 const port = process.env.PORT || 3000;
 
@@ -42,20 +46,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const day = 86400000;app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
+
+const day = 86400000;
+//app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
 app.use(express_session({
   secret: process.env.COOKIE_SECRET,
   resave: false,
   store: sessionStoreManager,
   saveUninitialized: false,
-  proxy: true,
+  //proxy: true,
   rolling: true,
-  cookie: { sameSite: 'none', domain: 'localhost:4200', maxAge: day * 14/*, secure: true*/ }
+  cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 /*, secure: true*/ }
 }));
 
-app.use('/', indexRouter);
+app.use('/', express.static(process.env.FRONTEND_PATH));
+app.use('/api', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api', filesRouter);
+
 
 // Setup ltijs
 const setupLti = async () => {
@@ -107,8 +115,18 @@ setupLti();
 app.use('/lti', lti.app);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+/*app.use(function(req, res, next) {
+  //next(createError(404));
+});*/
+// Routaa Angularin mukaan
+app.get('*', function(req, res, next) {
+  //let path = __dirname + '/' + process.env.FRONTEND_PATH + '/index.html';
+  let path = '/Users/jonirajala/Koodi/Angular/UKK-tiketit/dist/tikettisysteemi/index.html';
+  console.log('Polku: ' + path);
+  res.sendFile(path, function (err) {
+    console.log(err);
+    next(createError(404));
+  });
 });
 
 // error handler
