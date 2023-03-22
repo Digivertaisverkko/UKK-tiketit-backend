@@ -59,7 +59,7 @@ app.use(express_session({
   cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 /*, secure: true*/ }
 }));
 
-app.use('/', express.static(process.env.FRONTEND_PATH));
+app.use('/', express.static(process.env.FRONTEND_DIRECTORY));
 app.use('/api', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api', filesRouter);
@@ -114,17 +114,11 @@ setupLti();
 // Mount Ltijs express app into preexisting express app with /lti prefix
 app.use('/lti', lti.app);
 
-// catch 404 and forward to error handler
-/*app.use(function(req, res, next) {
-  //next(createError(404));
-});*/
+
 // Routaa Angularin mukaan
 app.get('*', function(req, res, next) {
-  //let path = __dirname + '/' + process.env.FRONTEND_PATH + '/index.html';
-  let path = '/Users/jonirajala/Koodi/Angular/UKK-tiketit/dist/tikettisysteemi/index.html';
-  console.log('Polku: ' + path);
+  let path = process.env.FRONTEND_DIRECTORY + 'index.html';
   res.sendFile(path, function (err) {
-    console.log(err);
     next(createError(404));
   });
 });
