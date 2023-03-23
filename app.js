@@ -28,6 +28,7 @@ app.use(cors(/*{
 }*/));
 
 const port = process.env.PORT || 3000;
+const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
 
 
 const sessionStoreManager = new pgSessionStore({
@@ -59,11 +60,10 @@ app.use(express_session({
   cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 /*, secure: true*/ }
 }));
 
-app.use('/', express.static(process.env.FRONTEND_DIRECTORY));
 app.use('/api', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api', filesRouter);
-
+app.use('/', express.static(frontendDirectory));
 
 // Setup ltijs
 const setupLti = async () => {
@@ -117,7 +117,7 @@ app.use('/lti', lti.app);
 
 // Routaa Angularin mukaan
 app.get('*', function(req, res, next) {
-  let path = process.env.FRONTEND_DIRECTORY + 'index.html';
+  let path = frontendDirectory + 'index.html';
   res.sendFile(path, function (err) {
     next(createError(404));
   });

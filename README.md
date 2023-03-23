@@ -36,13 +36,25 @@ TEMP_CLIENT_KEY=[LTI:n käyttämä oauth_consumer_key: tilapäinen, siirretään
 TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus: tilapäinen, siirretään tulevaisuudessa kantaan]
 LTI_CHECK_SIGNATURE=[Tarkistetaanko LTI-yhteyksissä signaturea, vai hyväksytäänkö yhteys pelkällä kuluttaja-avaimella]
 ATTACHMENT_DIRECTORY=[Polku siihen tiedostoon, jossa liitteet säilytetään. Polku suhteessa aktiiviseen kansioon.]
-FRONTEND_DIRECTORY=[Polku kansioon, jossa on käännetyt frontin tiedostot]
+FRONTEND_DIRECTORY=[Polku kansioon, jossa on käännetyt frontin tiedostot (oletuksena ./UKK-tiketit/dist/tikettisysteemi)]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 SMTP_USERNAME=[käytetyn SMTP palvelun käyttäjänimi]
 SMTP_PASSWORD=[käytetyn SMTP palvelun salasana]
 ```
 
 - Aja komento ```npm install```
+
+- Lataa submodulet 
+```
+git submodule init
+git submodule update
+```
+
+- Käännä submodulessa oleva frontendin koodi
+```
+cd UKK-tiketit
+ng build
+```
 
 - Aja komento ```node app.js```
 
