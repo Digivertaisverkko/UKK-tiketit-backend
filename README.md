@@ -35,6 +35,7 @@ LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen 
 TEMP_CLIENT_KEY=[LTI:n käyttämä oauth_consumer_key: tilapäinen, siirretään tulevaisuudessa kantaan]
 TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus: tilapäinen, siirretään tulevaisuudessa kantaan]
 LTI_CHECK_SIGNATURE=[Tarkistetaanko LTI-yhteyksissä signaturea, vai hyväksytäänkö yhteys pelkällä kuluttaja-avaimella]
+COOKIE_SECRET=[Kryptografinen salaisuus, jolla allekirjoitetaan sivuston lähettämät evästeet]
 ATTACHMENT_DIRECTORY=[Polku siihen tiedostoon, jossa liitteet säilytetään. Polku suhteessa aktiiviseen kansioon.]
 FRONTEND_DIRECTORY=[Polku kansioon, jossa on käännetyt frontin tiedostot (oletuksena ./UKK-tiketit/dist/tikettisysteemi)]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
