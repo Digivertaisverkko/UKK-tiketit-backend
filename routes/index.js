@@ -472,12 +472,17 @@ router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   })
 });
 
-
-router.post('/tiketti/:ticketid/arkistoi', function(req, res, next) {
-  access.writeTicket(req, req.params.ticketid)
+router.post('/tiketti/:ticketid/valmis', function(req, res, next) {
+  access.readTicket(req, req.params.ticketid)
   .then((handle) => {
-    return handle.methods.archiveFaqTicket
-  }
+    return handle.methods.archiveFinishedTicket(req.params.ticketid);
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
 });
 
 // '/kurssi/:kurssi-id/ukk/:tiketti-id/arkistoi
