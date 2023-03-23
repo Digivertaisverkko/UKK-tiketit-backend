@@ -11,6 +11,39 @@ const errorcodes = require('./../errorcodes.js');
 
 class CourseReads extends CourseLists {
 
+  createTicket(courseId, creatorId, title, content, fieldList, isFaq=false) {
+    return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
+    .then((sqldata) => { return sqldata.id })
+    .then((ticketid) => {
+        return sql.tickets.setTicketState(ticketid, TicketState.sent)
+        .then((sqldata) => { return ticketid; });
+    })
+    .then((ticketid) => {
+      return new Promise(function(resolve, reject) {
+        var promises = [];
+        fieldList.forEach(kvp => {
+          promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+        });
+        Promise.all(promises)
+        .then(() => resolve(ticketid))
+        .catch(() => reject(errorcodes.somethingWentWrong));
+      });
+    })
+    .then((ticketid) => {
+      return sql.tickets.createComment(ticketid, creatorId, content, 1)
+      .then((commentid) => {
+        return {tiketti: ticketid, kommentti: commentid};
+      });
+    })
+    .then((results) => {
+      return mailer.sendMailNotifications(results.tiketti, [creatorId], content)
+      .then(() => {
+        return results;
+      });
+    });
+  }
+
+
   getAllTicketsMadeByUser(userid, courseid) {
     return sql.tickets.getAllMyTickets(courseid, userid)
     .then((ticketdata) => {
@@ -53,38 +86,6 @@ class CourseReads extends CourseLists {
 
   getFieldsOfTicketBase(courseId) {
     return sql.courses.getFieldsOfTicketBaseForCourse(courseId);
-  }
-
-  createTicket(courseId, creatorId, title, content, fieldList, isFaq=false) {
-    return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
-    .then((sqldata) => { return sqldata.id })
-    .then((ticketid) => {
-        return sql.tickets.setTicketState(ticketid, TicketState.sent)
-        .then((sqldata) => { return ticketid; });
-    })
-    .then((ticketid) => {
-      return new Promise(function(resolve, reject) {
-        var promises = [];
-        fieldList.forEach(kvp => {
-          promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
-        });
-        Promise.all(promises)
-        .then(() => resolve(ticketid))
-        .catch(() => reject(errorcodes.somethingWentWrong));
-      });
-    })
-    .then((ticketid) => {
-      return sql.tickets.createComment(ticketid, creatorId, content, 1)
-      .then((commentid) => {
-        return {tiketti: ticketid, kommentti: commentid};
-      });
-    })
-    .then((results) => {
-      return mailer.sendMailNotifications(results.tiketti, [creatorId], content)
-      .then(() => {
-        return results;
-      });
-    });
   }
 
 }

@@ -6,7 +6,7 @@ const splicer = require('../sqlsplicer.js');
 
 
 class PublicMethods {
-  courseInfo(courseId) {
+  getCourseInfo(courseId) {
     return sql.courses.getCourseInfo(courseId);
   }
 

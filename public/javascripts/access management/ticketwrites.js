@@ -7,13 +7,6 @@ const errorcodes = require('./../errorcodes.js');
 
 class TicketWrites extends TicketReads {
 
-  deleteTicket(ticketId) {
-    return this.canDeleteTicket(ticketId)
-    .then(() => {
-      return sql.tickets.deleteTicket(ticketId);
-    });
-  }
-
   canDeleteTicket(ticketId) {
     return sql.tickets.getComments(ticketId)
     .then((commentList) => {
@@ -22,6 +15,13 @@ class TicketWrites extends TicketReads {
       } else {
         return Promise.resolve(true);
       }
+    });
+  }
+
+  deleteTicket(ticketId) {
+    return this.canDeleteTicket(ticketId)
+    .then(() => {
+      return sql.tickets.deleteTicket(ticketId);
     });
   }
 

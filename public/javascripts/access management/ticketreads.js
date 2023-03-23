@@ -60,29 +60,6 @@ class TicketReads {
     });
   }
 
-  getTicketMetadata(currentUserId, ticketId) {
-    return sql.tickets.getTicket(ticketId)
-    .then((ticketdata) => {
-      return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
-    })
-    .then((results) => {
-      if (currentUserId == null) {
-        //Koska käyttäjän ei ole välttämättä pitänyt kirjautua sisään UKK-tikettejä varten.
-        return results;
-      } else {
-        return sql.courses.getUserInfoForCourse(currentUserId, results[0].kurssi)
-        .then((userInfo) => {
-          if (userInfo.asema === "opettaja") {
-            return sql.tickets.setTicketStateIfAble(ticketId, TicketState.read);
-          }
-        })
-        .then(() => {
-          return results;
-        })
-      }
-    });
-  }
-
   getComments(ticketId) {
     let storedCourseId;
     return sql.tickets.getTicket(ticketId)
@@ -104,6 +81,29 @@ class TicketReads {
 
   getFields(ticketId) {
     return sql.tickets.getFieldsOfTicket(ticketId);
+  }
+
+  getTicketMetadata(currentUserId, ticketId) {
+    return sql.tickets.getTicket(ticketId)
+    .then((ticketdata) => {
+      return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
+    })
+    .then((results) => {
+      if (currentUserId == null) {
+        //Koska käyttäjän ei ole välttämättä pitänyt kirjautua sisään UKK-tikettejä varten.
+        return results;
+      } else {
+        return sql.courses.getUserInfoForCourse(currentUserId, results[0].kurssi)
+        .then((userInfo) => {
+          if (userInfo.asema === "opettaja") {
+            return sql.tickets.setTicketStateIfAble(ticketId, TicketState.read);
+          }
+        })
+        .then(() => {
+          return results;
+        })
+      }
+    });
   }
 
 }

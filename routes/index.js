@@ -252,7 +252,7 @@ router.get('/kurssi/:courseid', function(req, res, next) {
   //ACCESS
   access.publicMethods()
   .then((handle) => {
-    return handle.methods.courseInfo(req.params.courseid);
+    return handle.methods.getCourseInfo(req.params.courseid);
   })
   .then((coursedata) => {
     res.send(coursedata);
@@ -472,6 +472,13 @@ router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   })
 });
 
+
+router.post('/tiketti/:ticketid/arkistoi', function(req, res, next) {
+  access.writeTicket(req, req.params.ticketid)
+  .then((handle) => {
+    return handle.methods.archiveFaqTicket
+  }
+});
 
 // '/kurssi/:kurssi-id/ukk/:tiketti-id/arkistoi
 router.post('/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
