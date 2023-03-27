@@ -11,50 +11,6 @@ const errorcodes = require('./../errorcodes.js');
 
 class CourseReads extends CourseLists {
 
-  getAllTicketsMadeByUser(userid, courseid) {
-    return sql.tickets.getAllMyTickets(courseid, userid)
-    .then((ticketdata) => {
-      return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', courseid);
-    })
-    .then((data) => {
-      if (data.length === 0) {
-        return Promise.reject(errorcodes.noResults);
-      } else {
-        return data;
-      }
-    });
-  };
-
-  getAllTicketsVisibleToUser(userid, courseid) {
-    return sql.courses.getUserInfoForCourse(userid, courseid)
-    .then((userdata) => {
-      if (userdata != undefined && userdata.asema === 'opettaja') {
-        return sql.tickets.getAllTickets(courseid);
-      } else if (userdata != undefined) {
-        return sql.tickets.getAllMyTickets(courseid, userdata.id);
-      } else {
-        return Promise.reject(errorcodes.noPermission);
-      }
-    })
-    .then((ticketdata) => {
-      return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', courseid);
-    })
-    .then((ticketdata) => {
-      return sql.tickets.insertTicketStateToTicketIdReferences(ticketdata, 'id');
-    })
-    .then((ticketdata) => {
-      return sqlsplicer.removeArchivedTickets(ticketdata);
-    });
-  }
-
-  getUserInfo(userId, courseId) {
-    return sql.courses.getUserInfoForCourse(userId, courseId);
-  }
-
-  getFieldsOfTicketBase(courseId) {
-    return sql.courses.getFieldsOfTicketBaseForCourse(courseId);
-  }
-
   createTicket(courseId, creatorId, title, content, fieldList, isFaq=false) {
     return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
     .then((sqldata) => { return sqldata.id })
@@ -85,6 +41,62 @@ class CourseReads extends CourseLists {
         return results;
       });
     });
+  }
+
+
+  getAllTicketsMadeByUser(userid, courseid) {
+    return sql.tickets.getAllMyTickets(courseid, userid)
+    .then((ticketdata) => {
+      return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', courseid);
+    })
+    .then((data) => {
+      if (data.length === 0) {
+        return Promise.reject(errorcodes.noResults);
+      } else {
+        return data;
+      }
+    });
+  };
+
+  getUnfilteredTicketVisibleToUser(userId, courseId) {
+    return sql.courses.getUserInfoForCourse(userId, courseId)
+    .then((userdata) => {
+      if (userdata != undefined && userdata.asema === 'opettaja') {
+        return sql.tickets.getAllTickets(courseId);
+      } else if (userdata != undefined) {
+        return sql.tickets.getAllMyTickets(courseId, userdata.id);
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
+    })
+    .then((ticketData) => {
+      return splicer.insertCourseUserInfoToUserIdReferences(ticketData, 'aloittaja', courseId);
+    })
+    .then((ticketData) => {
+      return sql.tickets.insertTicketStateToTicketIdReferences(ticketData, 'id');
+    })
+  }
+
+  getAllArchivedTicketsVisibleToUser(userId, courseId) {
+    return this.getUnfilteredTicketVisibleToUser(userId, courseId)
+    .then((ticketData) => {
+      return sqlsplicer.removeUnarchivedTickets(ticketData);
+    });
+  }
+
+  getAllTicketsVisibleToUser(userId, courseId) {
+    return this.getUnfilteredTicketVisibleToUser(userId, courseId)
+    .then((ticketData) => {
+      return sqlsplicer.removeArchivedTickets(ticketData);
+    });
+  }
+
+  getUserInfo(userId, courseId) {
+    return sql.courses.getUserInfoForCourse(userId, courseId);
+  }
+
+  getFieldsOfTicketBase(courseId) {
+    return sql.courses.getFieldsOfTicketBaseForCourse(courseId);
   }
 
 }

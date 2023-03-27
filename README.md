@@ -61,7 +61,7 @@ ng build
 
 Jos tarvitset enemmän debug infoa ltijs:ltä, niin aja seuraava komento:
 ```DEBUG='provider:*' node app.js```
-
+1
 ## Integroiminen Moodleen
 
 Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen ominaisuus mahdollistaa sen, että ulkoisen työkalun integroiminen Moodleen onnistuu syöttämällä työkalun rekisteröintilinkin Moodleen. Tämä tapahtuu seuraavalla tavalla:
@@ -345,6 +345,27 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 
 
 
+### /api/kurssi/:kurssi-id/arkistoidut
+#### GET
+[**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssiluku
+Palauttaa kaikki arkistoidut tiketit kurssilla, joihin käyttäjällä on oikeus päästä. Opettaja näkee kaikki kurssin tiketit, ja opiskelija näkee vain itse lähettämänsä.
+##### Vastaus:
+```
+[{
+  id: $int
+  otsikko: $string
+  aikaleima: $string
+  aloittaja: {
+    id: $int
+    nimi: $string
+    sposti: $string
+    asema: $string
+  }
+  tila: $int
+}]
+```
+
+
 ### /api/kurssi/:kurssi-id/ukk/
 Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt UKK-tiketeiksi. Tällä on myös POST-muoto, jolla voidaan lisätä UKK-tikettejä kantaan.
 #### GET
@@ -395,6 +416,18 @@ Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt
   }
 } 
 ```
+
+### /api/tiketti/:tiketti-id/valmis
+#### POST
+Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin voi arkistoida, jos sen tila on ollut joskus ratkaistu tai kommentoitu. Tämän voi tarkistaa kutsulla [/api/tiketti/:tiketti-id](#apitikettitiketti-id), joka kertoo onko tiketti *arkistoitava*.
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+
 
 ### /api/tiketti/:tiketti-id/arkistoiukk
 Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi. Tiketti arkistoidaan vain siinä tapauksessa, jos tiketti on merkitty UKK:ksi.

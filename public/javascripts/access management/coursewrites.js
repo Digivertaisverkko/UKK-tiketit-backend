@@ -7,16 +7,6 @@ const CourseReads = require("./coursereads");
 
 class CourseWrites extends CourseReads {
 
-  createFaqTicket(courseid, creatorid, title, body, answer, fields) {
-    return sql.tickets.createTicket(courseid, creatorid, title, fields, body, true)
-    .then((ticketid) => {
-      return sql.tickets.createComment(ticketid, creatorid, answer, 5)
-      .then((commentid) => {
-        return { tiketti: ticketid, kommentti: commentid };
-      });
-    });
-  }
-
 
   archiveFaqTicket(ticketid) {
     return sql.tickets.isFaqTicket(ticketid)
@@ -27,6 +17,16 @@ class CourseWrites extends CourseReads {
         return Promise.reject(errorcodes.operationNotPossible);
       }
     })
+  }
+
+  createFaqTicket(courseid, creatorid, title, body, answer, fields) {
+    return sql.tickets.createTicket(courseid, creatorid, title, fields, body, true)
+    .then((ticketid) => {
+      return sql.tickets.createComment(ticketid, creatorid, answer, 5)
+      .then((commentid) => {
+        return { tiketti: ticketid, kommentti: commentid };
+      });
+    });
   }
 
   editFaqTicket(ticketid, newTitle, newBody, newAnswer, newFields) {

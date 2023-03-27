@@ -123,6 +123,13 @@ module.exports = {
     });
   },
 
+  listCourses: function(request) {
+    return auth.authenticatedUser(request)
+    .then((userid) => {
+      return {userid: userid, methods: courselists };
+    });
+  },
+
   writeCourse: function(request, courseId) {
     let storedUserId;
     return auth.authenticatedUser(request)
@@ -140,13 +147,6 @@ module.exports = {
     .then(() => {
       return { userid: storedUserId, methods: coursewrites };
     })
-  },
-
-  listCourses: function(request) {
-    return auth.authenticatedUser(request)
-    .then((userid) => {
-      return {userid: userid, methods: courselists };
-    });
   },
 
   readCourse: function(request, courseid) {

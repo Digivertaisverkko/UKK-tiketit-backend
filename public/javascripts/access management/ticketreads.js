@@ -50,6 +50,13 @@ class TicketReads {
 
   }
 
+  archiveFinishedTicket(ticketId) {
+    return this.isTicketArchivable(ticketId)
+    .then(() => {
+      return sql.tickets.archiveTicket(ticketId);
+    });
+  }
+
   getAttachment(commentid, fileid) {
     return sql.tickets.getAttachmentForComment(commentid, fileid)
     .then((foundDataList) => {
@@ -57,29 +64,6 @@ class TicketReads {
       let filePath = process.env.ATTACHMENT_DIRECTORY + foundData.tiedosto;
       foundData.polku = filePath;
       return foundData;
-    });
-  }
-
-  getTicketMetadata(currentUserId, ticketId) {
-    return sql.tickets.getTicket(ticketId)
-    .then((ticketdata) => {
-      return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
-    })
-    .then((results) => {
-      if (currentUserId == null) {
-        //Koska käyttäjän ei ole välttämättä pitänyt kirjautua sisään UKK-tikettejä varten.
-        return results;
-      } else {
-        return sql.courses.getUserInfoForCourse(currentUserId, results[0].kurssi)
-        .then((userInfo) => {
-          if (userInfo.asema === "opettaja") {
-            return sql.tickets.setTicketStateIfAble(ticketId, TicketState.read);
-          }
-        })
-        .then(() => {
-          return results;
-        })
-      }
     });
   }
 
@@ -104,6 +88,52 @@ class TicketReads {
 
   getFields(ticketId) {
     return sql.tickets.getFieldsOfTicket(ticketId);
+  }
+
+  getTicketMetadata(currentUserId, ticketId) {
+    return sql.tickets.getTicket(ticketId)
+    .then((ticketdata) => {
+      return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
+    })
+    .then((results) => {
+      return this.isTicketArchivable(ticketId)
+      .then(() => {
+        results[0].arkistoitava = true;
+        return results;
+      })
+      .catch(() => {
+        results[0].arkistoitava = false;
+        return results;
+      })
+    })
+    .then((results) => {
+      if (currentUserId == null) {
+        //Koska käyttäjän ei ole välttämättä pitänyt kirjautua sisään UKK-tikettejä varten.
+        return results;
+      } else {
+        return sql.courses.getUserInfoForCourse(currentUserId, results[0].kurssi)
+        .then((userInfo) => {
+          if (userInfo.asema === "opettaja") {
+            return sql.tickets.setTicketStateIfAble(ticketId, TicketState.read);
+          }
+        })
+        .then(() => {
+          return results;
+        })
+      }
+    });
+  }
+
+  isTicketArchivable(ticketId) {
+    return sql.tickets.getTicketStates([ticketId])
+    .then((ticketStateList) => {
+      let states = arrayTools.extractAttributes(ticketStateList, 'tila');
+      if (states.includes(TicketState.resolved) || states.includes(TicketState.commented)) {
+        return Promise.resolve();
+      } else {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
+    })
   }
 
 }

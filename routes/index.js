@@ -252,7 +252,7 @@ router.get('/kurssi/:courseid', function(req, res, next) {
   //ACCESS
   access.publicMethods()
   .then((handle) => {
-    return handle.methods.courseInfo(req.params.courseid);
+    return handle.methods.getCourseInfo(req.params.courseid);
   })
   .then((coursedata) => {
     res.send(coursedata);
@@ -286,6 +286,19 @@ router.get('/kurssi/:courseid/kaikki', function(req, res, next) {
   })
   .then((data) => res.send(data))
   .catch((error) => errorFactory.createError(res, error));
+});
+
+router.get('/kurssi/:courseid/arkistoidut', function(req, res, next) {
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.getAllArchivedTicketsVisibleToUser(handle.userid, req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
 });
 
 // '/kurssi/:kurssi-id/ukk/kaikki'
@@ -472,6 +485,18 @@ router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   })
 });
 
+router.post('/tiketti/:ticketid/valmis', function(req, res, next) {
+  access.readTicket(req, req.params.ticketid)
+  .then((handle) => {
+    return handle.methods.archiveFinishedTicket(req.params.ticketid);
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
 
 // '/kurssi/:kurssi-id/ukk/:tiketti-id/arkistoi
 router.post('/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
