@@ -146,4 +146,13 @@ PRIMARY KEY (kommentti, tiedosto),
 FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );
 
+CREATE TABLE core.session (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+ALTER TABLE core.session ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+CREATE INDEX "IDX_session_expire" ON core.session ("expire");
+
 INSERT INTO core.profiili (id, nimi, sposti) OVERRIDING SYSTEM VALUE VALUES (0, 'POISTETTU', '');

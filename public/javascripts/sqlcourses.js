@@ -211,19 +211,7 @@ module.exports = {
         });
       }
       return promiseChain;
-    })
-    /*
-    .then((fieldIdPromiseList) => {
-      let promises = [];
-      for (index in fieldIdPromiseList) {
-        /*Jokainen promise palauttaa erillisen taulun. 
-        Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
-        /*let id = fieldIdPromiseList[index][0].id;
-        promises.push(module.exports.connectTicketBaseToField(storedTicketId, id));
-      }
-      return Promise.all(promises);
     });
-    */
   },
 
   connectTicketBaseToField: function(ticketbaseid, fieldid) {

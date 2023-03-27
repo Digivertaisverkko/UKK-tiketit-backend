@@ -1,0 +1,3 @@
+[submodule "UKK-tiketit"]
+	path = UKK-tiketit
+	url = https://github.com/Digivertaisverkko/UKK-tiketit

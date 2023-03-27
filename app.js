@@ -13,13 +13,30 @@ var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files');
 var sqlSite = require('./routes/sql');
 
+var express_session = require('express-session');
+var pgSessionStore = require('connect-pg-simple')(express_session);
+const connection = require('./public/javascripts/connection.js');
+
 var app = express();
 
 const cors = require('cors');
 const auth = require('./public/javascripts/auth');
-app.use(cors());
+app.use(cors(/*{
+  credentials: true,
+  origin: ['http://localhost:4200'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}*/));
 
 const port = process.env.PORT || 3000;
+const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
+
+
+const sessionStoreManager = new pgSessionStore({
+  pool : connection.getConnection(), // Connection pool
+  schemaName: 'core',
+  tableName : 'session'          // Use another table-name than the default "session" one
+  // Insert connect-pg-simple options here
+})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,12 +44,26 @@ app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser("salaisuus"));
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+
+const day = 86400000;
+//app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
+app.use(express_session({
+  secret: process.env.COOKIE_SECRET,
+  resave: false,
+  store: sessionStoreManager,
+  saveUninitialized: false,
+  //proxy: true,
+  rolling: true,
+  cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 /*, secure: true*/ }
+}));
+
+app.use('/api', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api', filesRouter);
+app.use('/', express.static(frontendDirectory));
 
 // Setup ltijs
 const setupLti = async () => {
@@ -83,9 +114,13 @@ setupLti();
 // Mount Ltijs express app into preexisting express app with /lti prefix
 app.use('/lti', lti.app);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+
+// Routaa Angularin mukaan
+app.get('*', function(req, res, next) {
+  let path = frontendDirectory + 'index.html';
+  res.sendFile(path, function (err) {
+    next(createError(404));
+  });
 });
 
 // error handler
