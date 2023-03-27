@@ -27,6 +27,12 @@ module.exports = {
     return ticketArray.filter(function(value, index, array) {
       return value.tila !== TicketState.archived;
     });
+  },
+
+  removeUnarchivedTickets: function(ticketArray) {
+    return ticketArray.filter(function(value, index, array) {
+      return value.tila === TicketState.archived;
+    });
   }
 
 }

@@ -288,6 +288,19 @@ router.get('/kurssi/:courseid/kaikki', function(req, res, next) {
   .catch((error) => errorFactory.createError(res, error));
 });
 
+router.get('/kurssi/:courseid/arkistoidut', function(req, res, next) {
+  access.readCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.getAllArchivedTicketsVisibleToUser(handle.userid, req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
 // '/kurssi/:kurssi-id/ukk/kaikki'
 router.get('/kurssi/:courseid/ukk', function(req, res, next) {
   //ACCESS

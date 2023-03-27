@@ -58,25 +58,36 @@ class CourseReads extends CourseLists {
     });
   };
 
-  getAllTicketsVisibleToUser(userid, courseid) {
-    return sql.courses.getUserInfoForCourse(userid, courseid)
+  getUnfilteredTicketVisibleToUser(userId, courseId) {
+    return sql.courses.getUserInfoForCourse(userId, courseId)
     .then((userdata) => {
       if (userdata != undefined && userdata.asema === 'opettaja') {
-        return sql.tickets.getAllTickets(courseid);
+        return sql.tickets.getAllTickets(courseId);
       } else if (userdata != undefined) {
-        return sql.tickets.getAllMyTickets(courseid, userdata.id);
+        return sql.tickets.getAllMyTickets(courseId, userdata.id);
       } else {
         return Promise.reject(errorcodes.noPermission);
       }
     })
-    .then((ticketdata) => {
-      return splicer.insertCourseUserInfoToUserIdReferences(ticketdata, 'aloittaja', courseid);
+    .then((ticketData) => {
+      return splicer.insertCourseUserInfoToUserIdReferences(ticketData, 'aloittaja', courseId);
     })
-    .then((ticketdata) => {
-      return sql.tickets.insertTicketStateToTicketIdReferences(ticketdata, 'id');
+    .then((ticketData) => {
+      return sql.tickets.insertTicketStateToTicketIdReferences(ticketData, 'id');
     })
-    .then((ticketdata) => {
-      return sqlsplicer.removeArchivedTickets(ticketdata);
+  }
+
+  getAllArchivedTicketsVisibleToUser(userId, courseId) {
+    return this.getUnfilteredTicketVisibleToUser(userId, courseId)
+    .then((ticketData) => {
+      return sqlsplicer.removeUnarchivedTickets(ticketData);
+    });
+  }
+
+  getAllTicketsVisibleToUser(userId, courseId) {
+    return this.getUnfilteredTicketVisibleToUser(userId, courseId)
+    .then((ticketData) => {
+      return sqlsplicer.removeArchivedTickets(ticketData);
     });
   }
 
