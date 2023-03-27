@@ -345,6 +345,27 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 
 
 
+### /api/kurssi/:kurssi-id/arkistoidut
+#### GET
+[**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssiluku
+Palauttaa kaikki arkistoidut tiketit kurssilla, joihin käyttäjällä on oikeus päästä. Opettaja näkee kaikki kurssin tiketit, ja opiskelija näkee vain itse lähettämänsä.
+##### Vastaus:
+```
+[{
+  id: $int
+  otsikko: $string
+  aikaleima: $string
+  aloittaja: {
+    id: $int
+    nimi: $string
+    sposti: $string
+    asema: $string
+  }
+  tila: $int
+}]
+```
+
+
 ### /api/kurssi/:kurssi-id/ukk/
 Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt UKK-tiketeiksi. Tällä on myös POST-muoto, jolla voidaan lisätä UKK-tikettejä kantaan.
 #### GET
