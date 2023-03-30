@@ -12,22 +12,15 @@ class LoginMethods {
     let userid   = reqBody.user_id;
     let clientid = reqBody.lis_outcome_service_url;
 
-    console.log(11);
-
     return sql.users.getLtiUser(clientid, userid)
     .then((data) => {
-      console.log(12);
       if (data.length == 0) {
         let storageId = crypto.randomUUID();
-        console.log('13a');
-        console.dir(reqBody);
         return sql.users.temporarilyStoreLtiToken(reqBody, '1.1', storageId)
         .then(() => {
-          console.log('14a');
           return { accountExists: false, storageId: storageId };
         });
       } else {
-        console.log('13b');
         return this.handleAcceptedLti1p1Login(reqBody);
       }
     });
@@ -42,10 +35,9 @@ class LoginMethods {
     let email       = reqBody.lis_person_contact_email_primary;
     let coursename  = reqBody.context_title;
     let courseroles = reqBody.roles.split(',');
-    console.log(1);
+  
     return auth.ltiLogin(userid, contextid, clientid, username, email, coursename, courseroles)
     .then((logindata) => {
-      console.log(2);
       return { accountExists: true, courseId: logindata.kurssi };
     });
   }
@@ -92,9 +84,8 @@ class LoginMethods {
       }
     })
     .then(() => {
-      console.log(4);
       return sql.users.deleteStoredLtiToken(storageId);
-    })
+    });
   }
 
 
