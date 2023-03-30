@@ -11,6 +11,7 @@ const Database = require('ltijs-sequelize');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files');
+var ltiRouter   = require('./routes/lti.js');
 var sqlSite = require('./routes/sql');
 
 var express_session = require('express-session');
@@ -21,11 +22,7 @@ var app = express();
 
 const cors = require('cors');
 const auth = require('./public/javascripts/auth');
-app.use(cors(/*{
-  credentials: true,
-  origin: ['http://localhost:4200'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}*/));
+app.use(cors());
 
 const port = process.env.PORT || 3000;
 const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
@@ -34,7 +31,7 @@ const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-ti
 const sessionStoreManager = new pgSessionStore({
   pool : connection.getConnection(), // Connection pool
   schemaName: 'core',
-  tableName : 'session'          // Use another table-name than the default "session" one
+  tableName : 'session'
   // Insert connect-pg-simple options here
 })
 
@@ -61,6 +58,7 @@ app.use(express_session({
 }));
 
 app.use('/api', indexRouter);
+app.use('/lti', ltiRouter);
 app.use('/users', usersRouter);
 app.use('/api', filesRouter);
 app.use('/', express.static(frontendDirectory));
@@ -112,7 +110,7 @@ setupLti();
 
 
 // Mount Ltijs express app into preexisting express app with /lti prefix
-app.use('/lti', lti.app);
+app.use('/lti/1p3', lti.app);
 
 
 // Routaa Angularin mukaan

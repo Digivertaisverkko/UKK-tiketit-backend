@@ -23,37 +23,6 @@ var session = require('express-session');
 router.use(express.json());
 
 
-router.post('/lti/1p1/start/', function(req, res, next) {
-
-  sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id', 'lis_outcome_service_url',
-    'lis_person_name_full', 'context_title', 'roles', 'launch_presentation_locale'])
-  .then(() => {
-    return auth.securityCheckLti1p1(req);
-  })
-  .then(() => {
-    let userid      = req.body.user_id;
-    let contextid   = req.body.context_id;
-    let clientid    = req.body.lis_outcome_service_url;
-    let username    = req.body.lis_person_name_full;
-    let email       = req.body.lis_person_contact_email_primary;
-    let coursename  = req.body.context_title;
-    let courseroles = req.body.roles.split(',');
-    return auth.ltiLogin(userid, contextid, clientid, username, email, coursename, courseroles);
-  })
-  .then((logindata) => {
-    let locale = req.body.launch_presentation_locale;
-    const coursePath = 'course';
-
-    let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
-    url.searchParams.append('sessionID', logindata.sessionid);
-    url.searchParams.append('lang', locale);
-    res.redirect(url.toString());
-  })
-  .catch((error) => {
-    res.send(errorFactory.createError(res, error));
-  });
-});
-
 
 router.post('/login/', function(req, res, next) {
   let logintype = req.header('login-type');
