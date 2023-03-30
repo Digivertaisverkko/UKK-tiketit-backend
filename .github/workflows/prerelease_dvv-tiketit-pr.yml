@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: '18.x'
 
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli > /dev/null
+
       - name: npm install, build, and test
         run: |
           npm ci
