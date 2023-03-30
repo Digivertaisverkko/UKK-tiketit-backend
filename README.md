@@ -114,6 +114,7 @@ LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäj�
 {  
   login-type: $string
   code-challenge: $string
+  kurssi: $string
 } 
 ```
 ##### Vastaus:  
@@ -264,7 +265,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-### /api/kirjaudu-ulos/
+### /api/kirjauduulos/
 #### POST
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kurssiluku
 

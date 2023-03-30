@@ -63,6 +63,7 @@ module.exports = {
    * type     - $string   - Olion attribuutin tyyppi.
    * max      - $int      - Joko merkkijonon maksimipituus, tai luvun suurin sallittu koko. 
    * min      - $int      - Joko merkkijonon minimipituus, tai luvun pienin sallittu koko.
+   * regex    - $RegExp   - Regular expression, joka muuttujan pitää täyttää.
    * optional - $bool     - Haittaako, jos attribuuttia ei löydy.
    */
   test: function(object, requirementList) {
@@ -151,7 +152,13 @@ function checkObjectForRequirements(object, requirementsList) {
       
       //Tarkista tyyppi
       if (requirement.type && typeof value !== requirement.type) {
-        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> Väärä tyyppi.');
+        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + 
+                    JSON.stringify(requirement) + ' -> Väärä tyyppi <' + typeof value + '>.');
+        success = false;
+      }
+
+      if (requirement.regex && requirement.regex.test(value) == false) {
+        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> regex');
         success = false;
       }
 

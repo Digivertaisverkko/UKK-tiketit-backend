@@ -58,13 +58,24 @@ router.post('/lti/1p1/start/', function(req, res, next) {
 router.post('/login/', function(req, res, next) {
   let logintype = req.header('login-type');
   let codeChallenge = req.header('code-challenge');
-  if (logintype != undefined && codeChallenge != undefined) {
-    auth.startLogin(codeChallenge, logintype)
-    .then((data) => res.send(data))
-    .catch((error) => res.send('error: ' + error));
-  } else {
-    errorFactory.createError(res, 300);
-  }
+  let courseId = req.header('kurssi');
+  console.dir(req.headers);
+  sanitizer.test(req.headers, [
+    {key: 'login-type', type:'string'},
+    {key: 'code-challenge', type: 'string'},
+    {key: 'kurssi', regex: /^[0-9]+$/}
+  ]).then(() => {
+    if (logintype != undefined && codeChallenge != undefined) {
+      return auth.startLogin(codeChallenge, logintype, courseId)
+      .then((data) => res.send(data))
+      .catch((error) => res.send('error: ' + error));
+    } else {
+      return Promise.reject(3000);
+    }
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
 });
 
 router.get('/authtoken/', function(req, res, next) {

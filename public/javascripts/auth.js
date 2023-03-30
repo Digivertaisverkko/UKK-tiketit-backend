@@ -13,7 +13,7 @@ var sessionsByLogin = new Object();
 
 module.exports = {
     
-  startLogin: function(codeChallenge, logintype) {
+  startLogin: function(codeChallenge, logintype, courseId) {
     let storedData;
     return new Promise(function(resolve, reject) {
       if (logintype === 'own') {
@@ -25,7 +25,7 @@ module.exports = {
         reject(errorcodes.noConnection);
       }
     }).then((data) => {
-      return sql.users.createLoginUrl(data.lid, data.cc, data.fcode);
+      return sql.users.createLoginUrl(data.lid, data.cc, data.fcode, courseId);
     }).then((data) => {
       return {'login-url': data, "login-id": storedData.lid};
     });

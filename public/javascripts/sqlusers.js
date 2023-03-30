@@ -7,10 +7,10 @@ const con = connection.getConnection();
 
 module.exports = {
 
-  createLoginUrl: function(loginid, codeChallenge, frontcode) {
+  createLoginUrl: function(loginid, codeChallenge, frontcode, courseId) {
     const query = 'INSERT INTO core.loginyritys (loginid, codeChallenge, fronttunnus, profiili) VALUES ($1, $2, $3, NULL)';
     return connection.queryAll(query, [loginid, codeChallenge, frontcode])
-    .then((sqldata) => { return '/login?loginid=' + loginid })
+    .then((sqldata) => { return 'course/' + courseId + '/login?loginid=' + loginid })
     .catch((error) => { return Promise.reject('createLogin: ' + error + ' loginid: ' + loginid) });
   },
 
