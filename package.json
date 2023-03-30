@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node app.js",
+    "build:ui": "rm -rf static && cd UKK-tiketit && npm ci && rm -rf dist && ng build && cp -r dist/tikettisysteemi ../static"
   },
   "dependencies": {
     "body-parser": "^1.20.0",
