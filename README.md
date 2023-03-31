@@ -95,12 +95,29 @@ Lisäksi LTI-versiosta riippuen toinen seuraavista:
 - LTI-kuluttujan (consumer) nettiosoite (LTI 1.1)
 
 ### /lti/register
-LTI 1.3:n rekisteröimisrajapinta.
+LTI 1.3:n rekisteröimisrajapinta. Ohjaa automaattisesti joko kurssisivulle, tai gdpr-luovutussivulle, riippuen siitä, onko käyttäjä jo hyväksynyt tietojen luovutuksen.
 
 ### /lti/1p1/start
-LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäjän sisään backendiin ja ohjaa frontendissä oikealle kurssisivulle.
+LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäjän sisään backendiin ja ohjaa frontendissä oikealle kurssisivulle tai gdpr-tietojen luovutussivulle, riippuen siitä, onko käyttäjä jo hyväksynyt tietojen luovutuksen.
 
 
+Lisäksi, jos lti:n kautta kirjautuu käyttäjä, jolla ei ole jo tiliä valmiiksi, tiliä ei voida luoda ennen kuin käyttäjä antaa luvan tietojen luovutukseen. Tämä tietojen luovutus tapahtuu siten, että yllä olevat rajapinnat ohjaavat käyttäjän sivulle, jossa on url-parametrinä annettu tunnus, joka pitää palauttaa seuraavalle rajapinnalle:
+
+### /lti/gdpr-lupa-ok
+#### POST
+[**Vaaditut oikeudet:**](#oikeuksienhallinta) Julkinen luku
+##### Lähetä:
+```
+{
+  lupa-id: $string
+}
+```
+##### Vastaus:
+```
+{
+  success: true
+}
+```
 
 
 ## Sisäänkirjautumisen rajapinta 
