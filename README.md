@@ -154,6 +154,7 @@ Lisäksi, jos lti:n kautta kirjautuu käyttäjä, jolla ei ole jo tiliä valmiik
 }
 ```
 ##### Vastaus:
+Lähettää myös http-only sessioevästeen osana vastausta.
 ```
 {
   success: $bool

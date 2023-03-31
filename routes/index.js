@@ -49,7 +49,7 @@ router.get('/authtoken/', function(req, res, next) {
       });
     })
     .then((data) => {
-      res.send({'success': true, 'session-id': data[0].sessionid});
+      res.send({'success': true });
     })
     .then(() => {
       return sql.users.removeLoginAttempt(logincode);
