@@ -47,7 +47,11 @@ module.exports = {
 
   getStoredLtiToken(storageId) {
     const query = 'SELECT * FROM core.lti_tilipyynto WHERE id=$1';
-    return connection.queryOne(query, [storageId]);
+    return connection.queryOne(query, [storageId])
+    .then((tokenData) => {
+      tokenData.token = JSON.parse(tokenData.token);
+      return tokenData;
+    });
   },
 
   deleteStoredLtiToken(storageId) {

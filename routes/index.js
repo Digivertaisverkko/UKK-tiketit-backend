@@ -45,9 +45,6 @@ router.get('/authtoken/', function(req, res, next) {
     .then((data) => {
       return auth.regenerateSession(req, data[0].profiili)
       .then(() => {
-        return auth.saveSession(req);
-      })
-      .then(() => {
         return data;
       });
     })

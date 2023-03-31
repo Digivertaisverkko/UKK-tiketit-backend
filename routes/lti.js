@@ -7,6 +7,7 @@ const sanitizer = require('../public/javascripts/sanitizer.js');
 const access = require('../public/javascripts/access management/access.js');
 const errorFactory = require('../public/javascripts/error.js');
 const path = require('path');
+const redirect = require('../public/javascripts/redirect.js');
 
 router.use(express.json());
 
@@ -21,28 +22,24 @@ router.post('/1p1/start/', function(req, res, next) {
     return access.loginMethods();
   })
   .then((handle) => {
-    return handle.methods.handleUnsureLti1p1Login(req.body);
+    return handle.methods.handleUnsureLti1p1Login(req, req.body);
   })
   .then((results) => {
+    console.log(3);
     if (results.accountExists) {
+      console.log(4);
+      console.dir(req.body);
+      console.dir(results);
       let locale = req.body.launch_presentation_locale;
-      const coursePath = 'course';
-  
-      let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
-      url.searchParams.append('sessionID', logindata.sessionid);
-      url.searchParams.append('lang', locale);
-      res.redirect(url.toString());
+      return redirect.redirectToCoursePage(res, locale, results.courseId);
     } else {
+      console.log(5);
       let locale = req.body.launch_presentation_locale;
-
-      let url = new URL(path.join('data-consent'), process.env.LTI_REDIRECT);
-      url.searchParams.append('lang', locale);
-      url.searchParams.append('tokenid', results.storageId);
-      console.log(url.toString());
-      res.redirect(url.toString());
+      return redirect.redirectToGdprPage(res, locale, results.storageId);
     }
   })
   .catch((error) => {
+    console.log('6 ' + error);
     errorFactory.createError(res, error);
   });
 });
@@ -56,7 +53,7 @@ router.post('/gdpr-lupa-ok/', function(req, res, next) {
     return access.loginMethods();
   })
   .then((handle) => {
-    return handle.methods.handleGdprAcceptance(req.body['lupa-id']);
+    return handle.methods.handleGdprAcceptance(req, req.body['lupa-id']);
   })
   .then(() => {
     res.send({ success: true });

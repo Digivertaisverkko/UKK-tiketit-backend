@@ -120,7 +120,7 @@ module.exports = {
     }); 
   },
 
-  ltiLoginWithToken: function(token) {
+  ltiLoginWithToken: function(httpRequest, token) {
     console.dir(token);
     let userid = token.user;
     let contextid = token.platformContext.contextId;
@@ -130,16 +130,19 @@ module.exports = {
     let coursename = token.platformContext.context.title;
     let courseroles = token.platformContext.roles;
 
-    return module.exports.ltiLogin(userid, contextid, clientid, username, email, coursename, courseroles);
+    return module.exports.ltiLogin(httpRequest, userid, contextid, clientid, username, email, coursename, courseroles);
   },
 
-  ltiLogin: function(userid, contextid, clientid, username, email, coursename, courseroles) {
+  ltiLogin: function(httpRequest, userid, contextid, clientid, username, email, coursename, courseroles) {
 
     let storedProfileId;
     let storedCourseId;
 
+    console.log(11);
+
     return sql.users.getLtiUser(clientid, userid)
     .then((userList) => {
+      console.log(12);
       if (userList.length == 0) {
         return sql.users.createLtiUser(username, email, clientid, userid);
       } else if (userList[0].nimi !== username || userList[0].sposti !== email) {
@@ -152,10 +155,12 @@ module.exports = {
       }
     })
     .then((profileid) => {
+      console.log(13);
       storedProfileId = profileid;
       return sql.courses.getAndCreateLtiCourse(coursename, clientid, contextid);
     })
     .then((courseid) => {
+      console.log(14);
       storedCourseId = courseid;
       return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
       .then((userInfo) => {
@@ -174,10 +179,12 @@ module.exports = {
       });
     })
     .then(() => {
-      return sql.users.createSession(storedProfileId);
+      console.log(15);
+      return module.exports.regenerateSession(httpRequest, storedProfileId);
     })
-    .then((sessiondata) => {
-      return {"sessionid": sessiondata[0].sessionid, "profiili": storedProfileId, "kurssi": storedCourseId};
+    .then(() => {
+      console.log(16);
+      return {"profiili": storedProfileId, "kurssi": storedCourseId};
     });
   },
 
@@ -195,6 +202,8 @@ module.exports = {
     });
   },
 
+
+
   regenerateSession: function(request, profileid) {
     return new Promise(function(resolve, reject) {
       request.session.regenerate(function(error) {
@@ -202,6 +211,9 @@ module.exports = {
         request.session.profiili = profileid;
         resolve();
       });
+    })
+    .then(() => {
+      return this.saveSession(request);
     });
   },
 

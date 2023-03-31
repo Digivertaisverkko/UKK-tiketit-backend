@@ -13,6 +13,7 @@ var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files');
 var ltiRouter   = require('./routes/lti.js');
 var sqlSite = require('./routes/sql');
+var redirect = require('./public/javascripts/redirect.js');
 
 var express_session = require('express-session');
 var pgSessionStore = require('connect-pg-simple')(express_session);
@@ -22,6 +23,7 @@ var app = express();
 
 const cors = require('cors');
 const auth = require('./public/javascripts/auth');
+const access = require('./public/javascripts/access management/access.js')
 app.use(cors());
 
 const port = process.env.PORT || 3000;
@@ -95,13 +97,18 @@ const setupLti = async () => {
   
   // Redirect to app after succesful connections
   lti.onConnect(async (token, req, res) => {
-    return auth.ltiLoginWithToken(token)
-    .then((logindata) => {
-      const coursePath = 'course';
-      let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
-      url.searchParams.append('sessionID', logindata.sessionid);
-      url.searchParams.append('lang', token.platformContext.launchPresentation.locale);
-      return lti.redirect(res, url.toString());
+    return access.loginMethods()
+    .then((handle) => {
+      return handle.methods.handleUnsureLti1p3Login(req, token);
+    })
+    .then((results) => {
+      if (results.accountExists) {
+        var locale = token.platformContext.launchPresentation.locale;
+        redirect.redirectToCoursePageLtijs(lti, res, locale, results.courseId);
+      } else {
+        var locale = token.platformContext.launchPresentation.locale;
+        redirect.redirectToGdprPageLtijs(lti, res, locale, results.storageId);
+      }
     });
   });
 }
