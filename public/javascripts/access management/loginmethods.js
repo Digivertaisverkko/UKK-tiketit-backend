@@ -85,8 +85,11 @@ class LoginMethods {
         return Promise.reject(errorcodes.noPermission);
       }
     })
-    .then(() => {
-      return sql.users.deleteStoredLtiToken(storageId);
+    .then((data) => {
+      return sql.users.deleteStoredLtiToken(storageId)
+      .then(() => {
+        return data;
+      });
     });
   }
 

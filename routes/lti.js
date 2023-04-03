@@ -55,8 +55,8 @@ router.post('/gdpr-lupa-ok/', function(req, res, next) {
   .then((handle) => {
     return handle.methods.handleGdprAcceptance(req, req.body['lupa-id']);
   })
-  .then(() => {
-    res.send({ success: true });
+  .then((data) => {
+    res.send({ success: true, kurssi: data.courseId });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
