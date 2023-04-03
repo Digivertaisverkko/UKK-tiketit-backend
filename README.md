@@ -1,6 +1,6 @@
 # UKK-tiketit-backend
 
-Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen MySQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
+Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen PostgreSQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
 ## Sisällysluettelo
 - [Backendin ajaminen](#backendin-ajaminen)
