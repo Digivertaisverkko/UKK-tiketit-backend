@@ -116,6 +116,7 @@ Lisäksi, jos lti:n kautta kirjautuu käyttäjä, jolla ei ole jo tiliä valmiik
 ```
 {
   success: true
+  kurssi: $int (kurssin id, jolle käyttäjä yrittää kirjautua (uudelleen ohjausta varten))
 }
 ```
 
