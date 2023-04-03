@@ -41,7 +41,6 @@ const sessionStoreManager = new pgSessionStore({
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(express.static(path.join(__dirname, 'public')));
 
 
 const day = 86400000;
