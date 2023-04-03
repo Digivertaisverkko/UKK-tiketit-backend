@@ -78,16 +78,33 @@ class CourseReads extends CourseLists {
   }
 
   getAllArchivedTicketsVisibleToUser(userId, courseId) {
-    return this.getUnfilteredTicketVisibleToUser(userId, courseId)
+    return sql.courses.getUserInfoForCourse(userId, courseId)
+    .then ((userInfo) => {
+      console.dir(userInfo);
+      if (userInfo.asema === 'opiskelija') {
+        return Promise.reject(errorcodes.noResults);
+      } else {
+        return this.getUnfilteredTicketVisibleToUser(userId, courseId)
+      }
+    })
     .then((ticketData) => {
       return sqlsplicer.removeUnarchivedTickets(ticketData);
     });
   }
 
   getAllTicketsVisibleToUser(userId, courseId) {
-    return this.getUnfilteredTicketVisibleToUser(userId, courseId)
+    let storedStatus;
+    return sql.courses.getUserInfoForCourse(userId, courseId)
+    .then((userInfo) => {
+      storedStatus = userInfo.asema;
+      return this.getUnfilteredTicketVisibleToUser(userId, courseId);
+    })
     .then((ticketData) => {
-      return sqlsplicer.removeArchivedTickets(ticketData);
+      if (storedStatus !== 'opiskelija') {
+        return sqlsplicer.removeArchivedTickets(ticketData);
+      } else {
+        return ticketData;
+      }
     });
   }
 
