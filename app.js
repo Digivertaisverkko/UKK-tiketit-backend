@@ -30,6 +30,12 @@ const port = process.env.PORT || 3000;
 const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
 
 
+var cron = require('node-cron');
+
+cron.schedule('0 4 * * *', () => {
+  console.log('running a task every minute');
+});
+
 const sessionStoreManager = new pgSessionStore({
   pool : connection.getConnection(), // Connection pool
   schemaName: 'core',

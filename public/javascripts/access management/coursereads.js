@@ -80,7 +80,6 @@ class CourseReads extends CourseLists {
   getAllArchivedTicketsVisibleToUser(userId, courseId) {
     return sql.courses.getUserInfoForCourse(userId, courseId)
     .then ((userInfo) => {
-      console.dir(userInfo);
       if (userInfo.asema === 'opiskelija') {
         return Promise.reject(errorcodes.noResults);
       } else {
