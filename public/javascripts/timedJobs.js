@@ -7,8 +7,12 @@ const TicketState = require('./ticketstate');
 
 module.exports = {
 
-  archiveOldTickets() {
-    return sql.tickets.getLatestCommentForEachTicket()
+  archiveOldTickets: function() {
+    return sql.tickets.getAllStatesFromUnarchivedTickets()
+    .then((ticketStates) => {
+      let ids = arrayTools.extractAttributes(ticketStates, 'tiketti');
+      return sql.tickets.getLatestCommentForEachTicketInList(ids);
+    })
     .then((ticketList) => {
       const twoWeeks = 1000*60*60*24*4;
       let now = new Date();

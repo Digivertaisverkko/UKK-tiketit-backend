@@ -1,3 +1,4 @@
+
 const crypto = require('crypto');
 const { stat } = require('fs');
 const { Pool, Client } = require('pg');
@@ -203,14 +204,27 @@ module.exports = {
     });
   },
 
-  getLatestCommentForTicket(ticketId) {
+  getLatestCommentForTicket: function(ticketId) {
     const query = 'SELECT * FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima DESC LIMIT 1';
     return connection.queryOne(query, [ticketId]);
   },
 
-  getLatestCommentForEachTicket() {
+  getLatestCommentForEachTicketInList: function(ticketIdList) {
+    const query = 'SELECT tiketti, MAX(aikaleima) AS aika FROM core.kommentti WHERE tiketti=ANY($1) GROUP BY tiketti';
+    return connection.queryAll(query, [ticketIdList]);
+  },
+
+  getLatestCommentForEachTicket: function() {
     const query = 'SELECT tiketti, MAX(aikaleima) AS aika FROM core.kommentti GROUP BY tiketti';
     return connection.queryAll(query);
+  },
+
+  getAllStatesFromUnarchivedTickets: function() {
+    const query = 'SELECT tt.tiketti, tt.tila FROM core.tiketintila tt \
+    INNER JOIN (SELECT tiketti, MAX(aikaleima) AS aikaleima FROM core.tiketintila GROUP BY tiketti) uusimmat \
+    ON uusimmat.tiketti = tt.tiketti AND uusimmat.aikaleima = tt.aikaleima \
+    WHERE tila!=$1';
+    return connection.queryAll(query, [TicketState.archived]);
   },
 
   getAttachmentListForCommentList: function(commentIdList) {

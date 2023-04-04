@@ -19,6 +19,9 @@ var express_session = require('express-session');
 var pgSessionStore = require('connect-pg-simple')(express_session);
 const connection = require('./public/javascripts/connection.js');
 
+var cron = require('node-cron');
+const timedJobs = require('./public/javascripts/timedJobs');
+
 var app = express();
 
 const cors = require('cors');
@@ -30,10 +33,9 @@ const port = process.env.PORT || 3000;
 const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
 
 
-var cron = require('node-cron');
 
 cron.schedule('0 4 * * *', () => {
-  console.log('running a task every minute');
+  timedJobs.archiveOldTickets();
 });
 
 const sessionStoreManager = new pgSessionStore({
