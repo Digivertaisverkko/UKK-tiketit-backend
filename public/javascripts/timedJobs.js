@@ -25,6 +25,10 @@ module.exports = {
       return sql.tickets.setStateToTicketList(oldTickets, TicketState.archived);
 
     });
+  },
+
+  deletePendingLtiLogins: function() {
+    return sql.users.deleteAllStoredLtiTokens();
   }
 
 }

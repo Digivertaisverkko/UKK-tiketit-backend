@@ -6,7 +6,6 @@ const ltiparser = require('./ltiparser');
 const lti = require('ims-lti');
 const { env } = require('process');
 const errorcodes = require('./errorcodes.js');
-const { connect } = require('http2');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();

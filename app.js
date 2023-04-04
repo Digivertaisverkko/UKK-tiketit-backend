@@ -36,6 +36,7 @@ const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-ti
 
 cron.schedule('0 4 * * *', () => {
   timedJobs.archiveOldTickets();
+  timedJobs.deletePendingLtiLogins();
 });
 
 const sessionStoreManager = new pgSessionStore({
