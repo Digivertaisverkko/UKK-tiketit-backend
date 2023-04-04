@@ -146,6 +146,12 @@ PRIMARY KEY (kommentti, tiedosto),
 FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );
 
+CREATE TABLE core.lti_tilipyynto (
+id VARCHAR(36) NOT NULL,
+lti_versio VARCHAR(5) NOT NULL,
+token TEXT NOT NULL
+);
+
 CREATE TABLE core.session (
   "sid" varchar NOT NULL COLLATE "default",
   "sess" json NOT NULL,

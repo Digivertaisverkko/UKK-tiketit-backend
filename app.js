@@ -11,7 +11,9 @@ const Database = require('ltijs-sequelize');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files');
+var ltiRouter   = require('./routes/lti.js');
 var sqlSite = require('./routes/sql');
+var redirect = require('./public/javascripts/redirect.js');
 
 var express_session = require('express-session');
 var pgSessionStore = require('connect-pg-simple')(express_session);
@@ -21,11 +23,8 @@ var app = express();
 
 const cors = require('cors');
 const auth = require('./public/javascripts/auth');
-app.use(cors(/*{
-  credentials: true,
-  origin: ['http://localhost:4200'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}*/));
+const access = require('./public/javascripts/access management/access.js')
+app.use(cors());
 
 const port = process.env.PORT || 3000;
 const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
@@ -34,7 +33,7 @@ const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-ti
 const sessionStoreManager = new pgSessionStore({
   pool : connection.getConnection(), // Connection pool
   schemaName: 'core',
-  tableName : 'session'          // Use another table-name than the default "session" one
+  tableName : 'session'
   // Insert connect-pg-simple options here
 })
 
@@ -56,6 +55,7 @@ app.use(express_session({
 }));
 
 app.use('/api', indexRouter);
+app.use('/lti', ltiRouter);
 app.use('/users', usersRouter);
 app.use('/api', filesRouter);
 app.use('/', express.static(frontendDirectory));
@@ -92,13 +92,18 @@ const setupLti = async () => {
   
   // Redirect to app after succesful connections
   lti.onConnect(async (token, req, res) => {
-    return auth.ltiLoginWithToken(token)
-    .then((logindata) => {
-      const coursePath = 'course';
-      let url = new URL(path.join(coursePath, logindata.kurssi.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
-      url.searchParams.append('sessionID', logindata.sessionid);
-      url.searchParams.append('lang', token.platformContext.launchPresentation.locale);
-      return lti.redirect(res, url.toString());
+    return access.loginMethods()
+    .then((handle) => {
+      return handle.methods.handleUnsureLti1p3Login(req, token);
+    })
+    .then((results) => {
+      if (results.accountExists) {
+        var locale = token.platformContext.launchPresentation.locale;
+        redirect.redirectToCoursePageLtijs(lti, res, locale, results.courseId);
+      } else {
+        var locale = token.platformContext.launchPresentation.locale;
+        redirect.redirectToGdprPageLtijs(lti, res, locale, results.storageId);
+      }
     });
   });
 }
@@ -107,7 +112,7 @@ setupLti();
 
 
 // Mount Ltijs express app into preexisting express app with /lti prefix
-app.use('/lti', lti.app);
+app.use('/lti/1p3', lti.app);
 
 
 // Routaa Angularin mukaan

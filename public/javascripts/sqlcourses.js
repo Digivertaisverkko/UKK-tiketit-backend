@@ -140,7 +140,6 @@ module.exports = {
     INNER JOIN core.profiili t \
     ON t.id = ko.profiili \
     WHERE ko.kurssi=$1 AND t.id=$2';
-
     return connection.queryOne(query, [courseid, userid]);
   },
 

@@ -10,6 +10,7 @@ const CourseWrites = require('./coursewrites.js');
 const ProfileReads = require('./profilereads.js');
 const ProfileWrites = require('./profilewrites.js');
 const PublicMethods = require('./publicmethods.js');
+const LoginMethods = require('./loginmethods.js');
 
 const TicketReads = require('./ticketreads.js');
 const TicketWrites = require('./ticketwrites.js');
@@ -24,11 +25,18 @@ const coursewrites = new CourseWrites();
 const profilereads = new ProfileReads();
 const profilewrites = new ProfileWrites();
 const commentWrites = new CommentWrites();
+const loginMethods = new LoginMethods();
 
 module.exports = {
 
   authenticatedUser: function(request) {
     return auth.authenticatedUser(request);
+  },
+
+  loginMethods: function() {
+    return new Promise(function(resolve, reject) {
+      return resolve({ userid: undefined, methods: loginMethods });
+    });
   },
 
   publicMethods: function() {
