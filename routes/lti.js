@@ -25,21 +25,17 @@ router.post('/1p1/start/', function(req, res, next) {
     return handle.methods.handleUnsureLti1p1Login(req, req.body);
   })
   .then((results) => {
-    console.log(3);
     if (results.accountExists) {
-      console.log(4);
       console.dir(req.body);
       console.dir(results);
       let locale = req.body.launch_presentation_locale;
       return redirect.redirectToCoursePage(res, locale, results.courseId);
     } else {
-      console.log(5);
       let locale = req.body.launch_presentation_locale;
       return redirect.redirectToGdprPage(res, locale, results.storageId);
     }
   })
   .catch((error) => {
-    console.log('6 ' + error);
     errorFactory.createError(res, error);
   });
 });
