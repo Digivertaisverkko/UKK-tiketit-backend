@@ -90,6 +90,10 @@ class LoginMethods {
     });
   }
 
+  handleGdprRejection(httpRequest, storageId) {
+    return sql.users.deleteStoredLtiToken(storageId);
+  }
+
 
 }
 

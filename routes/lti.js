@@ -63,5 +63,23 @@ router.post('/gdpr-lupa-ok/', function(req, res, next) {
   });
 });
 
+router.post('/gdpr-lupa-kielto/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'lupa-id', type: 'string'}
+  ])
+  .then(() => {
+    return access.loginMethods();
+  })
+  .then((handle) => {
+    return handle.methods.handleGdprRejection(req, req.body['lupa-id']);
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
+});
+
 
 module.exports = router;
