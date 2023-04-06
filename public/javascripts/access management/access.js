@@ -35,7 +35,7 @@ module.exports = {
 
   loginMethods: function() {
     return new Promise(function(resolve, reject) {
-      return resolve({ userid: undefined, methods: loginMethods });
+      return resolve({ methods: loginMethods });
     });
   },
 

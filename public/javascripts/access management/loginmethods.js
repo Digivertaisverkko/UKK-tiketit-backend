@@ -94,7 +94,35 @@ class LoginMethods {
   }
 
   handleGdprRejection(httpRequest, storageId) {
-    return sql.users.deleteStoredLtiToken(storageId);
+    return sql.users.getStoredLtiToken(storageId)
+    .then((tokenData) => {
+      let contextId;
+      let clientId;
+      if (tokenData.lti_versio === '1.1') {
+        contextId = tokenData.token.context_id;
+        clientId = tokenData.token.lis_outcome_service_url
+      } else if (tokenData.lti_versio === '1.3') {
+        contextId = tokenData.token.platformContext.contextId;
+        clientId = tokenData.token.clientId;
+      }
+      return sql.courses.getLtiCourseInfo(clientId, contextId);
+    })
+    .then((courseDataList) => {
+      return sql.users.deleteStoredLtiToken(storageId)
+      .then(() => {
+        let courseExists;
+        let courseId;
+        if (courseDataList && courseDataList.length > 0) {
+          courseExists = true;
+          console.dir(courseDataList);
+          courseId = courseDataList[0].id;
+        } else {
+          courseExists = false;
+          courseId = null;
+        }
+        return { courseExists: courseExists, courseId: courseId };
+      })
+    });
   }
 
 
