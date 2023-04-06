@@ -25,21 +25,17 @@ router.post('/1p1/start/', function(req, res, next) {
     return handle.methods.handleUnsureLti1p1Login(req, req.body);
   })
   .then((results) => {
-    console.log(3);
     if (results.accountExists) {
-      console.log(4);
       console.dir(req.body);
       console.dir(results);
       let locale = req.body.launch_presentation_locale;
       return redirect.redirectToCoursePage(res, locale, results.courseId);
     } else {
-      console.log(5);
       let locale = req.body.launch_presentation_locale;
       return redirect.redirectToGdprPage(res, locale, results.storageId);
     }
   })
   .catch((error) => {
-    console.log('6 ' + error);
     errorFactory.createError(res, error);
   });
 });
@@ -57,6 +53,24 @@ router.post('/gdpr-lupa-ok/', function(req, res, next) {
   })
   .then((data) => {
     res.send({ success: true, kurssi: data.courseId });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
+});
+
+router.post('/gdpr-lupa-kielto/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'lupa-id', type: 'string'}
+  ])
+  .then(() => {
+    return access.loginMethods();
+  })
+  .then((handle) => {
+    return handle.methods.handleGdprRejection(req, req.body['lupa-id']);
+  })
+  .then(() => {
+    res.send({ success: true });
   })
   .catch((error) => {
     errorFactory.createError(res, error);

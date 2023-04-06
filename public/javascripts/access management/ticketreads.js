@@ -124,8 +124,19 @@ class TicketReads {
     });
   }
 
-  isTicketArchivable(ticketId) {
-    return sql.tickets.getTicketStates([ticketId])
+  isTicketArchivable(ticketId, userId) {
+    return sql.tickets.getTicket(ticketId)
+    .then((ticketData) => {
+      return sql.courses.getUserInfoForCourse(userId, ticketData.kurssi);
+    })
+    .then((userInfo) => {
+      if (userInfo.asema === 'opiskelija') {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
+    })
+    .then(() => {
+      return sql.tickets.getTicketStates([ticketId]);
+    })
     .then((ticketStateList) => {
       let states = arrayTools.extractAttributes(ticketStateList, 'tila');
       if (states.includes(TicketState.resolved) || states.includes(TicketState.commented)) {

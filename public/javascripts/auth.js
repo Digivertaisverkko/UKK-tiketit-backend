@@ -6,7 +6,6 @@ const ltiparser = require('./ltiparser');
 const lti = require('ims-lti');
 const { env } = require('process');
 const errorcodes = require('./errorcodes.js');
-const { connect } = require('http2');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -138,11 +137,8 @@ module.exports = {
     let storedProfileId;
     let storedCourseId;
 
-    console.log(11);
-
     return sql.users.getLtiUser(clientid, userid)
     .then((userList) => {
-      console.log(12);
       if (userList.length == 0) {
         return sql.users.createLtiUser(username, email, clientid, userid);
       } else if (userList[0].nimi !== username || userList[0].sposti !== email) {
@@ -155,12 +151,10 @@ module.exports = {
       }
     })
     .then((profileid) => {
-      console.log(13);
       storedProfileId = profileid;
       return sql.courses.getAndCreateLtiCourse(coursename, clientid, contextid);
     })
     .then((courseid) => {
-      console.log(14);
       storedCourseId = courseid;
       return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
       .then((userInfo) => {
@@ -179,11 +173,9 @@ module.exports = {
       });
     })
     .then(() => {
-      console.log(15);
       return module.exports.regenerateSession(httpRequest, storedProfileId);
     })
     .then(() => {
-      console.log(16);
       return {"profiili": storedProfileId, "kurssi": storedCourseId};
     });
   },

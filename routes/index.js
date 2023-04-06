@@ -19,6 +19,7 @@ const fs = require('fs');
 const { sendMailNotifications } = require('../public/javascripts/mailer.js');
 const { profile } = require('console');
 var session = require('express-session');
+const timedJobs = require('../public/javascripts/timedJobs.js');
 
 router.use(express.json());
 
@@ -390,6 +391,16 @@ router.get('/tiketti/:ticketid/kooste', function(req, res, next) {
   access.readTicket(req, ticketid)
   .then((handle) => {
     return handle.methods.getTicketMetadata(handle.userid, ticketid);
+  })
+});
+
+router.post('/testiarkisto', function(req, res, next) {
+  timedJobs.archiveOldTickets()
+  .then(() => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
   })
 });
 

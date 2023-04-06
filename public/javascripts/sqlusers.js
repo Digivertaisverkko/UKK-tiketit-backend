@@ -40,18 +40,23 @@ module.exports = {
     });
   },
 
-  temporarilyStoreLtiToken(token, version, storageId) {
+  temporarilyStoreLtiToken: function(token, version, storageId) {
     const query = 'INSERT INTO core.lti_tilipyynto (id, lti_versio, token) VALUES ($1, $2, $3)';
     return connection.queryNone(query, [storageId, version, JSON.stringify(token)]);
   },
 
-  getStoredLtiToken(storageId) {
+  getStoredLtiToken: function(storageId) {
     const query = 'SELECT * FROM core.lti_tilipyynto WHERE id=$1';
     return connection.queryOne(query, [storageId])
     .then((tokenData) => {
       tokenData.token = JSON.parse(tokenData.token);
       return tokenData;
     });
+  },
+
+  deleteAllStoredLtiTokens: function() {
+    const query = 'DELETE FROM core.lti_tilipyynto';
+    return connection.queryNone(query);
   },
 
   deleteStoredLtiToken(storageId) {

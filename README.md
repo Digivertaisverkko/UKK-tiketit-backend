@@ -120,6 +120,24 @@ Lisäksi, jos lti:n kautta kirjautuu käyttäjä, jolla ei ole jo tiliä valmiik
 }
 ```
 
+### /lti/gdpr-lupa-kielto
+Poistaa välitilaan jääneen luvan. Luvat poistetaan myös ajastetusti, jos käyttäjä ei ekspiliittisesti lupaa kiellä.
+#### POST
+[**Vaaditut oikeudet:**](#oikeuksienhallinta) Julkinen luku
+##### Lähetä:
+```
+{
+  lupa-id: $string
+}
+```
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+
 
 ## Sisäänkirjautumisen rajapinta 
 
