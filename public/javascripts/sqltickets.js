@@ -384,17 +384,13 @@ module.exports = {
   setStateToTicketList: function(ticketIdList, state) {
     let promises = [];
     ticketIdList.sort();
-    console.log(ticketIdList);
     for (ticketIndex in ticketIdList) {
       const query = '\
       INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
       VALUES ($1, $2, NOW()) \
       RETURNING tiketti';
       
-      let promise = connection.queryOne(query, [ticketIdList[ticketIndex], state])
-      .then((ticket) => {
-        console.log('Arkistoitiin tiketti ' + ticket.tiketti);
-      });
+      let promise = connection.queryOne(query, [ticketIdList[ticketIndex], state]);
       promises.push(promise);
     }
     return Promise.all(promises);

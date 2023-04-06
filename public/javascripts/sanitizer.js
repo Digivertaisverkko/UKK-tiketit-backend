@@ -138,7 +138,7 @@ function checkObjectForRequirements(object, requirementsList) {
         if (requirement.optional == true) {
           return;
         } else {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> puuttuu.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> puuttuu.');
           success = false;
           return;
         }
@@ -146,37 +146,37 @@ function checkObjectForRequirements(object, requirementsList) {
 
       //Tarkista arvo
       if (requirement.value && requirement.value.includes(value) == false) {
-        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> Huono arvo.');
+        console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> Huono arvo.');
         success = false;
       }
       
       //Tarkista tyyppi
       if (requirement.type && typeof value !== requirement.type) {
-        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + 
+        console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + 
                     JSON.stringify(requirement) + ' -> Väärä tyyppi <' + typeof value + '>.');
         success = false;
       }
 
       if (requirement.regex && requirement.regex.test(value) == false) {
-        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> regex');
+        console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> regex');
         success = false;
       }
 
       //Tarkista koko
       if (typeof value === 'number') {
         if (requirement.max != null && value > requirement.max) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
           success = false;
         } else if (requirement.min && value < requirement.min) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
           success = false;
         }
       } else {
         if (requirement.max && value.length > requirement.max) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
           success = false;
         } else if (requirement.min && value.length < requirement.min) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
           success = false;
         }
       }

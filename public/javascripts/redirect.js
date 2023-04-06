@@ -19,7 +19,6 @@ module.exports = {
 
     let url = new URL(path.join(coursePath, courseId.toString(), 'list-tickets'), process.env.LTI_REDIRECT);
     url.searchParams.append('lang', language);
-    console.log(url.toString());
     return url;
   },
 

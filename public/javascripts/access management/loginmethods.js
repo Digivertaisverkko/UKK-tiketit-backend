@@ -18,11 +18,9 @@ class LoginMethods {
         let storageId = crypto.randomUUID();
         return sql.users.temporarilyStoreLtiToken(reqBody, '1.1', storageId)
         .then(() => {
-          console.log('0a');
           return { accountExists: false, storageId: storageId };
         });
       } else {
-        console.log('0b');
         return this.handleAcceptedLti1p1Login(httpRequest, reqBody);
       }
     });
@@ -38,11 +36,8 @@ class LoginMethods {
     let coursename  = reqBody.context_title;
     let courseroles = reqBody.roles.split(',');
 
-    console.log(1);
-
     return auth.ltiLogin(httpRequest, userid, contextid, clientid, username, email, coursename, courseroles)
     .then((logindata) => {
-      console.log(2);
       return { accountExists: true, courseId: logindata.kurssi };
     });
   }
