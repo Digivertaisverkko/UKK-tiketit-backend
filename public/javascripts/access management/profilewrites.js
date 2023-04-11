@@ -69,6 +69,12 @@ class ProfileWrites extends ProfileReads {
     })
   }
 
+
+  updateUserSettings(userId, emailNotification, emailAggregate, emailFeedback) {
+    return sql.users.updateUserProfileSettings(userId, emailNotification, 
+                                               emailAggregate, emailFeedback);
+  }
+
 }
 
 module.exports = ProfileWrites;

@@ -114,7 +114,18 @@ module.exports = {
   createEmptyUser: function(name, email) {
     const query = 'INSERT INTO core.profiili (nimi, sposti) VALUES ($1, $2) RETURNING id';
     return connection.queryOne(query, [name, email])
-    .then((sqldata) => { return sqldata.id });
+    .then((sqldata) => {
+      return module.exports.createEmptyProfileSettings(sqldata.id)
+      .then(() => {
+        return sqldata.id;
+      });
+    });
+  },
+
+  createEmptyProfileSettings: function(userid) {
+    const query = 'INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute) \
+    VALUES ($1, false, false, false)';
+    return connection.queryNone(query, [userid]);
   },
 
   createAccount: function(username, passwordhash, salt, userid) {
@@ -144,12 +155,30 @@ module.exports = {
     return connection.queryOne(query, [userid]);
   },
 
+  getUserProfileSettings: function(userid) {
+    const query = 'SELECT * from core.profiiliasetukset WHERE profiili=$1';
+    return connection.queryOne(query, [userid]);
+  },
+
   updateUserProfile: function(userid, newName, newEmail) {
     const query = '\
     UPDATE core.profiili \
     SET nimi=$1, sposti=$2 \
     WHERE id=$3';
     return connection.queryNone(query, [newName, newEmail, userid]);
+  },
+
+  updateUserProfileSettings: function(userid, emailNotification, emailAggregate, emailFeedback) {
+    const query = '\
+    INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute) \
+    VALUES ($1, $2, $3, $4) \
+    ON CONFLICT (profiili) \
+    DO \
+    UPDATE SET sposti_ilmoitus = EXCLUDED.sposti_ilmoitus, \
+               sposti_kooste   = EXCLUDED.sposti_kooste, \
+               sposti_palaute  = EXCLUDED.sposti_palaute';
+    return connection.queryNone(query, [userid, emailNotification, 
+                                        emailAggregate, emailFeedback]);
   },
 
   removeProfile: function(profileid) {

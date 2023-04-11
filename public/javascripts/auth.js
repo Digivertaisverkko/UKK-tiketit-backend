@@ -187,7 +187,6 @@ module.exports = {
 
   authenticatedUser: function(httpRequest) {
     return new Promise(function(resolve, reject) {
-      console.dir(httpRequest.session);
       if (httpRequest.session.profiili) {
         return resolve(httpRequest.session.profiili);
       } else {

@@ -166,6 +166,46 @@ router.get('/minun/', function(req, res, next) {
   });
 });
 
+router.get('/minun/asetukset/', function(req, res, next) {
+  auth.authenticatedUser(req)
+  .then((userid) => {
+    return access.readProfile(req, userid);
+  })
+  .then((handle) => {
+    console.dir(handle);
+    return handle.methods.getProfileSettings(handle.userid);
+  })
+  .then((settings) => {
+    res.send(settings);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
+router.post('/minun/asetukset/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'sposti_ilmoitus', type: 'boolean'},
+    {key: 'sposti_kooste',  type: 'boolean'},
+    {key: 'sposti_palaute', type: 'boolean'}
+  ])
+  .then(() => {
+    return access.authenticatedUser(req);
+  })
+  .then((userid) => {
+    return access.writeProfile(req, userid);
+  })
+  .then((handle) => {
+    return handle.methods.updateUserSettings(handle.userid, req.body['sposti_ilmoitus'], req.body['sposti_kooste'], req.body['sposti_palaute']);
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
 router.get('/minun/gdpr/', function(req, res, next) {
   access.authenticatedUser(req)
   .then((userid) => access.writeProfile(req, userid))

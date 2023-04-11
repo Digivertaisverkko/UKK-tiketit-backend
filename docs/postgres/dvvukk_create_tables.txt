@@ -149,7 +149,8 @@ FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 CREATE TABLE core.lti_tilipyynto (
 id VARCHAR(36) NOT NULL,
 lti_versio VARCHAR(5) NOT NULL,
-token TEXT NOT NULL
+token TEXT NOT NULL,
+PRIMARY KEY (id)
 );
 
 CREATE TABLE core.keksisalaisuus (
@@ -159,14 +160,18 @@ PRIMARY KEY (salaisuus)
 );
 
 CREATE TABLE core.profiiliasetukset (
-spostiilmoitus BOOL NOT NULL,
-spostikooste BOOL NOT NULL,
-spostimarkkinointi BOOL NOT NULL
+profiili INT NOT NULL,
+sposti_ilmoitus BOOL NOT NULL,
+sposti_kooste BOOL NOT NULL,
+sposti_palaute BOOL NOT NULL,
+PRIMARY KEY (profiili),
+FOREIGN KEY (profiili) REFERENCES core.profiili(id)
 );
 
 CREATE TABLE core.lti_client (
 key VARCHAR(36) NOT NULL,
-secret VARCHAR(36) NOT NULL
+secret VARCHAR(36) NOT NULL,
+PRIMARY KEY (key)
 );
 
 CREATE TABLE core.session (

@@ -250,6 +250,37 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
 }
 ```
 
+### /api/minun/asetukset/
+#### GET
+[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin luku
+**HUOM!** Epästandardi muotoilu
+##### Vastaus:
+```
+{
+  sposti_ilmoitus: $bool
+  sposti_kooste: $bool
+  sposti_palaute: $bool
+}
+```
+
+#### POST
+[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
+**HUOM!** Epästandardi muotoilu
+##### Lähetä:
+```
+{
+  sposti_ilmoitus: $bool
+  sposti_kooste: $bool
+  sposti_palaute: $bool
+}
+```
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
 ### /api/minun/gdpr/
 #### GET
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
