@@ -37,15 +37,15 @@ TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus: tilapäinen, siirr
 LTI_CHECK_SIGNATURE=[Tarkistetaanko LTI-yhteyksissä signaturea, vai hyväksytäänkö yhteys pelkällä kuluttaja-avaimella]
 COOKIE_SECRET=[Kryptografinen salaisuus, jolla allekirjoitetaan sivuston lähettämät evästeet]
 ATTACHMENT_DIRECTORY=[Polku siihen tiedostoon, jossa liitteet säilytetään. Polku suhteessa aktiiviseen kansioon.]
-FRONTEND_DIRECTORY=[Polku kansioon, jossa on käännetyt frontin tiedostot (oletuksena ./UKK-tiketit/dist/tikettisysteemi/)]
+FRONTEND_DIRECTORY=[Polku kansioon, jossa on käännetyt frontin tiedostot (oletuksena ./static/)]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 SMTP_USERNAME=[käytetyn SMTP palvelun käyttäjänimi]
 SMTP_PASSWORD=[käytetyn SMTP palvelun salasana]
 ```
 
-- Aja komento ```npm install```
+- Aja komento ```npm ci```
 
-- Lataa submodulet 
+- Lataa submodule, joka sisältää frontendin [lähdekoodin] (https://www.github.com/Digivertaisverkko/UKK-tiketit) 
 ```
 git submodule init
 git submodule update
@@ -53,15 +53,14 @@ git submodule update
 
 - Käännä submodulessa oleva frontendin koodi
 ```
-cd UKK-tiketit
-ng build
+npm run build:ui
 ```
 
-- Aja komento ```node app.js```
+- Aja komento ```npm run start```
 
 Jos tarvitset enemmän debug infoa ltijs:ltä, niin aja seuraava komento:
 ```DEBUG='provider:*' node app.js```
-1
+
 ## Integroiminen Moodleen
 
 Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen ominaisuus mahdollistaa sen, että ulkoisen työkalun integroiminen Moodleen onnistuu syöttämällä työkalun rekisteröintilinkin Moodleen. Tämä tapahtuu seuraavalla tavalla:

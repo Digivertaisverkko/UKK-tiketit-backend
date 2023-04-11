@@ -30,7 +30,7 @@ const access = require('./public/javascripts/access management/access.js')
 app.use(cors());
 
 const port = process.env.PORT || 3000;
-const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
+const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/static/';
 
 
 var cookieSecret = [process.env.COOKIE_SECRET];
