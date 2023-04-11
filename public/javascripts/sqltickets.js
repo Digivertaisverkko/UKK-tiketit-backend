@@ -343,12 +343,12 @@ module.exports = {
     .then((sqldata) => { return sqldata.id; });
   },
 
-  updateComment: function(commentid, content) {
+  updateComment: function(commentid, content, state) {
     const query = '\
     UPDATE core.kommentti \
-    SET viesti=$1 \
-    WHERE id=$2';
-    return connection.queryNone(query, [content, commentid]);
+    SET viesti=$1, tila=COALESCE($2, tila) \
+    WHERE id=$3';
+    return connection.queryNone(query, [content, state, commentid]);
   },
 
   updatePrefilledAnswer: function(userid, fieldId, value) {

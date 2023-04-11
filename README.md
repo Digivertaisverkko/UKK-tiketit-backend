@@ -795,13 +795,13 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 Tällä rajapinnalla voi lueskella ja muokata yksittäistä kommenttia.
 #### PUT
 [**Vaaditut oikeudet:**](#oikeuksienhallinta) Kommenttikirjoitus
-Muokkaa kirjoitetun kommentin viestiä.
-Tähän on pääsy vain kommentin alkuperäisellä kirjoittajalla.
+Muokkaa kirjoitetun kommentin viestiä ja tilaa.
 ##### Lähetä:
 ```
 - body -
 {
   viesti: $string
+  tila: $int (valinnainen)
 }
 ```
 

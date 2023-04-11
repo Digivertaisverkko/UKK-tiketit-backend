@@ -456,14 +456,18 @@ router.post('/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 
 // '/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id' PUT
 router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
-  sanitizer.hasRequiredParameters(req, ['viesti'])
+  sanitizer.test(req.body, [
+    { key: 'viesti', type: 'string' },
+    { key: 'tila',   type: 'number', optional: true }
+  ])
   .then(() => {
     return access.writeComment(req, req.params.ticketid, req.params.commentid)
   })
   .then((handle) => {
     let commentid = req.params.commentid;
     let viesti = req.body.viesti;
-    return handle.methods.updateCommentText(commentid, viesti);
+    let tila = req.body.tila;
+    return handle.methods.updateCommentText(commentid, viesti, tila);
   })
   .then(() => {
     res.send({ success: true });

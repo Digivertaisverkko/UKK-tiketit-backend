@@ -50,21 +50,21 @@ module.exports = {
 
   /**
    * Tarkistaa täyttääkö annettu olio annetut ehdot. Voi antaa useamman ehdon, ja ehdot ovat moninaisia.
+   * Vaatimuksissa voi olla seuraavat attribuutit:
+   * - key      - $string   - Olion attribuutin avain.
+   * - keyPath  - [$string] - Olion attribuutin avain, voi käyttää, jos olio sisältää aliolioita. Jos keyPath on määritelty, niin key ei tee mitään.
+   * - value    - [$any]    - Taulukko hyväksytyistä arvoista. 
+   * - type     - $string   - Olion attribuutin tyyppi.
+   * - max      - $int      - Joko merkkijonon maksimipituus, tai luvun suurin sallittu koko. 
+   * - min      - $int      - Joko merkkijonon minimipituus, tai luvun pienin sallittu koko.
+   * - regex    - $RegExp   - Regular expression, joka muuttujan pitää täyttää.
+   * - optional - $bool     - Haittaako, jos attribuuttia ei löydy.
    * 
    * @param object Olio, jonka ominaisuudet tarkistetaan.
    * @param requirementsList Lista vaatimuksista, jotka oliolta tarkistetaan. Vain määritellyt attribuutit tarkistetaan.
    *  Jokainen taulukon alkio viittaa yhteen olion avaimeen.
    * @returns Promise, joka resolvaa onnistuessaan ja rejectaa jos vaatimukset ei päde.
-   * 
-   * Vaatimuksissa voi olla seuraavat attribuutit:
-   * key      - $string   - Olion attribuutin avain.
-   * keyPath  - [$string] - Olion attribuutin avain, voi käyttää, jos olio sisältää aliolioita. Jos keyPath on määritelty, niin key ei tee mitään.
-   * value    - [$any]    - Taulukko hyväksytyistä arvoista. 
-   * type     - $string   - Olion attribuutin tyyppi.
-   * max      - $int      - Joko merkkijonon maksimipituus, tai luvun suurin sallittu koko. 
-   * min      - $int      - Joko merkkijonon minimipituus, tai luvun pienin sallittu koko.
-   * regex    - $RegExp   - Regular expression, joka muuttujan pitää täyttää.
-   * optional - $bool     - Haittaako, jos attribuuttia ei löydy.
+   *
    */
   test: function(object, requirementList) {
     return new Promise(function(resolve, reject) {
