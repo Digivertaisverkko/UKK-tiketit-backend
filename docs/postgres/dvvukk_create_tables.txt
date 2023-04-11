@@ -158,6 +158,17 @@ vanhenee TIMESTAMPTZ NOT NULL,
 PRIMARY KEY (salaisuus)
 );
 
+CREATE TABLE core.profiiliasetukset (
+spostiilmoitus BOOL NOT NULL,
+spostikooste BOOL NOT NULL,
+spostimarkkinointi BOOL NOT NULL
+)
+
+CREATE TABLE core.lti_client (
+key VARCHAR(36) NOT NULL,
+secret VARCHAR(36) NOT NULL
+)
+
 CREATE TABLE core.session (
   "sid" varchar NOT NULL COLLATE "default",
   "sess" json NOT NULL,
