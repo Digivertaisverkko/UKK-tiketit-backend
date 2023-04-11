@@ -71,7 +71,6 @@ class LoginMethods {
   handleGdprAcceptance(httpRequest, storageId) {
     return sql.users.getStoredLtiToken(storageId)
     .then((tokenData) => {
-      console.dir(tokenData);
       if (tokenData.lti_versio === '1.1') {
         return this.handleAcceptedLti1p1Login(httpRequest, tokenData.token);
       } else if (tokenData.lti_versio === '1.3') {
