@@ -109,7 +109,6 @@ class LoginMethods {
         let courseId;
         if (courseDataList && courseDataList.length > 0) {
           courseExists = true;
-          console.dir(courseDataList);
           courseId = courseDataList[0].id;
         } else {
           courseExists = false;

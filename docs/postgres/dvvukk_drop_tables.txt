@@ -2,6 +2,7 @@
 -- HUOM: Muokkaa käyttäjänimeä ja tietokannan nimeä tarvittaessa!
 -- $ sudo -u postgres psql -d "dvvukk"
 
+DROP TABLE core.keksisalaisuus;
 DROP TABLE core.liite;
 DROP TABLE core.lti_tilipyynto;
 DROP TABLE core.kurssinosallistujat;

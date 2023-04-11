@@ -6,6 +6,7 @@ const ltiparser = require('./ltiparser');
 const lti = require('ims-lti');
 const { env } = require('process');
 const errorcodes = require('./errorcodes.js');
+const connection = require('./connection.js');
 
 var authsBySession = new Object();
 var sessionsByLogin = new Object();
@@ -186,12 +187,29 @@ module.exports = {
 
   authenticatedUser: function(httpRequest) {
     return new Promise(function(resolve, reject) {
+      console.dir(httpRequest.session);
       if (httpRequest.session.profiili) {
         return resolve(httpRequest.session.profiili);
       } else {
         return reject(errorcodes.notSignedIn);
       }
     });
+  },
+
+  createNewCookieSecret: function() {
+    let uuid = crypto.randomUUID();
+    const query = '\
+    INSERT INTO core.keksisalaisuus (salaisuus, vanhenee) \
+    VALUES ($1, NOW() + interval \'7 days\')';
+    return connection.queryNone(query, [uuid]);
+  },
+
+  getAcceptedCookieSecrets: function() {
+    const query ='\
+    SELECT * FROM core.keksisalaisuus \
+    WHERE vanhenee > NOW() \
+    ORDER BY vanhenee';
+    return connection.query(query);
   },
 
 

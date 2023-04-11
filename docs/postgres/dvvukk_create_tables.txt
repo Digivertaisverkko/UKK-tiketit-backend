@@ -152,7 +152,7 @@ lti_versio VARCHAR(5) NOT NULL,
 token TEXT NOT NULL
 );
 
-CREATE TABLE keksisalaisuus (
+CREATE TABLE core.keksisalaisuus (
 salaisuus VARCHAR(36) NOT NULL,
 vanhenee TIMESTAMPTZ NOT NULL,
 PRIMARY KEY (salaisuus)

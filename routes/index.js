@@ -29,7 +29,6 @@ router.post('/login/', function(req, res, next) {
   let logintype = req.header('login-type');
   let codeChallenge = req.header('code-challenge');
   let courseId = req.header('kurssi');
-  console.dir(req.headers);
   sanitizer.test(req.headers, [
     {key: 'login-type', type:'string'},
     {key: 'code-challenge', type: 'string'},

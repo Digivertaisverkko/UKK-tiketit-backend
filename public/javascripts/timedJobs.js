@@ -3,6 +3,7 @@
 
 const sql = require('../../routes/sql');
 const arrayTools = require('./arrayTools.js');
+const auth = require('./auth');
 const TicketState = require('./ticketstate');
 
 module.exports = {
@@ -20,7 +21,6 @@ module.exports = {
         let time = new Date(ticket.aika);
         return time.getTime() < now - twoWeeks;
       });
-      console.dir(oldTickets);
       oldTickets = arrayTools.extractAttributes(oldTickets, 'tiketti');
       return sql.tickets.setStateToTicketList(oldTickets, TicketState.archived);
 
@@ -29,6 +29,16 @@ module.exports = {
 
   deletePendingLtiLogins: function() {
     return sql.users.deleteAllStoredLtiTokens();
+  },
+
+  refreshCookieSecrets: function() {
+    return auth.createNewCookieSecret()
+    .then(() => {
+      return auth.getAcceptedCookieSecrets();
+    })
+    .then((secretsData) => {
+      return arrayTools.extractAttributes(secretsData, 'salaisuus');
+    });
   }
 
 }

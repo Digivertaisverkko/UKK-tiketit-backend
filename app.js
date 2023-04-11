@@ -32,9 +32,25 @@ app.use(cors());
 const port = process.env.PORT || 3000;
 const frontendDirectory = process.env.FRONTEND_DIRECTORY || __dirname + '/UKK-tiketit/dist/tikettisysteemi/';
 
+
+var cookieSecret = [process.env.COOKIE_SECRET];
+updateCookieSecret()
+.then(() => {
+  setupApp();
+})
+
+function updateCookieSecret() {
+  return timedJobs.refreshCookieSecrets()
+  .then((secrets) => {
+    cookieSecret.length = 0;
+    cookieSecret.push(...secrets);
+  })
+}
+
 cron.schedule('0 4 * * *', () => {
   timedJobs.archiveOldTickets();
   timedJobs.deletePendingLtiLogins();
+  updateCookieSecret();
 });
 
 const sessionStoreManager = new pgSessionStore({
@@ -44,28 +60,54 @@ const sessionStoreManager = new pgSessionStore({
   // Insert connect-pg-simple options here
 })
 
-app.use(logger('dev'));
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser(process.env.COOKIE_SECRET));
+function setupApp() {
+  app.use(logger('dev'));
+  app.use(express.urlencoded({ extended: false }));
+  app.use(cookieParser(cookieSecret));
+
+  const day = 86400000;
+  //app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
+  app.use(express_session({
+    secret: cookieSecret,
+    resave: false,
+    store: sessionStoreManager,
+    saveUninitialized: false,
+    //proxy: true,
+    rolling: true,
+    cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 /*, secure: true*/ }
+  }));
+
+  app.use('/api', indexRouter);
+  app.use('/lti', ltiRouter);
+  app.use('/users', usersRouter);
+  app.use('/api', filesRouter);
+  app.use('/', express.static(frontendDirectory));
+
+  // Mount Ltijs express app into preexisting express app with /lti prefix
+  app.use('/lti/1p3', lti.app);
 
 
-const day = 86400000;
-//app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
-app.use(express_session({
-  secret: process.env.COOKIE_SECRET,
-  resave: false,
-  store: sessionStoreManager,
-  saveUninitialized: false,
-  //proxy: true,
-  rolling: true,
-  cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 /*, secure: true*/ }
-}));
+  // Routaa Angularin mukaan
+  app.get('*', function(req, res, next) {
+    let path = frontendDirectory + 'index.html';
+    res.sendFile(path, function (err) {
+      next(createError(404));
+    });
+  });
 
-app.use('/api', indexRouter);
-app.use('/lti', ltiRouter);
-app.use('/users', usersRouter);
-app.use('/api', filesRouter);
-app.use('/', express.static(frontendDirectory));
+  // error handler
+  app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // send error status
+    res.status(err.status || 500);
+  });
+
+  app.listen(port);
+}
+
 
 // Setup ltijs
 const setupLti = async () => {
@@ -118,28 +160,5 @@ const setupLti = async () => {
 setupLti();
 
 
-// Mount Ltijs express app into preexisting express app with /lti prefix
-app.use('/lti/1p3', lti.app);
-
-
-// Routaa Angularin mukaan
-app.get('*', function(req, res, next) {
-  let path = frontendDirectory + 'index.html';
-  res.sendFile(path, function (err) {
-    next(createError(404));
-  });
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // send error status
-  res.status(err.status || 500);
-});
-
-app.listen(port);
 
 module.exports = app;
