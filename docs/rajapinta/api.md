@@ -5,6 +5,12 @@ Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihi
 
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
+## Sisällysluettelo
+- [Sisäänkirjautimisrajapinta](#sisäänkirjautumisen-rajapinta)
+- [Kurssirajapinta](#kurssien-rajapinta)
+- [Tikettirajapinta](#tikettien-rajapinta)
+- [Erikoisarvot](#erikoisarvot)
+
 
 ## LTI-rajapinta
 DVVUKK-backend on LTI-työkalu (tool), tai vanhaa terminologiaa käyttäen tarjoaja (provider). Työkalu tukee sekä 1.1, että 1.3 LTI-standardia. Kumpaakin standardia varten on omat rajapintansa, joihin pitää tarvittaessa ottaa yhteyttä. Näihin rajapintoihin ei ole tarkoitus ottaa yhteyttä muussa tapauksessa kuin LTI:n kautta, ja olettavan kommunikoinnin olevan LTI-standardin mukaista.

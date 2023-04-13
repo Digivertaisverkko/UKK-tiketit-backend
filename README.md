@@ -4,12 +4,10 @@ Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoite
 
 ## Sisällysluettelo
 - [Backendin ajaminen](#backendin-ajaminen)
-- [Rajapinnan määritelmä](#rest-rajapinnan-määritelmä)
-    - [Sisäänkirjautimisrajapinta](#sisäänkirjautumisen-rajapinta)
-    - [Kurssirajapinta](#kurssien-rajapinta)
-    - [Tikettirajapinta](#tikettien-rajapinta)
-- [Lähetetyt erikoisarvot](#erikoisarvot)
-- [Virhetilat](#virhetilat)
+- [Rajapinnan määritelmä](/docs/rajapinta/api.md)
+    - [Lähetetyt erikoisarvot](/docs/rajapinta/api.md#erikoisarvot)
+- [Virhetilat](/docs/rajapinta/virhe.md)
+- [Oikeuksienhallinta](/docs/rajapinta/oikeudet.md)
 
 
 # Backendin ajaminen
