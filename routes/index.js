@@ -516,6 +516,19 @@ router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   })
 });
 
+router.delete('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
+  access.writeComment(req, req.params.ticketid, req.params.commentid)
+  .then((handle) => {
+    return handle.methods.deleteComment(req.params.commentid);
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
 router.post('/tiketti/:ticketid/valmis', function(req, res, next) {
   access.readTicket(req, req.params.ticketid)
   .then((handle) => {

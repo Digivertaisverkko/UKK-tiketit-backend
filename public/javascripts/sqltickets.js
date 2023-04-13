@@ -278,6 +278,11 @@ module.exports = {
     })
   },
 
+  deleteComment(commentId) {
+    const query = 'DELETE FROM core.kommentti WHERE id=$1';
+    return connection.queryNone(query, [commentId]);
+  },
+
   deleteTicket(ticketid) {
     return module.exports.deleteTickets([ticketid]);
   },

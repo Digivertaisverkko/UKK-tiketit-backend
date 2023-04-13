@@ -842,6 +842,16 @@ Muokkaa kirjoitetun kommentin viestiä ja tilaa.
 }
 ```
 
+### DELETE
+[**Vaaditut oikeudet:**](#oikeuksienhallinta) Kommenttikirjoitus
+Poistaa annetun kommentin, jos se on kirjautuneen käyttäjän luoma.
+#### Vastaus
+```
+{
+  success: true
+}
+```
+
 
 
 ### /api/tiketti/:tiketti-id/kommentit/
