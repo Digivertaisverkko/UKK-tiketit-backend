@@ -1,5 +1,5 @@
 # Oikeuksienhallinta
-Tietokannan eri elementteihin vaaditaan eri oikeuksia. Oikeudet yleensä määrittyy kurssikohtaisesti sen mukaan, onko kirjautunut käyttäjä kurssilla opettaja vai opiskelijana. Joissakin tapauksissa (kuten mm. tikettien muokkaamisessa) oikeuksiin vaikuttaa se, kuka on elementin alkuperäinen luoja.
+Tietokannan eri elementteihin vaaditaan eri oikeuksia. Oikeudet yleensä määrittyy kurssikohtaisesti sen mukaan, onko kirjautunut käyttäjä kurssilla opettaja vai opiskelijana. Joissakin tapauksissa (kuten mm. tikettien muokkaamisessa) oikeuksiin vaikuttaa myös se, kuka on elementin alkuperäinen luoja.
 Toimintoja on kahta sorttia:
 - lukutoimintoja
 - kirjoitustoimintoja (ts. *muokkaustoimintoja*).

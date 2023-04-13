@@ -3,6 +3,8 @@
 
 Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihin lähetettävä HTTP-komento, lähetettävät parametrit ja palautetun vastauksen muoto. Osoitteet on pyritty lajittelemaan loogisesti ja samanlaiset komennot vieretysten.
 
+Virhetilojen sattuessa rajapinta palauttaa [virhetaulukon](/docs/rajapinta/virhe.md) mukaisen virheen.
+
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 ## Sisällysluettelo
