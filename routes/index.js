@@ -176,7 +176,9 @@ router.get('/minun/asetukset/', function(req, res, next) {
     return handle.methods.getProfileSettings(handle.userid);
   })
   .then((settings) => {
-    res.send(settings);
+    res.send({ 'sposti-ilmoitus': settings.sposti_ilmoitus,
+               'sposti-kooste':   settings.sposti_kooste, 
+               'sposti-palaute':  settings.sposti_palaute });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
@@ -185,9 +187,9 @@ router.get('/minun/asetukset/', function(req, res, next) {
 
 router.post('/minun/asetukset/', function(req, res, next) {
   sanitizer.test(req.body, [
-    {key: 'sposti_ilmoitus', type: 'boolean'},
-    {key: 'sposti_kooste',  type: 'boolean'},
-    {key: 'sposti_palaute', type: 'boolean'}
+    {key: 'sposti-ilmoitus', type: 'boolean'},
+    {key: 'sposti-kooste',  type: 'boolean'},
+    {key: 'sposti-palaute', type: 'boolean'}
   ])
   .then(() => {
     return access.authenticatedUser(req);
@@ -196,7 +198,7 @@ router.post('/minun/asetukset/', function(req, res, next) {
     return access.writeProfile(req, userid);
   })
   .then((handle) => {
-    return handle.methods.updateUserSettings(handle.userid, req.body['sposti_ilmoitus'], req.body['sposti_kooste'], req.body['sposti_palaute']);
+    return handle.methods.updateUserSettings(handle.userid, req.body['sposti-ilmoitus'], req.body['sposti-kooste'], req.body['sposti-palaute']);
   })
   .then(() => {
     res.send({ success: true });
