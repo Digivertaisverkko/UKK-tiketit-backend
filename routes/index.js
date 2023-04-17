@@ -20,6 +20,7 @@ const { sendMailNotifications } = require('../public/javascripts/mailer.js');
 const { profile } = require('console');
 var session = require('express-session');
 const timedJobs = require('../public/javascripts/timedJobs.js');
+const TicketState = require('../public/javascripts/ticketstate.js');
 
 router.use(express.json());
 
@@ -499,7 +500,10 @@ router.post('/tiketti/:ticketid/uusikommentti', function(req, res, next) {
 router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   sanitizer.test(req.body, [
     { key: 'viesti', type: 'string' },
-    { key: 'tila',   type: 'number', optional: true }
+    { key: 'tila',   type: 'number', optional: true, 
+          value: [TicketState.infoneeded,
+                  TicketState.commented, 
+                  TicketState.resolved] }
   ])
   .then(() => {
     return access.writeComment(req, req.params.ticketid, req.params.commentid)
