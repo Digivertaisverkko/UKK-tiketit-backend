@@ -119,7 +119,10 @@ module.exports = {
     return module.exports.readTicket(request, ticketId)
     .then((handle) => {
       storedUserId = handle.userid;
-      return sql.tickets.getComment(commentId);
+      return sql.tickets.getComment(commentId)
+      .then((dataList) => {
+        return dataList.length === 0 ? Promise.reject(errorcodes.noResults) : dataList;
+      });
     })
     .then((commentDataList) => {
       let commentData = commentDataList[0];
