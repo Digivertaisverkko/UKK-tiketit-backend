@@ -503,7 +503,8 @@ router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
     { key: 'tila',   type: 'number', optional: true, 
           value: [TicketState.infoneeded,
                   TicketState.commented, 
-                  TicketState.resolved] }
+                  TicketState.resolved] 
+    }
   ])
   .then(() => {
     return access.writeComment(req, req.params.ticketid, req.params.commentid)
