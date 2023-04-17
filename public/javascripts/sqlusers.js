@@ -124,7 +124,7 @@ module.exports = {
 
   createEmptyProfileSettings: function(userid) {
     const query = 'INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute) \
-    VALUES ($1, false, false, false)';
+    VALUES ($1, true, true, false)';
     return connection.queryNone(query, [userid]);
   },
 
