@@ -38,13 +38,27 @@ class CourseWrites extends CourseReads {
         .then((ticketData) => {
           if (ticketData.tila === TicketState.archived) {
             return Promise.reject(errorcodes.operationNotPossible);
-          } else {
-            storedTicketData = ticketData;
-            return this.archiveFaqTicket(ticketid);
           }
         })
         .then(() => {
-          return this.createFaqTicket(storedTicketData.kurssi, storedTicketData.aloittaja, newTitle, newBody, newAnswer, newFields)
+          return sql.tickets.updateTicket(ticketid, newTitle, newFields);
+        })
+        .then(() => {
+          return sql.tickets.getComments(ticketid);
+        })
+        .then((commentList) => {
+          commentList.sort((a, b) => { 
+            if (a.aikaleima < b.aikaleima) {
+              return -1;
+            } else if (a.aikaleima > b.aikaleima) {
+              return 1;
+            }
+            return 0;
+          });
+          return sql.tickets.updateComment(commentList[0].id, newBody, null)
+          .then(() => {
+            return sql.tickets.updateComment(commentList[1].id, newAnswer, null);
+          });
         });
       } else {
         return Promise.reject(errorcodes.operationNotPossible);
