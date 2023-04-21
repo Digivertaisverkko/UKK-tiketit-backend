@@ -118,20 +118,6 @@ router.get('/testi/', function(req, res, next) {
   });
 }); 
 
-router.post('/testiposti/', function (req, res, next) {
-  access.authenticatedUser(req)
-  .then((userId) => {
-    return mailer.sendAggregateMailToUser(userId);
-  })
-  .then((content) => {
-    res.send(content);
-  })
-  .catch((error) => {
-    console.log('error');
-    errorFactory.createError(res, error);
-  });
-});
-
 router.get('/echoheaders/', function(req, res, next) {
   res.json(req.headers);
 });

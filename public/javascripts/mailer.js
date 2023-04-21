@@ -63,7 +63,7 @@ module.exports = {
         <p>' + content + '</p> \
         <p>Voit käydä vastaamassa siihen osoitteessa: ' + url + '</p>';
         
-        return module.exports.sendMail(receiverAddressList, subject, message);
+        module.exports.sendMail(receiverAddressList, subject, message);
       }
 
     });
@@ -84,23 +84,18 @@ module.exports = {
 
   sendAggregateMailToUser: function(profileId) {
 
-    console.log(-1);
-
     return module.exports.createAggregateMailForUser(profileId)
     .then((data) => {
-      console.log(30);
       if (data.contentCount > 0) {
         return sql.users.getUserProfile(profileId)
         .then((userData) => {
-          console.log(31);
           let now = Date.now();
-          let subject = 'TUKKI-järjestelmän kooste ' + new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(now);
-          console.log(32);
+          let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(now);
+          let subject = 'TUKKI-järjestelmän kooste ' + dateString;
           module.exports.sendMail([userData.sposti], subject, data.message);
           return data.message;
         });
       }
-      console.log(33);
       return data.message;
     });
 
@@ -109,13 +104,11 @@ module.exports = {
   createAggregateMailForUser: function(profileId) {
     return sql.courses.getAllCoursesWithUser(profileId)
     .then((courseStatus) => {
-      console.log(0);
       let contentCount = 0;
       let promise = Promise.resolve();
       let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(Date.now());
       let content = '<h1>TUKKI-kooste ' + dateString + '</h1> \
       Tässä on lyhyt kooste siitä, mitä TUKKI-järjestelmässä on tapahtunut eilen:';
-      console.log(1);
       for (course of courseStatus) {
         if (course.asema === 'opettaja') {
           promise = promise.then(() => {
@@ -135,7 +128,6 @@ module.exports = {
       }
       return promise
       .then(() => {
-        console.log(333);
         content += '<br><br>Jos et halua saada sähköpostia tiketeistä, voit muuttaa asetuksia TUKKI-järjestelmän profiilisivulta.';
         return { contentCount: contentCount, message: content };
       });
@@ -147,22 +139,18 @@ module.exports = {
       receiverList = [receiverList];
     }
 
-    return new Promise(function(resolve, reject) {
-      const mailOptions = {
-        from: process.env.SMTP_USERNAME,
-        bcc: receiverList,
-        subject: subject,
-        html: content
-      };
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log('Sähköpostin lähetyksessä virhe: ' + error);
-          reject();
-        } else {
-          console.log('Sähköposti lähetettiin: ' + info.response);
-          resolve();
-        }
-      });
+    const mailOptions = {
+      from: process.env.SMTP_USERNAME,
+      bcc: receiverList,
+      subject: subject,
+      html: content
+    };
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log('Sähköpostin lähetyksessä virhe: ' + error);
+      } else {
+        console.log('Sähköposti lähetettiin: ' + info.response);
+      }
     });
   },
 
@@ -176,17 +164,14 @@ module.exports = {
 
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
-      console.log(21);
       content = content + title.replace('[Kurssi]', courseData.nimi);
       return sql.tickets.getAllCommentsFromCourseSinceYesterday(courseId, [profileId])
     })
     .then((commentList) => {
-      console.log(22);
       let ticketIds = arrayTools.extractAttributes(commentList, 'tiketti');
       return sql.tickets.getAllTicketsFromList(ticketIds);
     })
     .then((ticketList) => {
-      console.log(23);
       if (ticketList.length > 0) {
         content += ingress;
         rowCount += ticketList.length;
@@ -211,15 +196,12 @@ module.exports = {
     let rowCount = 0;
     let content = '';
 
-    console.log(11);
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
-      console.log(12);
       content = content + title.replace('[Kurssi]', courseData.nimi);
       return sql.tickets.getAllTickets(courseId);
     })
     .then((ticketList) => {
-      console.log(13);
       ticketList.filter((value, index, array) => {
         return value.tila == TicketState.sent || value.tila == TicketState.read;
       })
@@ -234,12 +216,10 @@ module.exports = {
       return sql.tickets.getAllCommentsFromCourseSinceYesterday(courseId, []);
     })
     .then((commetList) => {
-      console.log(14);
       let ticketIds = arrayTools.extractAttributes(commetList, 'tiketti');
       return sql.tickets.getAllTicketsFromList(ticketIds);
     })
     .then((ticketList) => {
-      console.log(15);
       if (ticketList.length > 0) {
         content += ingress2;
         rowCount += ticketList.length;
