@@ -95,9 +95,8 @@ module.exports = {
           console.log(31);
           let now = Date.now();
           let subject = 'TUKKI-järjestelmän kooste ' + new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(now);
-          data.message = subject + '<br>' + data.message;
           console.log(32);
-          //return module.exports.sendMail([userData.sposti], subject, data.message);
+          module.exports.sendMail([userData.sposti], subject, data.message);
           return data.message;
         });
       }
@@ -192,7 +191,7 @@ module.exports = {
         content += ingress;
         rowCount += ticketList.length;
         for (ticket of ticketList) {
-          let newRow = row.replace('[Tiketin otsikko]', sql.tickets.otsikko)
+          let newRow = row.replace('[Tiketin otsikko]', ticket.otsikko)
                           .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
           content = content + newRow;
         }

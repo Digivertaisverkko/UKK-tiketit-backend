@@ -4,6 +4,7 @@
 const sql = require('../../routes/sql');
 const arrayTools = require('./arrayTools.js');
 const auth = require('./auth');
+const mailer = require('./mailer');
 const TicketState = require('./ticketstate');
 
 module.exports = {
@@ -39,6 +40,10 @@ module.exports = {
     .then((secretsData) => {
       return arrayTools.extractAttributes(secretsData, 'salaisuus');
     });
+  },
+
+  sendAggregateEmails: function() {
+    return mailer.sendAggregateMails();
   }
 
 }

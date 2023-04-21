@@ -50,6 +50,7 @@ function updateCookieSecret() {
 cron.schedule('0 4 * * *', () => {
   timedJobs.archiveOldTickets();
   timedJobs.deletePendingLtiLogins();
+  timedJobs.sendAggregateEmails();
   updateCookieSecret();
 });
 
