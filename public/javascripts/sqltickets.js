@@ -112,14 +112,20 @@ module.exports = {
     
   },
 
-  getFieldsOfTicket: function(messageId) {
+  getFieldsOfTicket: function(ticketId) {
     //TODO: muuta messageId:t ticketId:iksi.
     const query = '\
-    SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje FROM core.tiketinkentat kk \
-    INNER JOIN (SELECT id, otsikko, tyyppi, ohje FROM core.kenttapohja) pohja \
+    SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje, pohja.esitaytettava, pohja.pakollinen, pohja.valinnat FROM core.tiketinkentat kk \
+    INNER JOIN core.kenttapohja pohja \
     ON kk.kentta = pohja.id \
     WHERE kk.tiketti=$1';
-    return connection.queryAll(query, [messageId]);
+    return connection.queryAll(query, [ticketId])
+    .then((dataList) => {
+      for (field of dataList) {
+        field.valinnat = field.valinnat.split(';');
+      }
+      return dataList;
+    });
   },
 
   getFieldsOfTicketList: function(ticketIdList) {

@@ -116,7 +116,7 @@ router.get('/testi/', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   });
-}); 
+});
 
 router.get('/echoheaders/', function(req, res, next) {
   res.json(req.headers);
