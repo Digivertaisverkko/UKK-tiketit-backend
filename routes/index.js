@@ -21,6 +21,7 @@ const { profile } = require('console');
 var session = require('express-session');
 const timedJobs = require('../public/javascripts/timedJobs.js');
 const TicketState = require('../public/javascripts/ticketstate.js');
+const mailer = require('../public/javascripts/mailer.js');
 
 router.use(express.json());
 
@@ -116,6 +117,20 @@ router.get('/testi/', function(req, res, next) {
     errorFactory.createError(res, error);
   });
 }); 
+
+router.post('/testiposti/', function (req, res, next) {
+  access.authenticatedUser(req)
+  .then((userId) => {
+    return mailer.sendAggregateMailToUser(userId);
+  })
+  .then((content) => {
+    res.send(content);
+  })
+  .catch((error) => {
+    console.log('error');
+    errorFactory.createError(res, error);
+  });
+});
 
 router.get('/echoheaders/', function(req, res, next) {
   res.json(req.headers);

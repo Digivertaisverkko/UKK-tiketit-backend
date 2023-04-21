@@ -61,6 +61,11 @@ module.exports = {
     });
   },
 
+  getAllTicketsFromList: function(ticketIdList) {
+    const query = 'SELECT * FROM core.tiketti WHERE id=ANY($1)';
+    return connection.queryAll(query, [ticketIdList]);
+  },
+
   getAllTicketsCreatedBy(userId) {
     const query = 'SELECT * from core.tiketti WHERE aloittaja=$1';
     return connection.queryAll(query, [userId]);
@@ -143,6 +148,15 @@ module.exports = {
   getAllCommentCreatedBy: function(userId) {
     const query = 'SELECT tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
     return connection.queryAll(query, [userId]);
+  },
+
+  getAllCommentsFromCourseSinceYesterday: function(courseId, profileBlackList) {
+    const query = 'SELECT * \
+    FROM core.kommentti k \
+    INNER JOIN core.tiketti t \
+    ON k.tiketti = t.id \
+    WHERE t.kurssi=$1 AND k.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT k.lahettaja=ANY($2)';
+    return connection.queryAll(query, [courseId, profileBlackList]);
   },
 
   getComment: function(commentId) {

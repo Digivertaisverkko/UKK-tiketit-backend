@@ -7,6 +7,13 @@ var path = require('path');
 
 module.exports = {
 
+  urlToTicket: function(courseId, ticketId) {
+    let url = new URL(path.join('course', courseId.toString(), 
+                                'ticket', ticketId.toString()),
+                      process.env.LTI_REDIRECT);
+    return url;
+  },
+
   redirectUrlToGdprPage: function(language, storageId) {
     let url = new URL(path.join('data-consent'), process.env.LTI_REDIRECT);
     url.searchParams.append('lang', language);

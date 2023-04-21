@@ -155,6 +155,15 @@ module.exports = {
     return connection.queryOne(query, [userid]);
   },
 
+  getAllUsersWhoWantAggregateMails: function() {
+    const query = 'SELECT p.id, p.nimi, p.sposti \
+    FROM core.profiili p \
+    INNER JOIN core.profiiliasetukset a \
+    ON p.id=a.profiili \
+    WHERE a.sposti_kooste=true';
+    return connection.queryAll(query, []);
+  },
+
   getUserProfileSettings: function(userid) {
     const query = 'SELECT * from core.profiiliasetukset WHERE profiili=$1';
     return connection.queryOne(query, [userid]);
