@@ -50,9 +50,9 @@ module.exports = {
       return receiverList;
     })
     .then((receiverList) => {
-      let receiverAddressList = arrayTools.extractAttributes(receiverList, 'sposti');
+      let receiverIdList = arrayTools.extractAttributes(receiverList, 'id');
 
-      if (receiverAddressList.length > 0) {
+      if (receiverIdList.length > 0) {
         let url = redirect.urlToTicket(storedCourse, ticketId);
 
         content = content == null ? '' : content;
@@ -63,7 +63,7 @@ module.exports = {
         <p>' + content + '</p> \
         <p>Voit käydä vastaamassa siihen osoitteessa: ' + url + '</p>';
         
-        module.exports.sendMail(receiverAddressList, subject, message);
+        module.exports.sendMailToUserList(receiverIdList, subject, message);
       }
 
     });
@@ -87,14 +87,10 @@ module.exports = {
     return module.exports.createAggregateMailForUser(profileId)
     .then((data) => {
       if (data.contentCount > 0) {
-        return sql.users.getUserProfile(profileId)
-        .then((userData) => {
-          let now = Date.now();
-          let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(now);
-          let subject = 'TUKKI-järjestelmän kooste ' + dateString;
-          module.exports.sendMail([userData.sposti], subject, data.message);
-          return data.message;
-        });
+        let now = Date.now();
+        let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(now);
+        let subject = 'TUKKI-järjestelmän kooste ' + dateString;
+        module.exports.sendMailToUserList([profileId], subject, data.message);
       }
       return data.message;
     });
@@ -151,6 +147,16 @@ module.exports = {
       } else {
         console.log('Sähköposti lähetettiin: ' + info.response);
       }
+    });
+  },
+
+  sendMailToUserList: function(userIdList, subject, content) {
+    sql.users.getAllUsersFromListWhoWantNotifications(userIdList)
+    .then((userDataList) => {
+      console.log('yritetään lähettää: ' + userIdList);
+      console.log('voidaan lähettää:   ' + arrayTools.extractAttributes(userDataList, 'id'));
+      let addressList = arrayTools.extractAttributes(userDataList, 'sposti');
+      module.exports.sendMail(addressList, subject, content);
     });
   },
 

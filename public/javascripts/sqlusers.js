@@ -14,6 +14,15 @@ module.exports = {
     .catch((error) => { return Promise.reject('createLogin: ' + error + ' loginid: ' + loginid) });
   },
 
+  getAllUsersFromListWhoWantNotifications: function(userIdList) {
+    const query = 'SELECT p.id, p.sposti \
+    FROM core.profiili p \
+    INNER JOIN core.profiiliasetukset a \
+    ON p.id=a.profiili \
+    WHERE p.id=ANY($1) AND a.sposti_ilmoitus=true';
+    return connection.queryAll(query, [userIdList]);
+  },
+
   updateLoginAttemptWithAccount: function(loginid, userid) {
     const query = 'UPDATE core.loginyritys SET profiili=$1 WHERE loginid=$2';
     return connection.queryAll(query, [userid, loginid]);
@@ -160,7 +169,7 @@ module.exports = {
     FROM core.profiili p \
     INNER JOIN core.profiiliasetukset a \
     ON p.id=a.profiili \
-    WHERE a.sposti_kooste=true';
+    WHERE a.sposti_kooste=true AND a.sposti_ilmoitus=true';
     return connection.queryAll(query, []);
   },
 
