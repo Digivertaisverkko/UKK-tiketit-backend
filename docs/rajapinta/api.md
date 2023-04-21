@@ -721,6 +721,9 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
   arvo: $string 
   tyyppi: $string
   ohje: $string
+  pakollinen: $bool
+  esitaytettava: $bool
+  valinnat: [$string]
 }] 
 ```
 *Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
