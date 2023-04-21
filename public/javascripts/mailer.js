@@ -26,13 +26,20 @@ module.exports = {
   sendMailNotifications: function(ticketId, excludedList, content) {
     var storedCreator;
     var storedCourse;
+    var storedCourseName;
+    var storedTicketTitle;
     return sql.tickets.getTicket(ticketId)
     .then((ticketData) => {
       storedCourse = ticketData.kurssi;
+      storedTicketTitle = ticketData.otsikko;
       return sql.courses.getUserInfoForCourse(ticketData.aloittaja, ticketData.kurssi);
     })
     .then((creatorData) => {
       storedCreator = creatorData;
+      return sql.courses.getCourseInfo(storedCourse);
+    })
+    .then((courseData) => {
+      storedCourseName = courseData.nimi;
       return sql.courses.getTeachersOfCourse(storedCourse);
     })
     .then((receiverList) => {
@@ -46,23 +53,18 @@ module.exports = {
       let receiverAddressList = arrayTools.extractAttributes(receiverList, 'sposti');
 
       if (receiverAddressList.length > 0) {
-        let url = new URL(path.join('course', storedCourse.toString(), 'ticket-view', ticketId.toString()), process.env.LTI_REDIRECT);
+        let url = redirect.urlToTicket(storedCourse, ticketId);
 
         content = content == null ? '' : content;
+
+        let subject = 'TUKKI-viesti ' + storedCourseName;
+        let message = '<h1>' + storedCourseName + '</h1> \
+        <p>Kysymykseen ' + storedTicketTitle + ' on tullut viesti.</p> \
+        <p> \
+        <b>Viestin sisältö:</b><br>' + content + '</p> \
+        <p>Voit käydä vastaamassa siihen osoitteessa: ' + url + '</p>';
         
-        const mailOptions = {
-          from: process.env.SMTP_USERNAME,
-          bcc: receiverAddressList,
-          subject: 'DVV-tiketti-ilmoitus',
-          html: '<p>DVV-tiketeissä on sinulle viesti. Viestin sisältö:</p>' + content + '<p>Voit käydä vastaamassa siihen osoitteessa: ' + url + '</p>'
-        };
-        transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-            console.log('Sähköpostin lähetyksessä virhe: ' + error);
-          } else {
-            console.log('Sähköposti lähetettiin: ' + info.response);
-          }
-        });
+        return module.exports.sendMail(receiverAddressList, subject, message);
       }
 
     });
@@ -103,8 +105,6 @@ module.exports = {
       console.log(33);
       return data.message;
     });
-
-    return module.exports.sendMail([address], 'Testiposti', content);
 
   },
 
