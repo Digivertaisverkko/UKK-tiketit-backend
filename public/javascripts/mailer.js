@@ -59,9 +59,8 @@ module.exports = {
 
         let subject = 'TUKKI-viesti ' + storedCourseName;
         let message = '<h1>' + storedCourseName + '</h1> \
-        <p>Kysymykseen ' + storedTicketTitle + ' on tullut viesti.</p> \
-        <p> \
-        <b>Viestin sisältö:</b><br>' + content + '</p> \
+        <p>Kysymykseen <b>' + storedTicketTitle + '</b> on tullut viesti:</p> \
+        <p>' + content + '</p> \
         <p>Voit käydä vastaamassa siihen osoitteessa: ' + url + '</p>';
         
         return module.exports.sendMail(receiverAddressList, subject, message);
@@ -114,7 +113,8 @@ module.exports = {
       console.log(0);
       let contentCount = 0;
       let promise = Promise.resolve();
-      let content = '<h1>TUKKI-kooste 17.4.2023</h1> \
+      let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(Date.now());
+      let content = '<h1>TUKKI-kooste ' + dateString + '</h1> \
       Tässä on lyhyt kooste siitä, mitä TUKKI-järjestelmässä on tapahtunut eilen:';
       console.log(1);
       for (course of courseStatus) {
@@ -245,7 +245,7 @@ module.exports = {
         content += ingress2;
         rowCount += ticketList.length;
         for (ticket of ticketList) {
-          let newRow = row.replace('[Tiketin otsikko]', sql.tickets.otsikko)
+          let newRow = row.replace('[Tiketin otsikko]', ticket.otsikko)
                           .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
           content = content + newRow;
         }

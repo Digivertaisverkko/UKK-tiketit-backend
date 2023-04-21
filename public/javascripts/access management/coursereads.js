@@ -36,10 +36,8 @@ class CourseReads extends CourseLists {
       });
     })
     .then((results) => {
-      return mailer.sendMailNotifications(results.tiketti, [creatorId], content)
-      .then(() => {
-        return results;
-      });
+      mailer.sendMailNotifications(results.tiketti, [creatorId], content)
+      return results;
     });
   }
 
