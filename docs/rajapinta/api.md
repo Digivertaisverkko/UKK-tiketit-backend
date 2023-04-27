@@ -717,6 +717,7 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 ##### Vastaus:
 ```
 [{
+  id: $int
   otsikko: $string 
   arvo: $string 
   tyyppi: $string
