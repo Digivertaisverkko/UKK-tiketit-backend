@@ -133,6 +133,8 @@ module.exports = {
   sendMail: function(receiverList, subject, content) {
     if (Array.isArray(receiverList) == false) {
       receiverList = [receiverList];
+    } else if (receiverList.length < 1) {
+      return;
     }
 
     const mailOptions = {
