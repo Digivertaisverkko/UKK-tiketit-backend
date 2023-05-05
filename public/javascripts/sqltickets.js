@@ -115,7 +115,7 @@ module.exports = {
   getFieldsOfTicket: function(ticketId) {
     //TODO: muuta messageId:t ticketId:iksi.
     const query = '\
-    SELECT kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje, pohja.esitaytettava, pohja.pakollinen, pohja.valinnat FROM core.tiketinkentat kk \
+    SELECT pohja.id, kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje, pohja.esitaytettava, pohja.pakollinen, pohja.valinnat FROM core.tiketinkentat kk \
     INNER JOIN core.kenttapohja pohja \
     ON kk.kentta = pohja.id \
     WHERE kk.tiketti=$1';
