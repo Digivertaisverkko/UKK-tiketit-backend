@@ -117,7 +117,9 @@ class CourseWrites extends CourseReads {
 
   replaceFieldsOfTicketBase(courseId, fields) {
     return sql.courses.removeAllFieldsFromTicketBase(courseId)
-    .then(() => sql.courses.insertFieldsToTicketBase(courseId, fields))
+    .then(() => {
+       return sql.courses.insertFieldsToTicketBase(courseId, fields)
+    });
   }
 
 }

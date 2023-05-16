@@ -215,7 +215,7 @@ module.exports = {
                                                element.esitaytettava, 
                                                element.pakollinen, 
                                                element.ohje, 
-                                               element.choises);
+                                               element.valinnat);
         })
         .then((fieldIdList) => {
           let id = fieldIdList[0].id;

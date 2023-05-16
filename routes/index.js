@@ -761,10 +761,16 @@ router.put('/kurssi/:courseid/tiketinkentat', function(req, res, next) {
     {keyPath: ['kentat', 'ohje'], type: 'string', max: 255},
     {keyPath: ['kentat', 'valinnat'], type: 'object', optional: true}
   ])
-  .then(() => sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat,
-    ['otsikko', 'pakollinen', 'esitaytettava', 'ohje', 'valinnat']))
-  .then(() => access.writeCourse(req, req.params.courseid))
-  .then((handle) => handle.methods.replaceFieldsOfTicketBase(req.params.courseid, req.body.kentat))
+  .then(() => {
+    return sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat,
+      ['otsikko', 'pakollinen', 'esitaytettava', 'ohje', 'valinnat']);
+  })
+  .then(() => { 
+    return access.writeCourse(req, req.params.courseid);
+  })
+  .then((handle) => { 
+    return handle.methods.replaceFieldsOfTicketBase(req.params.courseid, req.body.kentat)
+  })
   .then(() => {
     res.send({ success: true });
   })
