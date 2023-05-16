@@ -174,7 +174,6 @@ router.get('/minun/asetukset/', function(req, res, next) {
     return access.readProfile(req, userid);
   })
   .then((handle) => {
-    console.dir(handle);
     return handle.methods.getProfileSettings(handle.userid);
   })
   .then((settings) => {

@@ -138,9 +138,7 @@ class TicketReads {
       return sql.tickets.getStateHistoryOfTicket(ticketId);
     })
     .then((ticketStateList) => {
-      console.dir(ticketStateList);
       let states = arrayTools.extractAttributes(ticketStateList, 'tila');
-      console.dir(states);
       if (states.includes(TicketState.resolved) || states.includes(TicketState.commented)) {
         return Promise.resolve();
       } else {

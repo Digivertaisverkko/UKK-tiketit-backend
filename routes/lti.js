@@ -70,7 +70,6 @@ router.post('/gdpr-lupa-kielto/', function(req, res, next) {
     return handle.methods.handleGdprRejection(req, req.body['lupa-id']);
   })
   .then((deletedData) => {
-    console.dir(deletedData);
     res.send({ success: true, kurssi: deletedData.courseId });
   })
   .catch((error) => {
