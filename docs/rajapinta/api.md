@@ -417,6 +417,47 @@ Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt
 } 
 ```
 
+### /api/kurssi/:kurssi-id/ukk/vienti/
+Tällä rajapinnalla voi hakea erillisen json-tiedoston, jossa on listattu kurssin kaikki UKK-tiketit muodossa, jossa ne voidaan helposti siirtää toiselle kurssille. Samaa rajapintaa käyttämällä voi myös antaa samaisen tiedoston toiselle kurssille, jolloin annetut UKK:t kopiodaan kurssille.
+#### GET
+##### Vastaus:
+```
+json-tiedosto, joka on muotoiltu sisältämään kaikki tarvittava UKK-data.
+```
+
+#### POST
+##### Lähetä:
+Tähän on tarkoitus lähettää toisesta kurssista GET-kutsulla saatu json-tiedoston sisältö.
+```
+[
+  {
+    otsikko:
+    aikaleima:
+    tila:
+    kommentit: [{
+      tiketti
+      lahettaja
+      viesti
+      aikaleima
+      tila
+    }]
+    kentat: [{
+      arvo:
+      otsikko:
+      tyyppi:
+      ohje:
+    }]
+  }
+]
+```
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+
 ### /api/tiketti/:tiketti-id/valmis
 #### POST
 Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin voi arkistoida, jos sen tila on ollut joskus ratkaistu tai kommentoitu. Tämän voi tarkistaa kutsulla [/api/tiketti/:tiketti-id](#apitikettitiketti-id), joka kertoo onko tiketti *arkistoitava*.
