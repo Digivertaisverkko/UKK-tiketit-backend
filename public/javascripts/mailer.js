@@ -155,8 +155,6 @@ module.exports = {
   sendMailToUserList: function(userIdList, subject, content) {
     sql.users.getAllUsersFromListWhoWantNotifications(userIdList)
     .then((userDataList) => {
-      console.log('yritetään lähettää: ' + userIdList);
-      console.log('voidaan lähettää:   ' + arrayTools.extractAttributes(userDataList, 'id'));
       let addressList = arrayTools.extractAttributes(userDataList, 'sposti');
       module.exports.sendMail(addressList, subject, content);
     });
