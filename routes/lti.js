@@ -13,8 +13,9 @@ router.use(express.json());
 
 router.post('/1p1/start/', function(req, res, next) {
 
-  sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id', 'lis_outcome_service_url',
-    'lis_person_name_full', 'context_title', 'roles', 'launch_presentation_locale'])
+  sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id',
+    'lis_outcome_service_url', 'lis_person_name_full', 'context_title',
+    'roles', 'launch_presentation_locale'])
   .then(() => {
     return auth.securityCheckLti1p1(req);
   })
