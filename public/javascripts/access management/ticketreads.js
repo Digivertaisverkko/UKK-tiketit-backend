@@ -81,7 +81,7 @@ class TicketReads {
       let commentIdList = arrayTools.extractAttributes(comments, 'id');
       return sql.tickets.getAttachmentListForCommentList(commentIdList)
       .then((attachmentList) => {
-        return arrayTools.arrayUnionByAddingObjectsToArray(comments, attachmentList, 'id', 'kommentti', 'liitteet');
+        return arrayTools.unionNewKeyAsArray(comments, attachmentList, 'id', 'kommentti', 'liitteet');
       })
     });
   }

@@ -40,18 +40,18 @@ class ProfileWrites extends ProfileReads {
         let commentIds = arrayTools.extractAttributes(commentDataList, 'id');
         return sql.tickets.getAttachmentListForCommentList(commentIds)
         .then((attachmentDataList) => {
-          return arrayTools.arrayUnionByAddingObjectsToArray(commentDataList, attachmentDataList, 'id', 'kommentti', 'liitteet');
+          return arrayTools.unionNewKeyAsArray(commentDataList, attachmentDataList, 'id', 'kommentti', 'liitteet');
         })
         .then((commentAttachmentList) => {
           let ticketIds = arrayTools.extractAttributes(ticketDataList, 'id');
-          collection.tiketit = arrayTools.arrayUnionByAddingObjectsToArray(ticketDataList, commentAttachmentList, 'id', 'tiketti', 'omat kommentit');
+          collection.tiketit = arrayTools.unionNewKeyAsArray(ticketDataList, commentAttachmentList, 'id', 'tiketti', 'omat kommentit');
           collection.kommentit = commentAttachmentList;
           return sql.tickets.getFieldsOfTicketList(ticketIds);
         })
       })
       .then((fieldDataList) => {
         fieldDataList = arrayTools.removeAttributes(fieldDataList, ['tyyppi', 'ohje']);
-        collection.tiketit = arrayTools.arrayUnionByAddingObjectsToArray(collection.tiketit, fieldDataList, 'id', 'tiketti', 'kentat');
+        collection.tiketit = arrayTools.unionNewKeyAsArray(collection.tiketit, fieldDataList, 'id', 'tiketti', 'kentat');
       })
       .then(() => {
         return sql.courses.getAllCoursesWithUser(profileid);

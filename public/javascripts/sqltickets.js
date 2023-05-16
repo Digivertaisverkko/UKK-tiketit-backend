@@ -368,7 +368,7 @@ module.exports = {
     var ids = arrayTools.extractAttributes(array, idReferenceKey);
     return module.exports.getTicketStates(ids)
     .then((stateData) => {
-      return arrayTools.arrayUnionByAddingPartsOfObjects(array, stateData, idReferenceKey, 'tiketti', 'tila', 'tila');
+      return arrayTools.unionExtractKey(array, stateData, idReferenceKey, 'tiketti', 'tila', 'tila');
     });
   },
 

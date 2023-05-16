@@ -37,7 +37,6 @@ class CourseWrites extends CourseReads {
     let ticketIds
     return sql.tickets.getFaqTickets(courseId)
     .then((ticketList) => {
-      console.dir(ticketList);
       storedTicketList = ticketList;
       ticketIds = arrayTools.extractAttributes(ticketList, 'id');
       return sql.tickets.getCommentsFromTicketList(ticketIds);
@@ -48,8 +47,8 @@ class CourseWrites extends CourseReads {
     })
     .then((fieldList) => {
 
-      storedTicketList = arrayTools.arrayUnionByAddingObjectsToArray(storedTicketList, storedCommentList, 'id', 'tiketti', 'kommentit');
-      storedTicketList = arrayTools.arrayUnionByAddingObjectsToArray(storedTicketList, fieldList, 'id', 'tiketti', 'kentat');
+      storedTicketList = arrayTools.unionNewKeyAsArray(storedTicketList, storedCommentList, 'id', 'tiketti', 'kommentit');
+      storedTicketList = arrayTools.unionNewKeyAsArray(storedTicketList, fieldList, 'id', 'tiketti', 'kentat');
       return storedTicketList;
     })
   }
