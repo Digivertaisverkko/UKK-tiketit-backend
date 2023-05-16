@@ -199,7 +199,10 @@ router.post('/minun/asetukset/', function(req, res, next) {
     return access.writeProfile(req, userid);
   })
   .then((handle) => {
-    return handle.methods.updateUserSettings(handle.userid, req.body['sposti-ilmoitus'], req.body['sposti-kooste'], req.body['sposti-palaute']);
+    return handle.methods.updateUserSettings(handle.userid, 
+                                             req.body['sposti-ilmoitus'], 
+                                             req.body['sposti-kooste'], 
+                                             req.body['sposti-palaute']);
   })
   .then(() => {
     res.send({ success: true });
@@ -235,7 +238,10 @@ router.delete('/minun/', function(req, res, next) {
   .then((handle) => {
     return handle.methods.getProfile(handle.userid)
     .then((profileData) => {
-      if (profileData.sposti == req.body.sposti || (profileData.sposti === undefined && req.body.sposti === undefined)) {
+      if (profileData.sposti == req.body.sposti || 
+          (profileData.sposti === undefined && 
+           req.body.sposti === undefined)) {
+
         return handle.methods.deleteProfile(handle.userid);
       } else {
         return Promise.reject(errorFactory.code.noPermission);
@@ -386,8 +392,12 @@ router.post('/kurssi/:courseid/ukk', function(req, res, next) {
     return access.writeCourse(req, req.params.courseid);
   })
   .then((handle) => {
-    return handle.methods.createFaqTicket(req.params.courseid, handle.userid, req.body.otsikko,
-       req.body.viesti, req.body.vastaus, req.body.kentat);
+    return handle.methods.createFaqTicket(req.params.courseid,
+                                          handle.userid, 
+                                          req.body.otsikko,
+                                          req.body.viesti,
+                                          req.body.vastaus,
+                                          req.body.kentat);
   })
   .then((insertedData) => {
     res.send({ success: true, uusi: insertedData });
@@ -442,7 +452,10 @@ router.put('/tiketti/:ticketid', function(req, res, next) {
     return access.writeTicket(req, req.params.ticketid);
   })
   .then((handle) => {
-    return handle.methods.updateTicket(req.params.ticketid, req.body.otsikko, req.body.viesti, req.body.kentat);
+    return handle.methods.updateTicket(req.params.ticketid, 
+                                       req.body.otsikko, 
+                                       req.body.viesti, 
+                                       req.body.kentat);
   })
   .then(() => {
     res.send({ success: true });
@@ -524,7 +537,10 @@ router.post('/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     return access.readTicket(req, req.params.ticketid);
   })
   .then((handle) => {
-    return handle.methods.addComment(req.params.ticketid, handle.userid, req.body.viesti, req.body.tila);
+    return handle.methods.addComment(req.params.ticketid,
+                                     handle.userid,
+                                     req.body.viesti, 
+                                     req.body.tila);
   })
   .then((newCommentId) => {
     res.send({ success: true, kommentti: newCommentId });
@@ -745,7 +761,8 @@ router.put('/kurssi/:courseid/tiketinkentat', function(req, res, next) {
     {keyPath: ['kentat', 'ohje'], type: 'string', max: 255},
     {keyPath: ['kentat', 'valinnat'], type: 'object', optional: true}
   ])
-  .then(() => sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat, ['otsikko', 'pakollinen', 'esitaytettava', 'ohje', 'valinnat']))
+  .then(() => sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat,
+    ['otsikko', 'pakollinen', 'esitaytettava', 'ohje', 'valinnat']))
   .then(() => access.writeCourse(req, req.params.courseid))
   .then((handle) => handle.methods.replaceFieldsOfTicketBase(req.params.courseid, req.body.kentat))
   .then(() => {
