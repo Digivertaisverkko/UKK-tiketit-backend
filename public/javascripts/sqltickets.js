@@ -151,6 +151,11 @@ module.exports = {
     return connection.queryAll(query, [ticketId]);
   },
 
+  getCommentsFromTicketList(ticketIdList) {
+    const query = 'SELECT * from core.kommentti WHERE tiketti=ANY($1)';
+    return connection.queryAll(query, [ticketIdList]);
+  },
+
   getAllCommentCreatedBy: function(userId) {
     const query = 'SELECT tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
     return connection.queryAll(query, [userId]);

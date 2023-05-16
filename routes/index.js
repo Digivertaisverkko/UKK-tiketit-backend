@@ -333,6 +333,45 @@ router.get('/kurssi/:courseid/ukk', function(req, res, next) {
   .catch((error) => errorFactory.createError(res, error) );
 });
 
+router.get('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
+  access.writeCourse(req, req.params.courseid)
+  .then((handle) => {
+    return handle.methods.exportFaqsFromCourse(req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  });
+});
+
+router.post('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'otsikko', type: 'string', min: 1,  max: 255},
+    {key: 'aikaleima', type: 'string'},
+    {keyPath: ['kommentit', 'viesti'], type: 'string'},
+    {keyPath: ['kommentit', 'aikaleima'], type: 'string'},
+    {key: 'kentat', type: 'object'},
+    {keyPath: ['kentat', 'otsikko'], type: 'string'},
+    {keyPath: ['kentat', 'arvo'], type: 'string', max: 255},
+    {keyPath: ['kentat', 'tyyppi'], type: 'number'},
+    {keyPath: ['kentat', 'ohje'], type: 'string', max: 255}
+  ])
+  .then(() => {
+    return access.writeCourse(req, req.params.courseid);
+  })
+  .then((handle) => {
+    return handle.methods.importFaqsToCourse(req.params.courseid, handle.userid, req.body);
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
 // '/kurssi/:kurssi-id/ukk' POST
 router.post('/kurssi/:courseid/ukk', function(req, res, next) {
   //ACCESS

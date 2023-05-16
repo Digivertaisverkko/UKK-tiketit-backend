@@ -188,21 +188,34 @@ module.exports = {
     });
   },
 
+  insertNewField(title, prefilled, mandatory, tip, choices) {
+    const query = '\
+    INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) \
+    VALUES ($1, $2, $3, $4, $5, $6) \
+    RETURNING id';
+    let choicesString = choices.join(';');
+    return connection.queryAll(query, [title,
+                                       1,
+                                       prefilled,
+                                       mandatory,
+                                       tip,
+                                       choicesString]);
+  },
+
   insertFieldsToTicketBase: function(courseid, fieldArray) {
     let storedTicketId;
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((ticketIdList) => {
       storedTicketId = ticketIdList[0].id;
-      const query = '\
-      INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) \
-      VALUES ($1, $2, $3, $4, $5, $6) \
-      RETURNING id';
       let promiseChain = Promise.resolve();
       for (index in fieldArray) {
         let element = fieldArray[index];
-        let choices = element.valinnat.join(';');
         promiseChain = promiseChain.then(() => {
-          return connection.queryAll(query, [element.otsikko, 1, element.esitaytettava, element.pakollinen, element.ohje, choices])
+          return module.exports.insertNewField(element.otsikko, 
+                                               element.esitaytettava, 
+                                               element.pakollinen, 
+                                               element.ohje, 
+                                               element.choises);
         })
         .then((fieldIdList) => {
           let id = fieldIdList[0].id;

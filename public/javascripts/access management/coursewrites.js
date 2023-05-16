@@ -1,4 +1,5 @@
 const sql = require('../../../routes/sql.js');
+const arrayTools = require('../arrayTools.js');
 const TicketState = require('../ticketstate.js');
 const errorcodes = require('./../errorcodes.js');
 
@@ -27,6 +28,55 @@ class CourseWrites extends CourseReads {
         return { tiketti: ticketid, kommentti: commentid };
       });
     });
+  }
+
+  exportFaqsFromCourse(courseId) {
+    let storedTicketList;
+    let storedCommentList;
+
+    let ticketIds
+    return sql.tickets.getFaqTickets(courseId)
+    .then((ticketList) => {
+      console.dir(ticketList);
+      storedTicketList = ticketList;
+      ticketIds = arrayTools.extractAttributes(ticketList, 'id');
+      return sql.tickets.getCommentsFromTicketList(ticketIds);
+    })
+    .then((commentList) => {
+      storedCommentList = commentList;
+      return sql.tickets.getFieldsOfTicketList(ticketIds);
+    })
+    .then((fieldList) => {
+
+      storedTicketList = arrayTools.arrayUnionByAddingObjectsToArray(storedTicketList, storedCommentList, 'id', 'tiketti', 'kommentit');
+      storedTicketList = arrayTools.arrayUnionByAddingObjectsToArray(storedTicketList, fieldList, 'id', 'tiketti', 'kentat');
+      return storedTicketList;
+    })
+  }
+
+  importFaqsToCourse(courseId, creatorId, faqList) {
+    let promiseChain = Promise.resolve();
+    
+    for (let i=0; i<faqList.length; ++i) {
+      let faq = faqList[i];
+
+      for (let j=0; j<faq.kentat.length; ++j) {
+        let field = faq.kentat[j];
+
+        promiseChain = promiseChain.then(() => {
+          return sql.courses.insertNewField(field.otsikko, false, false, field.ohje, []);
+        })
+        .then((fieldIdList) => {
+          field.id = fieldIdList[0].id;
+        })
+      }
+
+      promiseChain = promiseChain.then(() => {
+        return this.createFaqTicket(courseId, creatorId, faq.otsikko, faq.kommentit[0].viesti, faq.kommentit[1].viesti, faq.kentat);
+      });
+    }
+    
+    return Promise.resolve();
   }
 
   editFaqTicket(ticketid, newTitle, newBody, newAnswer, newFields) {
