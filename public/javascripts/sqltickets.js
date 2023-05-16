@@ -411,6 +411,15 @@ module.exports = {
     return connection.queryAll(query, [ticketidList]);
   },
 
+  getStateHistoryOfTicket: function(ticketId) {
+    const query = '\
+    SELECT tila, aikaleima \
+    FROM core.tiketintila \
+    WHERE tiketti=$1 \
+    ORDER BY aikaleima DESC';
+    return connection.queryAll(query, [ticketId]);
+  },
+
   setTicketState: function(ticketid, state) {
     const query = '\
     INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \

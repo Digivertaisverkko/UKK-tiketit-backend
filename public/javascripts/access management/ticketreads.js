@@ -96,7 +96,7 @@ class TicketReads {
       return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
     })
     .then((results) => {
-      return this.isTicketArchivable(ticketId)
+      return this.isTicketArchivable(ticketId, currentUserId)
       .then(() => {
         results[0].arkistoitava = true;
         return results;
@@ -135,10 +135,12 @@ class TicketReads {
       }
     })
     .then(() => {
-      return sql.tickets.getTicketStates([ticketId]);
+      return sql.tickets.getStateHistoryOfTicket(ticketId);
     })
     .then((ticketStateList) => {
+      console.dir(ticketStateList);
       let states = arrayTools.extractAttributes(ticketStateList, 'tila');
+      console.dir(states);
       if (states.includes(TicketState.resolved) || states.includes(TicketState.commented)) {
         return Promise.resolve();
       } else {
