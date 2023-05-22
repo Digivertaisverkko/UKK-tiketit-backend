@@ -1,4 +1,5 @@
 const sql = require('../../../routes/sql.js');
+const sqlfuncs = require('../sqlfuncs.js');
 const TicketState = require('../ticketstate.js');
 const errorcodes = require('./../errorcodes.js');
 const auth = require('../auth.js');
@@ -16,6 +17,7 @@ class LoginMethods {
     .then((data) => {
       if (data.length == 0) {
         let storageId = crypto.randomUUID();
+        console.log('täysin uusi käyttäjä');
         return sql.users.temporarilyStoreLtiToken(reqBody, null, '1.1', storageId)
         .then(() => {
           return { accountExists: false, storageId: storageId, hasPermission: false };
@@ -130,7 +132,7 @@ class LoginMethods {
       console.dir(tokenData);
       if (tokenData.olemassa_oleva_profiili != null) {
         console.log(121);
-        return sql.users.removeAccount(tokenData.olemassa_oleva_profiili)
+        return sqlfuncs.removeAllDataRelatedToUser(tokenData.olemassa_oleva_profiili)
         .then(() => {
           console.log(1211);
           return tokenData;

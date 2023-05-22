@@ -209,6 +209,7 @@ module.exports = {
   },
 
   removeProfile: function(profileid) {
+    console.log('poista profiili');
     const query = '\
     DELETE FROM core.profiili \
     WHERE id=$1';
@@ -216,6 +217,7 @@ module.exports = {
   },
 
   removeAccount: function(profileid) {
+    console.log('poista tili');
     const defaultQuery = 'DELETE FROM core.login WHERE profiili=$1';
     const ltiQuery     = 'DELETE FROM core.lti_login WHERE profiili=$1';
     return connection.queryNone(defaultQuery, [profileid])
