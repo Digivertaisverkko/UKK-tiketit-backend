@@ -152,7 +152,7 @@ const setupLti = async () => {
         redirect.redirectToCoursePageLtijs(lti, res, locale, results.courseId);
       } else {
         var locale = token.platformContext.launchPresentation.locale;
-        redirect.redirectToGdprPageLtijs(lti, res, locale, results.storageId);
+        redirect.redirectToGdprPageLtijs(lti, res, locale, results.storageId, results.accountExists);
       }
     });
   });

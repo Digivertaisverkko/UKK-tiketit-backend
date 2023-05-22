@@ -164,6 +164,7 @@ profiili INT NOT NULL,
 sposti_ilmoitus BOOL NOT NULL,
 sposti_kooste BOOL NOT NULL,
 sposti_palaute BOOL NOT NULL,
+gdpr_lupa BOOL NOT NULL,
 PRIMARY KEY (profiili),
 FOREIGN KEY (profiili) REFERENCES core.profiili(id)
 );

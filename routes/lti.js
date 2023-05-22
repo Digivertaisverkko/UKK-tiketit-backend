@@ -26,14 +26,14 @@ router.post('/1p1/start/', function(req, res, next) {
     return handle.methods.handleUnsureLti1p1Login(req, req.body);
   })
   .then((results) => {
-    if (results.accountExists) {
+    if (results.hasPermission) {
       console.dir(req.body);
       console.dir(results);
       let locale = req.body.launch_presentation_locale;
       return redirect.redirectToCoursePage(res, locale, results.courseId);
     } else {
       let locale = req.body.launch_presentation_locale;
-      return redirect.redirectToGdprPage(res, locale, results.storageId);
+      return redirect.redirectToGdprPage(res, locale, results.storageId, results.accountExists);
     }
   })
   .catch((error) => {

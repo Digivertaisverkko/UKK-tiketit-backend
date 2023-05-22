@@ -18,10 +18,17 @@ class LoginMethods {
         let storageId = crypto.randomUUID();
         return sql.users.temporarilyStoreLtiToken(reqBody, '1.1', storageId)
         .then(() => {
-          return { accountExists: false, storageId: storageId };
+          return { accountExists: false, storageId: storageId, hasPermission: false };
         });
       } else {
-        return this.handleAcceptedLti1p1Login(httpRequest, reqBody);
+        return sql.users.getUserProfileSettings(data[0].id)
+        .then((settings) => {
+          if (settings.gdpr_lupa == false) {
+            return { accountExists: true, storageId: null, hasPermission: false };
+          } else {
+            return this.handleAcceptedLti1p1Login(httpRequest, reqBody);
+          }
+        });
       }
     });
 
@@ -36,9 +43,11 @@ class LoginMethods {
     let coursename  = reqBody.context_title;
     let courseroles = reqBody.roles.split(',');
 
+    console.log(320);
     return auth.ltiLogin(httpRequest, userid, contextid, clientid, username, email, coursename, courseroles)
     .then((logindata) => {
-      return { accountExists: true, courseId: logindata.kurssi };
+      console.log(321);
+      return { accountExists: true, courseId: logindata.kurssi, hasPermission: true };
     });
   }
 
@@ -53,10 +62,17 @@ class LoginMethods {
         let storageId = crypto.randomUUID();
         return sql.users.temporarilyStoreLtiToken(token, '1.3', storageId)
         .then(() => {
-          return { accountExists: false, storageId: storageId };
-        })
+          return { accountExists: false, storageId: storageId, hasPermission: false };
+        });
       } else {
-        return this.handleAcceptedLti1p3Login(httpRequest, token);
+        return sql.users.getUserProfileSettings(data[0].id)
+        .then((settings) => {
+          if (settings.gdpr_lupa == false) {
+            return { accountExists: true, storageId: null, hasPermission: false };
+          } else {
+            return this.handleAcceptedLti1p3Login(httpRequest, token);
+          }
+        });
       }
     });
   }
@@ -64,22 +80,26 @@ class LoginMethods {
   handleAcceptedLti1p3Login(httpRequest, token) {
     return auth.ltiLoginWithToken(httpRequest, token)
     .then((logindata) => {
-      return { accountExists: true, courseId: logindata.kurssi };
+      return { accountExists: true, courseId: logindata.kurssi, hasPermission: true };
     });
   }
 
   handleGdprAcceptance(httpRequest, storageId) {
     return sql.users.getStoredLtiToken(storageId)
     .then((tokenData) => {
+      console.log(31);
       if (tokenData.lti_versio === '1.1') {
+        console.log(32);
         return this.handleAcceptedLti1p1Login(httpRequest, tokenData.token);
       } else if (tokenData.lti_versio === '1.3') {
+        console.log(33);
         return this.handleAcceptedLti1p3Login(httpRequest, tokenData.token);
       } else {
         return Promise.reject(errorcodes.noPermission);
       }
     })
     .then((data) => {
+      console.log(34);
       return sql.users.deleteStoredLtiToken(storageId)
       .then(() => {
         return data;

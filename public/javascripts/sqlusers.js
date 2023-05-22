@@ -132,8 +132,8 @@ module.exports = {
   },
 
   createEmptyProfileSettings: function(userid) {
-    const query = 'INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute) \
-    VALUES ($1, true, true, false)';
+    const query = 'INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute, gdpr_lupa) \
+    VALUES ($1, true, true, false, true)';
     return connection.queryNone(query, [userid]);
   },
 
@@ -188,8 +188,8 @@ module.exports = {
 
   updateUserProfileSettings: function(userid, emailNotification, emailAggregate, emailFeedback) {
     const query = '\
-    INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute) \
-    VALUES ($1, $2, $3, $4) \
+    INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute, gdpr_lupa) \
+    VALUES ($1, $2, $3, $4, true) \
     ON CONFLICT (profiili) \
     DO \
     UPDATE SET sposti_ilmoitus = EXCLUDED.sposti_ilmoitus, \

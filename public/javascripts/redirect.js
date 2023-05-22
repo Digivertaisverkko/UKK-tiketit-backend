@@ -14,10 +14,11 @@ module.exports = {
     return url;
   },
 
-  redirectUrlToGdprPage: function(language, storageId) {
+  redirectUrlToGdprPage: function(language, storageId, accountExists) {
     let url = new URL(path.join('data-consent'), process.env.LTI_REDIRECT);
     url.searchParams.append('lang', language);
     url.searchParams.append('tokenid', storageId);
+    url.searchParams.append('account-exists', accountExists);
     return url;
   },
 
@@ -29,16 +30,16 @@ module.exports = {
     return url;
   },
 
-  redirectToGdprPage: function(httpResponse, language, storageId) {
-    httpResponse.redirect(this.redirectUrlToGdprPage(language, storageId));
+  redirectToGdprPage: function(httpResponse, language, storageId, accountExists) {
+    httpResponse.redirect(this.redirectUrlToGdprPage(language, storageId, accountExists));
   },
 
   redirectToCoursePage: function(httpResponse, language, courseId) {
     httpResponse.redirect(module.exports.redirectUrlToCoursePage(language, courseId));
   },
 
-  redirectToGdprPageLtijs: function(lti, httpResponse, language, storageId) {
-    lti.redirect(httpResponse, module.exports.redirectUrlToGdprPage(language, storageId));
+  redirectToGdprPageLtijs: function(lti, httpResponse, language, storageId, accountExists) {
+    lti.redirect(httpResponse, module.exports.redirectUrlToGdprPage(language, storageId, accountExists));
   },
 
   redirectToCoursePageLtijs: function(lti, httpResponse, language, courseId) {
