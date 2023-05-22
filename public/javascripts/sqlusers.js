@@ -49,9 +49,9 @@ module.exports = {
     });
   },
 
-  temporarilyStoreLtiToken: function(token, version, storageId) {
-    const query = 'INSERT INTO core.lti_tilipyynto (id, lti_versio, token) VALUES ($1, $2, $3)';
-    return connection.queryNone(query, [storageId, version, JSON.stringify(token)]);
+  temporarilyStoreLtiToken: function(token, profileId, version, storageId) {
+    const query = 'INSERT INTO core.lti_tilipyynto (id, olemassa_oleva_profiili, lti_versio, token) VALUES ($1, $2, $3, $4)';
+    return connection.queryNone(query, [storageId, profileId, version, JSON.stringify(token)]);
   },
 
   getStoredLtiToken: function(storageId) {
@@ -188,7 +188,8 @@ module.exports = {
 
   updateUserProfileSettings: function(userid, emailNotification, emailAggregate, emailFeedback) {
     const query = '\
-    INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute, gdpr_lupa) \
+    INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, \
+       sposti_kooste, sposti_palaute, gdpr_lupa) \
     VALUES ($1, $2, $3, $4, true) \
     ON CONFLICT (profiili) \
     DO \
@@ -197,6 +198,14 @@ module.exports = {
                sposti_palaute  = EXCLUDED.sposti_palaute';
     return connection.queryNone(query, [userid, emailNotification, 
                                         emailAggregate, emailFeedback]);
+  },
+
+  updateUserProfileGDPRPermission(userid, hasPermission) {
+    const query = '\
+    UPDATE core.profiiliasetukset \
+    SET gdpr_lupa=$1 \
+    WHERE profiili=$2';
+    return connection.queryNone(query, [hasPermission, userid]);
   },
 
   removeProfile: function(profileid) {

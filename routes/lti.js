@@ -56,6 +56,7 @@ router.post('/gdpr-lupa-ok/', function(req, res, next) {
     res.send({ success: true, kurssi: data.courseId });
   })
   .catch((error) => {
+    console.log('error: ' + error);
     errorFactory.createError(res, error);
   });
 });
@@ -68,9 +69,11 @@ router.post('/gdpr-lupa-kielto/', function(req, res, next) {
     return access.loginMethods();
   })
   .then((handle) => {
+    console.log(1);
     return handle.methods.handleGdprRejection(req, req.body['lupa-id']);
   })
   .then((deletedData) => {
+    console.log(2);
     res.send({ success: true, kurssi: deletedData.courseId });
   })
   .catch((error) => {

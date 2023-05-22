@@ -16,7 +16,7 @@ class LoginMethods {
     .then((data) => {
       if (data.length == 0) {
         let storageId = crypto.randomUUID();
-        return sql.users.temporarilyStoreLtiToken(reqBody, '1.1', storageId)
+        return sql.users.temporarilyStoreLtiToken(reqBody, null, '1.1', storageId)
         .then(() => {
           return { accountExists: false, storageId: storageId, hasPermission: false };
         });
@@ -24,7 +24,12 @@ class LoginMethods {
         return sql.users.getUserProfileSettings(data[0].id)
         .then((settings) => {
           if (settings.gdpr_lupa == false) {
-            return { accountExists: true, storageId: null, hasPermission: false };
+            let storageId = crypto.randomUUID();
+            console.log('käyttäjä on olemassa.');
+            return sql.users.temporarilyStoreLtiToken(reqBody, settings.profiili, '1.1', storageId)
+            .then(() => {
+              return { accountExists: true, storageId: storageId, hasPermission: false };
+            });
           } else {
             return this.handleAcceptedLti1p1Login(httpRequest, reqBody);
           }
@@ -43,10 +48,14 @@ class LoginMethods {
     let coursename  = reqBody.context_title;
     let courseroles = reqBody.roles.split(',');
 
-    console.log(320);
     return auth.ltiLogin(httpRequest, userid, contextid, clientid, username, email, coursename, courseroles)
     .then((logindata) => {
-      console.log(321);
+      return sql.users.updateUserProfileGDPRPermission(logindata.profiili, true)
+      .then(() => {
+        return logindata;
+      });
+    })
+    .then((logindata) => {
       return { accountExists: true, courseId: logindata.kurssi, hasPermission: true };
     });
   }
@@ -60,7 +69,7 @@ class LoginMethods {
     .then((data) => {
       if (data.length == 0) {
         let storageId = crypto.randomUUID();
-        return sql.users.temporarilyStoreLtiToken(token, '1.3', storageId)
+        return sql.users.temporarilyStoreLtiToken(token, null, '1.3', storageId)
         .then(() => {
           return { accountExists: false, storageId: storageId, hasPermission: false };
         });
@@ -68,7 +77,11 @@ class LoginMethods {
         return sql.users.getUserProfileSettings(data[0].id)
         .then((settings) => {
           if (settings.gdpr_lupa == false) {
-            return { accountExists: true, storageId: null, hasPermission: false };
+            let storageId = crypto.randomUUID();
+            return sql.users.temporarilyStoreLtiToken(token, settings.profiili, '1.3', storageId)
+            .then(() => {
+              return { accountExists: true, storageId: storageId, hasPermission: false };
+            });
           } else {
             return this.handleAcceptedLti1p3Login(httpRequest, token);
           }
@@ -80,6 +93,12 @@ class LoginMethods {
   handleAcceptedLti1p3Login(httpRequest, token) {
     return auth.ltiLoginWithToken(httpRequest, token)
     .then((logindata) => {
+      return sql.users.updateUserProfileGDPRPermission(logindata.profiili, true)
+      .then(() => {
+        return logindata;
+      });
+    })
+    .then((logindata) => {
       return { accountExists: true, courseId: logindata.kurssi, hasPermission: true };
     });
   }
@@ -87,19 +106,15 @@ class LoginMethods {
   handleGdprAcceptance(httpRequest, storageId) {
     return sql.users.getStoredLtiToken(storageId)
     .then((tokenData) => {
-      console.log(31);
       if (tokenData.lti_versio === '1.1') {
-        console.log(32);
         return this.handleAcceptedLti1p1Login(httpRequest, tokenData.token);
       } else if (tokenData.lti_versio === '1.3') {
-        console.log(33);
         return this.handleAcceptedLti1p3Login(httpRequest, tokenData.token);
       } else {
         return Promise.reject(errorcodes.noPermission);
       }
     })
     .then((data) => {
-      console.log(34);
       return sql.users.deleteStoredLtiToken(storageId)
       .then(() => {
         return data;
@@ -108,8 +123,25 @@ class LoginMethods {
   }
 
   handleGdprRejection(httpRequest, storageId) {
+    console.log(11);
     return sql.users.getStoredLtiToken(storageId)
     .then((tokenData) => {
+      console.log(12);
+      console.dir(tokenData);
+      if (tokenData.olemassa_oleva_profiili != null) {
+        console.log(121);
+        return sql.users.removeAccount(tokenData.olemassa_oleva_profiili)
+        .then(() => {
+          console.log(1211);
+          return tokenData;
+        })
+      } else {
+        console.log(122);
+        return tokenData;
+      }
+    })
+    .then((tokenData) => {
+      console.log(13);
       let contextId;
       let clientId;
       if (tokenData.lti_versio === '1.1') {
@@ -122,6 +154,7 @@ class LoginMethods {
       return sql.courses.getLtiCourseInfo(clientId, contextId);
     })
     .then((courseDataList) => {
+      console.log(14);
       return sql.users.deleteStoredLtiToken(storageId)
       .then(() => {
         let courseExists;
