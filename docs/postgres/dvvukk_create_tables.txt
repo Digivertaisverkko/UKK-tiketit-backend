@@ -147,7 +147,7 @@ FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );
 
 CREATE TABLE core.lti_tilipyynto (
-id VARCHAR(36) NOT NULL,
+id VARCHAR(98) NOT NULL,
 lti_versio VARCHAR(5) NOT NULL,
 olemassa_oleva_profiili INT,
 token TEXT NOT NULL,

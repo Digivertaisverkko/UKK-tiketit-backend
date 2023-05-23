@@ -50,7 +50,13 @@ module.exports = {
   },
 
   temporarilyStoreLtiToken: function(token, profileId, version, storageId) {
-    const query = 'INSERT INTO core.lti_tilipyynto (id, olemassa_oleva_profiili, lti_versio, token) VALUES ($1, $2, $3, $4)';
+    const query = 'INSERT INTO core.lti_tilipyynto (id, olemassa_oleva_profiili, lti_versio, token) \
+    VALUES ($1, $2, $3, $4) \
+    ON CONFLICT (id) \
+    DO \
+    UPDATE SET olemassa_oleva_profiili = EXCLUDED.olemassa_oleva_profiili, \
+               lti_versio              = EXCLUDED.lti_versio, \
+               token                   = EXCLUDED.token';
     return connection.queryNone(query, [storageId, profileId, version, JSON.stringify(token)]);
   },
 

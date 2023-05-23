@@ -19,7 +19,8 @@ class LoginMethods {
     })
     .then((data) => {
       if (data.length == 0) {
-        let storageId = crypto.randomUUID();
+        let storageId = auth.hash(userid + clientid, '');
+        console.log('id: ' + storageId);
         return sql.users.temporarilyStoreLtiToken(reqBody, null, '1.1', storageId)
         .then(() => {
           return { accountExists: false, storageId: storageId, hasPermission: false };
@@ -28,7 +29,8 @@ class LoginMethods {
         return sql.users.getUserProfileSettings(data[0].id)
         .then((settings) => {
           if (settings.gdpr_lupa == false) {
-            let storageId = crypto.randomUUID();
+            let storageId = auth.hash(userid + clientid, '');
+            console.log('id: ' + storageId);
             return sql.users.temporarilyStoreLtiToken(reqBody, settings.profiili, '1.1', storageId)
             .then(() => {
               return { accountExists: true, storageId: storageId, hasPermission: false };
@@ -71,7 +73,7 @@ class LoginMethods {
     return sql.users.getLtiUser(ltiClientId, ltiUserId)
     .then((data) => {
       if (data.length == 0) {
-        let storageId = crypto.randomUUID();
+        let storageId = auth.hash(ltiUserId + ltiClientId, '');
         return sql.users.temporarilyStoreLtiToken(token, null, '1.3', storageId)
         .then(() => {
           return { accountExists: false, storageId: storageId, hasPermission: false };
@@ -80,7 +82,7 @@ class LoginMethods {
         return sql.users.getUserProfileSettings(data[0].id)
         .then((settings) => {
           if (settings.gdpr_lupa == false) {
-            let storageId = crypto.randomUUID();
+            let storageId = auth.hash(ltiUserId + ltiClientId, '');
             return sql.users.temporarilyStoreLtiToken(token, settings.profiili, '1.3', storageId)
             .then(() => {
               return { accountExists: true, storageId: storageId, hasPermission: false };
