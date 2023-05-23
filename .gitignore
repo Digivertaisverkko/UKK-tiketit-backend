@@ -357,8 +357,5 @@ MigrationBackup/
 # MacOS DS_Store
 .DS_Store
 
-# sample_data for sql
-docs/postgres/dvvukk_sample_data.txt
-
 # static folder containing front-end build
 static
