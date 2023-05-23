@@ -13,11 +13,13 @@ class LoginMethods {
     let userid   = reqBody.user_id;
     let clientid = reqBody.lis_outcome_service_url;
 
-    return sql.users.getLtiUser(clientid, userid)
+    return auth.logoutSession(httpRequest)
+    .then(() => {
+      return sql.users.getLtiUser(clientid, userid);
+    })
     .then((data) => {
       if (data.length == 0) {
         let storageId = crypto.randomUUID();
-        console.log('täysin uusi käyttäjä');
         return sql.users.temporarilyStoreLtiToken(reqBody, null, '1.1', storageId)
         .then(() => {
           return { accountExists: false, storageId: storageId, hasPermission: false };
@@ -27,7 +29,6 @@ class LoginMethods {
         .then((settings) => {
           if (settings.gdpr_lupa == false) {
             let storageId = crypto.randomUUID();
-            console.log('käyttäjä on olemassa.');
             return sql.users.temporarilyStoreLtiToken(reqBody, settings.profiili, '1.1', storageId)
             .then(() => {
               return { accountExists: true, storageId: storageId, hasPermission: false };
@@ -125,25 +126,19 @@ class LoginMethods {
   }
 
   handleGdprRejection(httpRequest, storageId) {
-    console.log(11);
     return sql.users.getStoredLtiToken(storageId)
     .then((tokenData) => {
-      console.log(12);
       console.dir(tokenData);
       if (tokenData.olemassa_oleva_profiili != null) {
-        console.log(121);
         return sqlfuncs.removeAllDataRelatedToUser(tokenData.olemassa_oleva_profiili)
         .then(() => {
-          console.log(1211);
           return tokenData;
         })
       } else {
-        console.log(122);
         return tokenData;
       }
     })
     .then((tokenData) => {
-      console.log(13);
       let contextId;
       let clientId;
       if (tokenData.lti_versio === '1.1') {
@@ -156,7 +151,6 @@ class LoginMethods {
       return sql.courses.getLtiCourseInfo(clientId, contextId);
     })
     .then((courseDataList) => {
-      console.log(14);
       return sql.users.deleteStoredLtiToken(storageId)
       .then(() => {
         let courseExists;

@@ -55,7 +55,7 @@ Lisäksi, jos lti:n kautta kirjautuu käyttäjä, jolla ei ole jo tiliä valmiik
 
 ### /lti/gdpr-lupa-kielto
 Poistaa välitilaan jääneen luvan. Luvat poistetaan myös ajastetusti, jos käyttäjä ei ekspiliittisesti lupaa kiellä.
-Jos tili on olemassa, kun tällä vastataan, niin tili poistuu
+Jos tili on olemassa, kun tällä vastataan, niin tili tuhotaan tietokannasta.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen luku
 ##### Lähetä:

@@ -138,33 +138,42 @@ module.exports = {
     let storedProfileId;
     let storedCourseId;
 
+    console.log(20);
     return sql.users.getLtiUser(clientid, userid)
     .then((userList) => {
+      console.log(21);
       if (userList.length == 0) {
+        console.log('22a');
         return sql.users.createLtiUser(username, email, clientid, userid);
       } else if (userList[0].nimi !== username || userList[0].sposti !== email) {
         return sql.users.updateUserProfile(userList[0].id, username, email)
         .then(() => {
+          console.log('22b');
             return userList[0].id;
         });
       } else {
+        console.log('22c');
         return userList[0].id;
       }
     })
     .then((profileid) => {
+      console.log(23);
       storedProfileId = profileid;
       return sql.courses.getAndCreateLtiCourse(coursename, clientid, contextid);
     })
     .then((courseid) => {
+      console.log(24);
       storedCourseId = courseid;
       return sql.courses.getUserInfoForCourse(storedProfileId, courseid)
       .then((userInfo) => {
+        console.log(25);
         let position = ltiparser.coursePositionFromLtiRoles(courseroles);
         if (userInfo.asema !== position && userInfo.asema !== 'opettaja') {
           return sql.courses.updateUserPositionInCourse(userInfo.id, storedCourseId, position);
         }
       })
       .catch((error) => {
+        console.log('26 error ' + error);
         if (error === 2000) {
           let position = ltiparser.coursePositionFromLtiRoles(courseroles);
           return sql.courses.addUserToCourse(courseid, storedProfileId, position === 'opettaja');
@@ -174,9 +183,11 @@ module.exports = {
       });
     })
     .then(() => {
+      console.log(27);
       return module.exports.regenerateSession(httpRequest, storedProfileId);
     })
     .then(() => {
+      console.log(28);
       return {"profiili": storedProfileId, "kurssi": storedCourseId};
     });
   },
@@ -215,13 +226,16 @@ module.exports = {
 
   regenerateSession: function(request, profileid) {
     return new Promise(function(resolve, reject) {
+      console.log(31);
       request.session.regenerate(function(error) {
         if (error) return reject(error);
+        console.log(32);
         request.session.profiili = profileid;
         resolve();
       });
     })
     .then(() => {
+      console.log(33);
       return this.saveSession(request);
     });
   },
@@ -233,6 +247,10 @@ module.exports = {
         resolve();
       })
     });
+  },
+
+  logoutSession: function(request) {
+    return this.regenerateSession(request, null);
   },
 
   destroySession: function(request) {
