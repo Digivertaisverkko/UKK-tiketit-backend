@@ -7,7 +7,7 @@ const sql = require('../../../routes/sql.js');
 
 class CommentWrites extends TicketReads {
 
-  addAttachment(commentid, filedata, originalFilename) {
+  addAttachment(commentid, filedata, originalFilename, filesize) {
     let fileid = crypto.randomUUID();
     let filePath = process.env.ATTACHMENT_DIRECTORY + fileid;
     return new Promise(function(resolve, reject) {
@@ -20,7 +20,7 @@ class CommentWrites extends TicketReads {
       });
     })
     .then(() => {
-      return sql.tickets.addAttachmentToComment(commentid, fileid, originalFilename);
+      return sql.tickets.addAttachmentToComment(commentid, fileid, originalFilename, filesize);
     });
   }
 

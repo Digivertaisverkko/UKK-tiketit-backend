@@ -142,6 +142,7 @@ CREATE TABLE core.liite (
 kommentti INT NOT NULL,
 tiedosto VARCHAR(36) NOT NULL,
 nimi VARCHAR(256) NOT NULL,
+koko INT NOT NULL,
 PRIMARY KEY (kommentti, tiedosto),
 FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );

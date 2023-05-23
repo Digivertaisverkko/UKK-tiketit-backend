@@ -254,7 +254,7 @@ module.exports = {
 
   getAttachmentListForCommentList: function(commentIdList) {
     const query = '\
-    SELECT kommentti, tiedosto, nimi \
+    SELECT kommentti, tiedosto, nimi, koko \
     FROM core.liite \
     WHERE kommentti=ANY($1)';
     return connection.queryAll(query, [commentIdList]);
@@ -262,32 +262,17 @@ module.exports = {
 
   getAttachmentForComment: function(commentid, fileid) {
     const query = '\
-    SELECT kommentti, tiedosto, nimi \
+    SELECT kommentti, tiedosto, nimi, koko \
     FROM core.liite \
     WHERE kommentti=$1 AND tiedosto=$2';
     return connection.queryAll(query, [commentid, fileid]);
   },
 
-  addAttachmentListToTicket: function(ticketid, attachmentidList) {
-    return new Promise(function(resolve, reject) {
-      var promises = [];
-      attachmentidList.forEach(attachmentid => {
-        const query = '\
-        INSERT INTO core.liite (tiketti, liite) \
-        VALUES ($1, $2)';
-        promises.push(connection.queryNone(query, [ticketid, attachmentid]));
-      });
-      return Promise.all(promises)
-      .then(() => resolve(ticketid))
-      .catch(() => reject(errorcodes.somethingWentWrong));
-    });
-  },
-
-  addAttachmentToComment: function(commentid, attachmentid, filename) {
+  addAttachmentToComment: function(commentid, attachmentid, filename, filesize) {
     const query = '\
-        INSERT INTO core.liite (kommentti, tiedosto, nimi) \
-        VALUES ($1, $2, $3)';
-    return connection.queryNone(query, [commentid, attachmentid, filename]);
+        INSERT INTO core.liite (kommentti, tiedosto, nimi, koko) \
+        VALUES ($1, $2, $3, $4)';
+    return connection.queryNone(query, [commentid, attachmentid, filename, filesize]);
   },
 
   updateTicket(ticketid, title, fieldList) {

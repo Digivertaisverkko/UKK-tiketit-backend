@@ -15,7 +15,8 @@ router.post('/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, 
   .then((handle) => {
     return handle.methods.addAttachment(req.params.commentid, 
                                         req.files.tiedosto.data, 
-                                        req.files.tiedosto.name);
+                                        req.files.tiedosto.name,
+                                        req.files.tiedosto.size);
   })
   .then(() => {
     res.send({ success: true });
