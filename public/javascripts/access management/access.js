@@ -45,7 +45,7 @@ module.exports = {
     });
   },
 
-  readTicket: function(request, ticketId) {
+  readTicket: function(request, courseId, ticketId) {
     let storedUserId;
     let storedTicketData;
     return sql.tickets.isFaqTicket(ticketId)
@@ -57,6 +57,9 @@ module.exports = {
           return sql.tickets.getPlainTicket(ticketId);
         })
         .then((ticketData) => {
+          if (ticketData.kurssi != courseId) {
+            return Promise.reject(errorcodes.operationNotPossible);
+          }
           storedTicketData = ticketData;
           return sql.courses.roleInCourse(ticketData.kurssi, storedUserId);
         })  
@@ -84,7 +87,7 @@ module.exports = {
     });
   },
 
-  writeTicket: function(request, ticketId) {
+  writeTicket: function(request, courseId, ticketId) {
     let storedUserId;
     return auth.authenticatedUser(request)
     .then((userid) => {
@@ -92,6 +95,9 @@ module.exports = {
       return sql.tickets.getPlainTicket(ticketId);
     })
     .then((ticketData) => {
+      if (ticketData.kurssi != courseId) {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
       if (ticketData.ukk === true) {
         return Promise.reject(errorcodes.operationNotPossible);
       } else if (ticketData.aloittaja != storedUserId) {
@@ -102,11 +108,11 @@ module.exports = {
     });
   },
 
-  writeFaq: function(request, ticketId) {
+  writeFaq: function(request, courseId, ticketId) {
     //Palauttaa saman kuin writeCourse, mutta hakee kurssi-id:n tiketistä.
     return sql.tickets.getPlainTicket(ticketId)
     .then((ticketData) => {
-      if (ticketData.ukk === false) {
+      if (ticketData.ukk === false || ticketData.kurssi != courseId) {
         return Promise.reject(errorcodes.operationNotPossible);
       } else {
         return this.writeCourse(request, ticketData.kurssi);
@@ -114,9 +120,9 @@ module.exports = {
     })
   },
 
-  writeComment: function(request, ticketId, commentId) {
+  writeComment: function(request, courseId, ticketId, commentId) {
     let storedUserId;
-    return module.exports.readTicket(request, ticketId)
+    return module.exports.readTicket(request, courseId, ticketId)
     .then((handle) => {
       storedUserId = handle.userid;
       return sql.tickets.getComment(commentId)

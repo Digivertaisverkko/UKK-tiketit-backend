@@ -10,8 +10,8 @@ router.use(fileUpload({
   defParamCharset: 'utf8'
 }));
 
-router.post('/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, next) {
-  access.writeComment(req, req.params.ticketid, req.params.commentid)
+router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, next) {
+  access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
   .then((handle) => {
     return handle.methods.addAttachment(req.params.commentid, 
                                         req.files.tiedosto.data, 
@@ -27,8 +27,8 @@ router.post('/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, 
 
 });
 
-router.get('/tiketti/:ticketid/kommentti/:commentid/liite/:attachmentid/lataa', function(req, res, next) {
-  access.readTicket(req, req.params.ticketid)
+router.get('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite/:attachmentid/tiedosto', function(req, res, next) {
+  access.readTicket(req, req.params.courseid, req.params.ticketid)
   .then((handle) => {
     return handle.methods.getAttachment(req.params.commentid, req.params.attachmentid);
   })

@@ -117,7 +117,7 @@ Lähettää myös http-only sessioevästeen osana vastausta.
 ```
 
 
-### /api/luotili/ 
+### /api/minun/tili/ 
 #### POST
 **Tätä ei ole toteutettu tällä hetkellä.**
 ##### Lähetä: 
@@ -300,7 +300,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-### /api/kurssi/omatkurssit/
+### /api/minun/kurssit/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Profiililuku
 ##### Vastaus:
@@ -324,8 +324,8 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 ```
 
-### /api/kurssi/:kurssi-id/kaikki/ ja
-### /api/kurssi/:kurssi-id/omat/
+### /api/kurssi/:kurssi-id/tiketti/kaikki/ ja
+### /api/kurssi/:kurssi-id/tiketti/omat/
 Näillä rajapinnoilla saadaan kurssille osoitetut tiketit. 
 * /omat lähettää kaikki kirjautuneen käyttäjän luomat tiketit. 
 * /kaikki lähettää kirjautuneen käyttäjän luomat tiketit, jos hän on kurssilla opiskelijana. Jos on kirjautunut opettajana, niin palautetaan kaikki kurssin tiketit.
@@ -346,7 +346,7 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 
 
 
-### /api/kurssi/:kurssi-id/arkistoidut
+### /api/kurssi/:kurssi-id/tiketti/arkisto/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssiluku
 Palauttaa kaikki arkistoidut tiketit kurssilla, joihin käyttäjällä on oikeus päästä. Opettaja näkee kaikki kurssin tiketit, ja opiskelija näkee vain itse lähettämänsä.
@@ -367,7 +367,7 @@ Palauttaa kaikki arkistoidut tiketit kurssilla, joihin käyttäjällä on oikeus
 ```
 
 
-### /api/kurssi/:kurssi-id/ukk/
+### /api/kurssi/:kurssi-id/ukk/kaikki/
 Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt UKK-tiketeiksi. Tällä on myös POST-muoto, jolla voidaan lisätä UKK-tikettejä kantaan.
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen luku
@@ -459,8 +459,8 @@ Tähän on tarkoitus lähettää toisesta kurssista GET-kutsulla saatu json-tied
 ```
 
 
-### /api/tiketti/:tiketti-id/valmis
-#### POST
+### /api/kurssi/:kurssi-id/tiketti/arkisto/:tiketti-id/
+#### PUT
 Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin voi arkistoida, jos sen tila on ollut joskus ratkaistu tai kommentoitu. Tämän voi tarkistaa kutsulla [/api/tiketti/:tiketti-id](#apitikettitiketti-id), joka kertoo onko tiketti *arkistoitava*.
 ##### Vastaus:
 ```
@@ -471,16 +471,12 @@ Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin v
 
 
 
-### /api/tiketti/:tiketti-id/arkistoiukk
+### /api/kurssi/:kurssi-id/ukk/arkisto/:tiketti-id/
 Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi. Tiketti arkistoidaan vain siinä tapauksessa, jos tiketti on merkitty UKK:ksi.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) UKK-kirjoitus
 ##### Lähetä:
 ```
-- header -
-{
-  session-id
-}
 ```
 ##### Vastaus:
 ```
@@ -490,10 +486,11 @@ Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi. Tik
 }
 ```
 
-### /api/tiketti/:tiketti-id/muokkaaukk
+### /api/kurssi/:kurssi-id/ukk/:tiketti-id/
+Muokkaa annettua UKK-tikettiä.
 Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi, ja muokattavan tiketin pitää olla UKK, eikä se saa olla [arkistoitu](#tiketin-tila).
 Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuilla tiedoilla. Lopputulos on siis sama, kuin kutsuisi [/api/tiketti/:tiketti-id/arkistoiukk](#apitikettitiketti-idarkistoiukk) ja **POST** [/api/kurssi/:kurssi-id/ukk](#apikurssikurssi-idukk).
-#### POST
+#### PUT
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) UKK-kirjoitus
 ##### Lähetä:
 ```
@@ -518,7 +515,7 @@ Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuill
 ```
 
  
-### /api/luokurssi/
+### /api/kurssi/
 #### POST
 ##### Lähetä:
 ```
@@ -551,9 +548,10 @@ Tulevaisuudessa lisäksi pitää lähettää:
 
 
 
-### /api/kurssi/:kurssi-id/liity/
-Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi. *Tämä rajapinta tullaan poistamaan tulevaisuudessa.*
+### /api/kurssi/:kurssi-id/osallistujat/
+Rajapinta kurssien käyttäjille.
 #### POST
+Tällä saadaan liitettyä käyttäjä kurssille. Liittää kirjautuneen käyttäjän kurssille mukisematta. Uusi käyttäjä oletuksena laitetaan opiskelijaksi. *Tämä rajapinta tullaan poistamaan tulevaisuudessa.*
 ##### Vastaus:
 ```
 - body - 
@@ -563,7 +561,7 @@ Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena la
 ```
 
 
-### /api/kurssi/:kurssi-id/kutsu/
+### /api/kurssi/:kurssi-id/osallistujat/kutsu/
 Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. **Vaatii opettajan oikeudet kurssille**, jotta opiskelijoita voi kutsua.
 Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, niin kyseinen käyttäjä lisätään kurssille. Jos käyttäjää ei ole vielä kannassa, käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin. (Toteutus kesken.)
 #### POST
