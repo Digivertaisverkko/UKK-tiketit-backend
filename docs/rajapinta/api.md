@@ -459,9 +459,15 @@ Tähän on tarkoitus lähettää toisesta kurssista GET-kutsulla saatu json-tied
 ```
 
 
-### /api/kurssi/:kurssi-id/tiketti/arkisto/:tiketti-id/
+### /api/kurssi/:kurssi-id/tiketti/arkisto
 #### PUT
 Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin voi arkistoida, jos sen tila on ollut joskus ratkaistu tai kommentoitu. Tämän voi tarkistaa kutsulla [/api/tiketti/:tiketti-id](#apitikettitiketti-id), joka kertoo onko tiketti *arkistoitava*.
+##### Lähetä:
+```
+{
+  tiketti: $int (arkistoitavan tiketin id)
+}
+```
 ##### Vastaus:
 ```
 {
