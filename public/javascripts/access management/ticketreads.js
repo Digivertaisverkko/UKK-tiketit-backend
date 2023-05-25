@@ -50,8 +50,8 @@ class TicketReads {
 
   }
 
-  archiveFinishedTicket(ticketId) {
-    return this.isTicketArchivable(ticketId)
+  archiveFinishedTicket(ticketId, userId) {
+    return this.isTicketArchivable(ticketId, userId)
     .then(() => {
       return sql.tickets.archiveTicket(ticketId);
     });

@@ -257,7 +257,7 @@ router.delete('/minun/', function(req, res, next) {
 });
 
 
-router.get('minun/kurssit/', function(req, res, next) {
+router.get('/minun/kurssit/', function(req, res, next) {
   //ACCESS
   access.listCourses(req)
   .then((handle) => {
@@ -514,7 +514,7 @@ router.get('/kurssi/:courseid/tiketti/:ticketid/kommentti/kaikki', function(req,
 
 
 
-router.post('kurssi/:courseid/tiketti/:ticketid/kommentti', function(req, res, next) {
+router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'viesti', type: 'string'},
     {key: 'tila', type: 'number', min: 0, max: 6}
@@ -538,7 +538,7 @@ router.post('kurssi/:courseid/tiketti/:ticketid/kommentti', function(req, res, n
 
 
 
-router.put('kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
+router.put('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   sanitizer.test(req.body, [
     { key: 'viesti', type: 'string' },
     { key: 'tila',   type: 'number', optional: true, 
@@ -564,7 +564,7 @@ router.put('kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', function(r
   })
 });
 
-// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
+
 router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
   .then((handle) => {
@@ -579,15 +579,15 @@ router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', functi
 });
 
 
-router.put('/kurssi/:courseid/tiketti/arkisto/', function(req, res, next) {
+router.post('/kurssi/:courseid/tiketti/arkisto/', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'tiketti', type: 'number'}
   ])
   .then(() => {
-    return access.readTicket(req, req.params.courseid, req.params.ticketid);
+    return access.readTicket(req, req.params.courseid, req.body.tiketti);
   })
   .then((handle) => {
-    return handle.methods.archiveFinishedTicket(req.params.ticketid);
+    return handle.methods.archiveFinishedTicket(req.body.tiketti, handle.userid);
   })
   .then(() => {
     res.send({ success: true });
@@ -598,15 +598,15 @@ router.put('/kurssi/:courseid/tiketti/arkisto/', function(req, res, next) {
 });
 
 
-router.put('/kurssi/:courseid/ukk/arkisto/', function(req, res, next) {
+router.post('/kurssi/:courseid/ukk/arkisto/', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'tiketti', type: 'number'}
   ])
   .then(() => {
-    return access.writeFaq(req, req.params.courseid, req.params.ticketid);
+    return access.writeFaq(req, req.params.courseid, req.body.tiketti);
   })
   .then((handle) => {
-    return handle.methods.archiveFaqTicket(req.params.ticketid);
+    return handle.methods.archiveFaqTicket(req.body.tiketti);
   })
   .then(() => {
     res.send({success: true});
