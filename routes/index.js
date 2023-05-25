@@ -598,7 +598,7 @@ router.put('/kurssi/:courseid/tiketti/arkisto/', function(req, res, next) {
 });
 
 
-router.post('/kurssi/:courseid/ukk/arkisto/', function(req, res, next) {
+router.put('/kurssi/:courseid/ukk/arkisto/', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'tiketti', type: 'number'}
   ])
