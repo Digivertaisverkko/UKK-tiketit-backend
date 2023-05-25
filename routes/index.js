@@ -617,7 +617,7 @@ router.put('/kurssi/:courseid/ukk/arkisto/', function(req, res, next) {
 });
 
 
-router.PUT('/kurssi/:courseid/ukk/:ticketid/', function(req, res, next) {
+router.put('/kurssi/:courseid/ukk/:ticketid/', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', max: 255},
     {key: 'viesti', type: 'string'},

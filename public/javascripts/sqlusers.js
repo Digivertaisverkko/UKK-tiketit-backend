@@ -215,20 +215,24 @@ module.exports = {
   },
 
   removeProfile: function(profileid) {
-    console.log('poista profiili');
-    const query = '\
-    DELETE FROM core.profiili \
-    WHERE id=$1';
-    return connection.queryNone(query, [profileid]);
+    const profileQuery  = 'DELETE FROM core.profiili WHERE id=$1';
+    const settingsQuery = 'DELETE FROM core.profiiliasetukset WHERE profiili=$1';
+    return connection.queryNone(settingsQuery, [profileid])
+    .then(() => {
+      return connection.queryNone(profileQuery, [profileid]);
+    })
   },
 
   removeAccount: function(profileid) {
-    console.log('poista tili');
     const defaultQuery = 'DELETE FROM core.login WHERE profiili=$1';
     const ltiQuery     = 'DELETE FROM core.lti_login WHERE profiili=$1';
+    const requestQuery = 'DELETE FROM core.lti_tilipyynto WHERE olemassa_oleva_profiili=$1';
     return connection.queryNone(defaultQuery, [profileid])
     .then(() => {
       return connection.queryNone(ltiQuery, [profileid]);
+    })
+    .then(() => {
+      return connection.queryNone(requestQuery, [profileid]);
     });
   },
 
