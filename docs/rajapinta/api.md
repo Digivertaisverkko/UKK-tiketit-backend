@@ -608,7 +608,7 @@ Tiketit muodostuvat tietokannassa useammasta osasesta. Iso osa rajapinnoista yri
     - Tiketeissä on kommentointimahdollisuus, ja tästä löytyy kaikki tiketin kommentit. Myös tiketin alkuperäinen viesti menee kommentiksi.
 
 
-### /api/kurssi/:kurssi-id/tiketinkentat/
+### /api/kurssi/:kurssi-id/tikettipohja/kentat
 Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti.)
 
 #### GET
@@ -653,7 +653,7 @@ Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset
 ```
 
 
-### /api/kurssi/:kurssi-id/uusitiketti/
+### /api/kurssi/:kurssi-id/tiketti/
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
 
 #### POST
@@ -688,14 +688,7 @@ Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** os
 
 
 
-### /api/kurssi/:kurssi-id/uusitiketti/kentat/
-#### GET
-[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssiluku
-Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat*](#apikurssikurssi-idtiketinkentat).
-
-
-
-### /api/tiketti/:tiketti-id/
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 ##### Vastaus:
@@ -751,7 +744,7 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 
 
-### /api/tiketti/:tiketti-id/kentat/
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kentat/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 ##### Vastaus:
@@ -771,7 +764,7 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 
 
-### /api/tiketti/:tiketti-id/uusikommentti
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti
 Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tikettiin.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
@@ -797,7 +790,7 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 ```
 
 
-### /api/tiketti/:tiketti-id/kommentti/:kommentti-id
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id
 Tällä rajapinnalla voi lueskella ja muokata yksittäistä kommenttia.
 #### PUT
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kommenttikirjoitus
@@ -830,7 +823,7 @@ Poistaa annetun kommentin, jos se on kirjautuneen käyttäjän luoma.
 
 
 
-### /api/tiketti/:tiketti-id/kommentit/
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/kaikki
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 #### GET
 ##### Vastaus:
@@ -857,7 +850,7 @@ Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin
 ## Liitteiden rajapinta
 Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/form-data** tiedostomuotoa.
 
-### /api/tiketti/:tiketti-id/kommentti/:kommentti-id/liite
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id/liite
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kommenttikirjoitus
 ##### Lähetä:
@@ -875,7 +868,7 @@ kentän nimi on tiedosto.
 }
 ```
 
-### /api/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/liite-id/lataa
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/:liite-id/tiedosto
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 ##### Vastaus:
