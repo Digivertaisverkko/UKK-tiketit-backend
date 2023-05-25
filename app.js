@@ -67,16 +67,23 @@ function setupApp() {
   app.use(cookieParser(cookieSecret));
 
   const day = 86400000;
-  //app.set('trust proxy', 1) //If you have your node.js behind a proxy and are using secure: true, you need to set "trust proxy" in express 
-  app.use(express_session({
+
+  let sessionSettings = {
     secret: cookieSecret,
     resave: false,
     store: sessionStoreManager,
     saveUninitialized: false,
     //proxy: true,
     rolling: true,
-    cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 /*, secure: true*/ }
-  }));
+    cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 }
+  };
+
+  if (app.get('env') != 'development') {
+    app.set('trust proxy', 1);
+    sessionSettings.cookie.sameSite = 'None';
+    sessionSettings.cookie.secure = true;
+  }
+  app.use(express_session(sessionSettings));
 
   app.use('/api', indexRouter);
   app.use('/lti', ltiRouter);
