@@ -460,7 +460,7 @@ Tähän on tarkoitus lähettää toisesta kurssista GET-kutsulla saatu json-tied
 
 
 ### /api/kurssi/:kurssi-id/tiketti/arkisto
-#### PUT
+#### POST
 Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin voi arkistoida, jos sen tila on ollut joskus ratkaistu tai kommentoitu. Tämän voi tarkistaa kutsulla [/api/tiketti/:tiketti-id](#apitikettitiketti-id), joka kertoo onko tiketti *arkistoitava*.
 ##### Lähetä:
 ```
@@ -477,12 +477,15 @@ Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin v
 
 
 
-### /api/kurssi/:kurssi-id/ukk/arkisto/:tiketti-id/
+### /api/kurssi/:kurssi-id/ukk/arkisto/
 Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi. Tiketti arkistoidaan vain siinä tapauksessa, jos tiketti on merkitty UKK:ksi.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) UKK-kirjoitus
 ##### Lähetä:
 ```
+{
+  tiketti: $int (arkistoitavan tiketin id)
+}
 ```
 ##### Vastaus:
 ```
