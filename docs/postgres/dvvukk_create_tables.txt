@@ -172,6 +172,14 @@ PRIMARY KEY (profiili),
 FOREIGN KEY (profiili) REFERENCES core.profiili(id)
 );
 
+CREATE TABLE core.kurssikutsu (
+id VARCHAR(36) NOT NULL,
+kurssi INT NOT NULL,
+vanhenee TIMESTAMPTZ NOT NULL,
+PRIMARY KEY (id),
+FOREIGN KEY (kurssi) REFERENCES core.kurssi(id)
+);
+
 CREATE TABLE core.lti_client (
 key VARCHAR(36) NOT NULL,
 secret VARCHAR(36) NOT NULL,
