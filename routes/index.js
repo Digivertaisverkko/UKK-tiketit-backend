@@ -683,6 +683,21 @@ router.post('/kurssi/:courseid/osallistujat', function(req, res, next) {
 router.post('/kurssi/:courseid/osallistujat/kutsu', function(req, res, next) {
   errorFactory.createError(res, errorFactory.code.unfinishedAPI);
   //Kommentoitu tiläpäisesti, kunnes oikea toteutus tarvitaan.
+
+  sanitizer.test(req.body, [
+    {key: 'sposti', type: 'string'},
+    {key: 'rooli', type: 'string', value: ['opettaja', 'opiskelija']}
+  ])
+  .then(() => {
+    return access.writeCourse(req, req.params.courseid);
+  })
+  .then((handle) => {
+    return handle.methods.inviteUserToCourse(req.params.courseid, req.body.sposti, req.body.rooli);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+
   /*
   sanitizer.hasRequiredParameters(req, ["sposti", "opettaja"])
   .then(() => auth.authenticatedUser(req))

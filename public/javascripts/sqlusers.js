@@ -170,6 +170,11 @@ module.exports = {
     return connection.queryOne(query, [userid]);
   },
 
+  getUserProfileWithEmail: function(email) {
+    const query = 'SELECT nimi, sposti from core.profiili WHERE sposti=$1';
+    return connection.queryOne(query, [email]);
+  },
+
   getAllUsersWhoWantAggregateMails: function() {
     const query = 'SELECT p.id, p.nimi, p.sposti \
     FROM core.profiili p \

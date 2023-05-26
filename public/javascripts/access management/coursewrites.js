@@ -30,6 +30,43 @@ class CourseWrites extends CourseReads {
     });
   }
 
+  editFaqTicket(ticketid, newTitle, newBody, newAnswer, newFields) {
+    let storedTicketData;
+    return sql.tickets.isFaqTicket(ticketid)
+    .then((isFaq) => {
+      if (isFaq) {
+        return sql.tickets.getTicket(ticketid)
+        .then((ticketData) => {
+          if (ticketData.tila === TicketState.archived) {
+            return Promise.reject(errorcodes.operationNotPossible);
+          }
+        })
+        .then(() => {
+          return sql.tickets.updateTicket(ticketid, newTitle, newFields);
+        })
+        .then(() => {
+          return sql.tickets.getComments(ticketid);
+        })
+        .then((commentList) => {
+          commentList.sort((a, b) => { 
+            if (a.aikaleima < b.aikaleima) {
+              return -1;
+            } else if (a.aikaleima > b.aikaleima) {
+              return 1;
+            }
+            return 0;
+          });
+          return sql.tickets.updateComment(commentList[0].id, newBody, null)
+          .then(() => {
+            return sql.tickets.updateComment(commentList[1].id, newAnswer, null);
+          });
+        });
+      } else {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
+    })
+  }
+
   exportFaqsFromCourse(courseId) {
     let storedTicketList;
     let storedCommentList;
@@ -78,41 +115,19 @@ class CourseWrites extends CourseReads {
     return Promise.resolve();
   }
 
-  editFaqTicket(ticketid, newTitle, newBody, newAnswer, newFields) {
-    let storedTicketData;
-    return sql.tickets.isFaqTicket(ticketid)
-    .then((isFaq) => {
-      if (isFaq) {
-        return sql.tickets.getTicket(ticketid)
-        .then((ticketData) => {
-          if (ticketData.tila === TicketState.archived) {
-            return Promise.reject(errorcodes.operationNotPossible);
-          }
-        })
-        .then(() => {
-          return sql.tickets.updateTicket(ticketid, newTitle, newFields);
-        })
-        .then(() => {
-          return sql.tickets.getComments(ticketid);
-        })
-        .then((commentList) => {
-          commentList.sort((a, b) => { 
-            if (a.aikaleima < b.aikaleima) {
-              return -1;
-            } else if (a.aikaleima > b.aikaleima) {
-              return 1;
-            }
-            return 0;
-          });
-          return sql.tickets.updateComment(commentList[0].id, newBody, null)
-          .then(() => {
-            return sql.tickets.updateComment(commentList[1].id, newAnswer, null);
-          });
-        });
-      } else {
-        return Promise.reject(errorcodes.operationNotPossible);
+  inviteUserToCourse(courseId, email, role) {
+    return sql.users.getUserProfileWithEmail(email)
+    .catch((error) => {
+      if (error == errorcodes.noResults) {
+        //Lähetä käyttäjälle sähköpostilla kutsu kurssille.
       }
     })
+    .then((profile) => {
+      return sql.courses.addUserToCourse(courseId, profile.id, role === 'opettaja')
+      .then(() => {
+        //Lähetä kutsutulle käyttäjälle sähköpostia siitä, että hänet on lisätty kurssille
+      })
+    });
   }
 
   replaceFieldsOfTicketBase(courseId, fields) {
