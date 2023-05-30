@@ -1,5 +1,6 @@
 const sql = require('../../../routes/sql.js');
 const arrayTools = require('../arrayTools.js');
+const mailer = require('../mailer.js');
 const TicketState = require('../ticketstate.js');
 const errorcodes = require('./../errorcodes.js');
 
@@ -117,17 +118,24 @@ class CourseWrites extends CourseReads {
 
   inviteUserToCourse(courseId, email, role) {
     return sql.users.getUserProfileWithEmail(email)
+    .then((profile) => {
+      return sql.users.createUserInvitation(courseId, email, role)
+      .then((invitationId) => {
+        //Lähetä kutsutulle käyttäjälle sähköpostia siitä, että hänet on lisätty kurssille
+        return Promise.resolve(invitationId);
+      })
+    })
     .catch((error) => {
       if (error == errorcodes.noResults) {
-        //Lähetä käyttäjälle sähköpostilla kutsu kurssille.
+        return sql.users.createUserInvitation(courseId, email, role)
+        .then((invitationId) => {
+          //Lähetä käyttäjälle sähköpostilla kutsu kurssille.
+          return Promise.resolve(invitationId);
+        });
+      } else {
+        return Promise.reject(error);
       }
     })
-    .then((profile) => {
-      return sql.courses.addUserToCourse(courseId, profile.id, role === 'opettaja')
-      .then(() => {
-        //Lähetä kutsutulle käyttäjälle sähköpostia siitä, että hänet on lisätty kurssille
-      })
-    });
   }
 
   replaceFieldsOfTicketBase(courseId, fields) {

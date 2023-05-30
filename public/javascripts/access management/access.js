@@ -10,6 +10,7 @@ const CourseWrites = require('./coursewrites.js');
 const ProfileReads = require('./profilereads.js');
 const ProfileWrites = require('./profilewrites.js');
 const PublicMethods = require('./publicmethods.js');
+const CommonMethods = require('./commonmethods.js');
 const LoginMethods = require('./loginmethods.js');
 
 const TicketReads = require('./ticketreads.js');
@@ -17,6 +18,7 @@ const TicketWrites = require('./ticketwrites.js');
 
 
 const publicmethds = new PublicMethods();
+const commonmethods = new CommonMethods();
 const ticketreads = new TicketReads();
 const ticketwrites = new TicketWrites();
 const courselists = new CourseLists();
@@ -42,6 +44,13 @@ module.exports = {
   publicMethods: function() {
     return new Promise(function(resolve, reject) {
       resolve({ userid: undefined, methods: publicmethds });
+    });
+  },
+
+  commonMethods: function(request) {
+    return auth.authenticatedUser(request)
+    .then((userId) => {
+      return { userid: userId, methods: commonmethods };
     });
   },
 

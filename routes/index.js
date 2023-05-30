@@ -92,8 +92,15 @@ router.post('/kirjauduulos/', function(req, res, next) {
 });
 
 router.post('/luotili/', function(req, res, next) {
-  sanitizer.hasRequiredParameters(req, ['ktunnus', 'salasana', 'sposti'])
-  .then((header) => auth.createAccount(header.ktunnus, header.salasana, header.sposti))
+  sanitizer.test(req.body, [
+    {key: 'ktunnus', type: 'string', min: 5, max: 255},
+    {key: 'salasana', type: 'string'},
+    {key: 'sposti', type: 'string', min: 1, max: 255},
+    {key: 'kutsu', type: 'string', min: 36, max: 36}
+  ])
+  .then(() => { 
+    return auth.createAccount(req.body.ktunnus, req.body.salasana, req.body.sposti, req.body.kutsu)
+  })
   .then((data) => {
     res.send({success: true});
   })
@@ -662,28 +669,26 @@ router.post('/kurssi/', function(req, res, next) {
 
 
 router.post('/kurssi/:courseid/osallistujat', function(req, res, next) {
-  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
-  //TODO: Tietoturva-aukko: Kuka tahansa voi liittyä mille tahansa kurssille.
-  //Kommentoitu tilapäisesti tietoturva-aukon korjaamista odotellessa.
-  /*
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    sql.courses.addUserToCourse(req.params.courseid, userid, false);
+
+  sanitizer.test(req.body, [
+    {key: 'kutsu', type: 'string', min: 36, max: 36}
+  ])
+  .then(() => {
+    return access.commonMethods(req);
   })
-  .then((sqldata) => {
-    res.send({success: true});
+  .then((handle) => {
+    return handle.methods.acceptInvitation(req.body.kutsu, handle.userid);
+  })
+  .then(() => {
+    res.send({ success: true });
   })
   .catch((error) => {
     errorFactory.createError(res, error);
   });
-  */
 });
 
 
 router.post('/kurssi/:courseid/osallistujat/kutsu', function(req, res, next) {
-  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
-  //Kommentoitu tiläpäisesti, kunnes oikea toteutus tarvitaan.
-
   sanitizer.test(req.body, [
     {key: 'sposti', type: 'string'},
     {key: 'rooli', type: 'string', value: ['opettaja', 'opiskelija']}
@@ -694,34 +699,12 @@ router.post('/kurssi/:courseid/osallistujat/kutsu', function(req, res, next) {
   .then((handle) => {
     return handle.methods.inviteUserToCourse(req.params.courseid, req.body.sposti, req.body.rooli);
   })
+  .then((invitationId) => {
+    res.send({ success: true, kutsu: invitationId });
+  })
   .catch((error) => {
     errorFactory.createError(res, error);
   })
-
-  /*
-  sanitizer.hasRequiredParameters(req, ["sposti", "opettaja"])
-  .then(() => auth.authenticatedUser(req))
-  .then((userid) => {
-    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
-  })
-  .then((userinfo) => {
-    if (userinfo.asema !== "opettaja") {
-      return Promise.reject(errorFactory.code.noPermission);
-    } else {
-      return sql.users.userIdsWithEmail(req.body.sposti);
-    }
-  })
-  .then((usersWithMatchingEmail) => {
-    if (usersWithMatchingEmail.length == 0) {
-      //TODO: Lähetä kutsu ihmiselle, joka ei käytä ohjelmaa tällä hetkellä.
-      return Promise.reject(errorFactory.code.noResults);
-    } else {
-      sql.courses.addUserToCourse(req.params.courseid, usersWithMatchingEmail[0], req.body.opettaja);
-    }
-  })
-  .then(() => res.send({success: true}))
-  .catch((error) => errorFactory.createError(res, error));
-  */
 });
 
 

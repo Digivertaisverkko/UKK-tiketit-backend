@@ -175,7 +175,9 @@ FOREIGN KEY (profiili) REFERENCES core.profiili(id)
 CREATE TABLE core.kurssikutsu (
 id VARCHAR(36) NOT NULL,
 kurssi INT NOT NULL,
+sposti VARCHAR(255) NOT NULL,
 vanhenee TIMESTAMPTZ NOT NULL,
+rooli VARCHAR(255) NOT NULL,
 PRIMARY KEY (id),
 FOREIGN KEY (kurssi) REFERENCES core.kurssi(id)
 );

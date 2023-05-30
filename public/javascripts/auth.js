@@ -77,13 +77,32 @@ module.exports = {
     });
   },
 
-  createAccount: function(username, password, email) {
-    return sql.users.createEmptyUser(username, email)
+  createAccount: function(username, password, email, invitationId) {
+    let storedInvitation;
+    let storedUserId;
+    console.log(0);
+    return sql.users.getUserInvitation(invitationId)
+    .then((invitationData) => {
+      console.log(1);
+      storedInvitation = invitationData;
+      return sql.users.createEmptyUser(username, email)
+    })
     .then((newuserId) => {
+      storedUserId = newuserId;
+      console.log(2);
       let salt = crypto.randomBytes(8).toString('hex');
       let hash = module.exports.hash(password, salt);
       return sql.users.createAccount(username, hash, salt, newuserId);
-    });
+    })
+    .then(() => {
+      console.log(3);
+      return sql.courses.addUserToCourse(storedInvitation.kurssi,
+                                         storedUserId,
+                                         storedInvitation.rooli == 'opettaja');
+    })
+    .then(() => {
+      return sql.users.removeUserInvitation(invitationId);
+    })
   },
 
   securityCheckLti1p1: function(request) {

@@ -155,6 +155,19 @@ module.exports = {
     });
   },
 
+  createUserInvitation: function(courseId, email, role) {
+    const query = '\
+    INSERT INTO core.kurssikutsu (id, kurssi, sposti, rooli, vanhenee) \
+    VALUES ($1, $2, $3, $4, NOW()+interval \'5 days\') \
+    RETURNING id';
+    let invitationId = crypto.randomUUID();
+
+    return connection.queryOne(query, [invitationId, courseId, email, role])
+    .then((data) => {
+      return data.id;
+    })
+  },
+
   userIdForSession: function(sessionid) {
     const query = 'SELECT profiili FROM core.sessio WHERE sessionid=$1 AND vanhenee>NOW()';
     return connection.queryAll(query, [sessionid]);
@@ -173,6 +186,12 @@ module.exports = {
   getUserProfileWithEmail: function(email) {
     const query = 'SELECT nimi, sposti from core.profiili WHERE sposti=$1';
     return connection.queryOne(query, [email]);
+  },
+
+  getUserInvitation: function(invitationId) {
+    console.log(invitationId);
+    const query = 'SELECT * from core.kurssikutsu WHERE id=$1 AND vanhenee > NOW()';
+    return connection.queryOne(query, [invitationId]);
   },
 
   getAllUsersWhoWantAggregateMails: function() {
@@ -239,6 +258,11 @@ module.exports = {
     .then(() => {
       return connection.queryNone(requestQuery, [profileid]);
     });
+  },
+
+  removeUserInvitation: function(invitationId) {
+    const query = 'DELETE FROM core.kurssikutsu WHERE id=$1';
+    return connection.queryNone(query, [invitationId]);
   },
 
   removeSession: function(profileid) {

@@ -97,6 +97,21 @@ module.exports = {
 
   },
 
+  sendInvitationMail: function(email, courseId, invitationId) {
+
+    return sql.courses.getCourseInfo(courseId)
+    .then((courseData) => {
+
+      let title = 'Kutsu TUKKI-järjestelmän kurssille ' + courseData.nimi;
+      let content = 'Sinut on kutsuttu kurssille ' + courseData.nimi + '. \n\
+      Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.\n\
+      ' + redirect.urlToInvitationPage(invitationId) + '\
+      Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.';
+
+      return module.exports.sendMail([email], title, content);
+    })
+  },
+
   createAggregateMailForUser: function(profileId) {
     return sql.courses.getAllCoursesWithUser(profileId)
     .then((courseStatus) => {

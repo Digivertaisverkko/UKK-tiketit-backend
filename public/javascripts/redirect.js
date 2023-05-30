@@ -14,6 +14,13 @@ module.exports = {
     return url;
   },
 
+  urlToInvitationPage: function(invitationId) {
+    let url = new URL(path.join('invitation'),
+                      process.env.LTI_REDIRECT);
+    url.searchParams.append('invitation', invitationId);
+    return url;
+  },
+
   redirectUrlToGdprPage: function(language, storageId, accountExists) {
     let url = new URL(path.join('data-consent'), process.env.LTI_REDIRECT);
     url.searchParams.append('lang', language);
