@@ -179,7 +179,7 @@ module.exports = {
   },
 
   getUserProfile: function(userid) {
-    const query = 'SELECT nimi, sposti from core.profiili WHERE id=$1';
+    const query = 'SELECT id, nimi, sposti from core.profiili WHERE id=$1';
     return connection.queryOne(query, [userid]);
   },
 
