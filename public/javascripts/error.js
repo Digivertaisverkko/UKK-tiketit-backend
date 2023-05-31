@@ -87,7 +87,6 @@ module.exports = {
                 break;
         }
 
-
         res.status(status).send(e)
     }
 };

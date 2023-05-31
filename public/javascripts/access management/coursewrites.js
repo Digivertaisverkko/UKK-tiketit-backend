@@ -121,7 +121,7 @@ class CourseWrites extends CourseReads {
     .then((profile) => {
       return sql.users.createUserInvitation(courseId, email, role)
       .then((invitationId) => {
-        //Lähetä kutsutulle käyttäjälle sähköpostia siitä, että hänet on lisätty kurssille
+        mailer.sendInvitationToJoinMail(email, courseId, invitationId);
         return Promise.resolve(invitationId);
       })
     })
@@ -129,7 +129,7 @@ class CourseWrites extends CourseReads {
       if (error == errorcodes.noResults) {
         return sql.users.createUserInvitation(courseId, email, role)
         .then((invitationId) => {
-          //Lähetä käyttäjälle sähköpostilla kutsu kurssille.
+          mailer.sendInvitationToRegisterMail(email, courseId, invitationId);
           return Promise.resolve(invitationId);
         });
       } else {

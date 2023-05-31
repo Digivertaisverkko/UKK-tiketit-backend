@@ -14,8 +14,15 @@ module.exports = {
     return url;
   },
 
-  urlToInvitationPage: function(invitationId) {
-    let url = new URL(path.join('invitation'),
+  urlToRegisterationPage: function(invitationId) {
+    let url = new URL(path.join('register'),
+                      process.env.LTI_REDIRECT);
+    url.searchParams.append('invitation', invitationId);
+    return url;
+  },
+
+  urlToJoinPage: function(invitationId) {
+    let url = new URL(path.join('join'),
                       process.env.LTI_REDIRECT);
     url.searchParams.append('invitation', invitationId);
     return url;

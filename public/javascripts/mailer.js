@@ -97,16 +97,31 @@ module.exports = {
 
   },
 
-  sendInvitationMail: function(email, courseId, invitationId) {
+  sendInvitationToRegisterMail: function(email, courseId, invitationId) {
+
+    return sql.courses.getCourseInfo(courseId)
+    .then((courseData) => {
+
+      let title = 'Kutsu kirjautumaan TUKKI-järjestelmään';
+      let content = '<p>Sinut on kutsuttu TUKKI-järjestelmän kurssille ' + courseData.nimi + '.</p> \
+      <p>Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.<br>\
+      ' + redirect.urlToRegisterationPage(invitationId) + '</p>\
+      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
+
+      return module.exports.sendMail([email], title, content);
+    })
+  },
+
+  sendInvitationToJoinMail: function(email, courseId, invitationId) {
 
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
 
       let title = 'Kutsu TUKKI-järjestelmän kurssille ' + courseData.nimi;
-      let content = 'Sinut on kutsuttu kurssille ' + courseData.nimi + '. \n\
-      Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.\n\
-      ' + redirect.urlToInvitationPage(invitationId) + '\
-      Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.';
+      let content = '<p>Sinut on kutsuttu kurssille ' + courseData.nimi + '.</p> \
+      <p>Paina alla olevaa linkkiä liittyäksesi kurssille.<br>\
+      ' + redirect.urlToJoinPage(invitationId) + '</p>\
+      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
 
       return module.exports.sendMail([email], title, content);
     })
