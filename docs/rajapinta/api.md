@@ -156,6 +156,26 @@ Lähettää myös http-only sessioevästeen osana vastausta.
 }
 ```
 
+### /api/luotili/
+#### POST
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen.
+Tällä rajapinnalla voi luoda tilin, jos on saanut kutsun. Liittää käyttäjän myös automaattisesti kurssille, jolta on saanut kutsun.
+##### Lähetä:
+´´´
+{
+  "ktunnus": $string
+	"salasana": $string
+	"sposti": $string
+	"kutsu": $UUID (kutsun tunnus)
+}
+´´´
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
 ### /api/minun/
 #### GET
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin luku
@@ -560,7 +580,13 @@ Tulevaisuudessa lisäksi pitää lähettää:
 ### /api/kurssi/:kurssi-id/osallistujat/
 Rajapinta kurssien käyttäjille.
 #### POST
-Tällä saadaan liitettyä käyttäjä kurssille. Liittää kirjautuneen käyttäjän kurssille mukisematta. Uusi käyttäjä oletuksena laitetaan opiskelijaksi. *Tämä rajapinta tullaan poistamaan tulevaisuudessa.*
+Tällä saadaan liitettyä käyttäjä kurssille. Käyttäjä voi liittyä vain kurssille, jos tällä on voimassa oleva kutsu. Uusi käyttäjä laitetaan kurssille siinä roolissa, kun [kutsussa](#apikurssikurssi-idosallistujatkutsu) sille annettiin. 
+##### Lähetä:
+```
+{
+  kutsu: $UUID (kutsun tunnus)
+}
+```
 ##### Vastaus:
 ```
 - body - 
@@ -572,14 +598,16 @@ Tällä saadaan liitettyä käyttäjä kurssille. Liittää kirjautuneen käytt�
 
 ### /api/kurssi/:kurssi-id/osallistujat/kutsu/
 Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. **Vaatii opettajan oikeudet kurssille**, jotta opiskelijoita voi kutsua.
-Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, niin kyseinen käyttäjä lisätään kurssille. Jos käyttäjää ei ole vielä kannassa, käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin. (Toteutus kesken.)
+Käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin tai hyväksyy kutsun. (ks. [POST /api/kurssi/:id/osallistujat/](#apikurssikurssi-idosallistujat) ja [/api/luotili](#apiluotili))
+
+Lähettää sähköpostia kutsutulle käyttäjälle. Sähköpostissa on frontendin osoitteet, joihin käyttäjä ohjataan, riippuen siitä pitääkö käyttäjän luoda tili, vai riittääkö vain kutsun hyväksyntä.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssikirjoitus
 ```
 - body -
 {
   sposti: $string
-  opettaja: $bool
+  rooli: $string (ks. [roolit](#kurssilainen-olio))
 }
 ```
 ##### Vastaus:
@@ -587,6 +615,7 @@ Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, ni
 - body - 
 {
   success: true
+  kutsu: $UUID (kutsun tunnus)
 }
 ```
 
