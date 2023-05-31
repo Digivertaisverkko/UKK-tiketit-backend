@@ -105,7 +105,11 @@ router.post('/luotili/', function(req, res, next) {
     res.send({success: true});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    if (error === errorFactory.code.noResults) {
+      errorFactory.createError(res, errorFactory.code.wrongParameters);
+    } else {
+      errorFactory.createError(res, error);
+    }
   });
 });
 
