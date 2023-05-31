@@ -580,7 +580,7 @@ Tulevaisuudessa lisäksi pitää lähettää:
 ### /api/kurssi/:kurssi-id/osallistujat/
 Rajapinta kurssien käyttäjille.
 #### POST
-Tällä saadaan liitettyä käyttäjä kurssille. Käyttäjä voi liittyä vain kurssille, jos tällä on voimassa oleva kutsu. Uusi käyttäjä laitetaan kurssille siinä roolissa, kun [kutsussa](#apikurssikurssi-idosallistujatkutsu) sille annettiin. 
+Tällä saadaan liitettyä käyttäjä kurssille. Liittää kirjautuneen käyttäjän kurssille. Käyttäjä voi liittyä vain kurssille, jos tällä on voimassa oleva kutsu. Uusi käyttäjä laitetaan kurssille siinä roolissa, kun [kutsussa](#apikurssikurssi-idosallistujatkutsu) sille annettiin. 
 ##### Lähetä:
 ```
 {
