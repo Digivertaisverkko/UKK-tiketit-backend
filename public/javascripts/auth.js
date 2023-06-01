@@ -82,8 +82,12 @@ module.exports = {
     let storedUserId;
     return sql.users.getUserInvitation(invitationId)
     .then((invitationData) => {
-      storedInvitation = invitationData;
-      return sql.users.createEmptyUser(username, email)
+      if (invitationData.sposti == email) {
+        storedInvitation = invitationData;
+        return sql.users.createEmptyUser(username, email)
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
     })
     .then((newuserId) => {
       storedUserId = newuserId;
