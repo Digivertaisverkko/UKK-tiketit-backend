@@ -40,6 +40,13 @@ router.get('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite/:atta
   });
 });
 
+router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite/:attachmentid', function(req, res, next) {
+  access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
+  .then((handle) => {
+    return handle.methods.deleteAttachment(req.params.commentid, req.params.attachmentid);
+  });
+});
+
 
 
 module.exports = router;

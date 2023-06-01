@@ -383,6 +383,11 @@ module.exports = {
     return connection.queryNone(query, [fieldId, userid, value]);
   },
 
+  removeAttachmentFromComment: function(attachmentId, commentId) {
+    const query = 'DELETE FROM core.liite WHERE kommentti=$1 AND tiedosto=$2';
+    return connection.queryNone(query, [commentId, attachmentId]);
+  },
+
   removePrefilledAnswersFromUser: function(userid) {
     const query = 'DELETE FROM core.esitaytetytvastaukset WHERE profiili=$1';
     return connection.queryNone(query, [userid]);
