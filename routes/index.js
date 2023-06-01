@@ -592,14 +592,18 @@ router.delete('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next
 });
 
 router.post('/tiketti/:ticketid/valmis', function(req, res, next) {
+  console.log(0);
   access.readTicket(req, req.params.ticketid)
   .then((handle) => {
-    return handle.methods.archiveFinishedTicket(req.params.ticketid);
+    console.log(1);
+    return handle.methods.archiveFinishedTicket(req.params.ticketid, handle.userid);
   })
   .then(() => {
+    console.log(2);
     res.send({ success: true });
   })
   .catch((error) => {
+    console.log(3);
     errorFactory.createError(res, error);
   })
 });

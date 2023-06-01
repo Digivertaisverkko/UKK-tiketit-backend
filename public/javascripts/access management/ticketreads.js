@@ -50,9 +50,11 @@ class TicketReads {
 
   }
 
-  archiveFinishedTicket(ticketId) {
-    return this.isTicketArchivable(ticketId)
+  archiveFinishedTicket(ticketId, userId) {
+    console.log(11);
+    return this.isTicketArchivable(ticketId, userId)
     .then(() => {
+      console.log(12);
       return sql.tickets.archiveTicket(ticketId);
     });
   }
@@ -125,19 +127,24 @@ class TicketReads {
   }
 
   isTicketArchivable(ticketId, userId) {
+    console.log(110);
     return sql.tickets.getTicket(ticketId)
     .then((ticketData) => {
+      console.log(111 + " " + userId + " " + ticketData.kurssi);
       return sql.courses.getUserInfoForCourse(userId, ticketData.kurssi);
     })
     .then((userInfo) => {
+      console.log(112);
       if (userInfo.asema === 'opiskelija') {
         return Promise.reject(errorcodes.operationNotPossible);
       }
     })
     .then(() => {
+      console.log(113);
       return sql.tickets.getStateHistoryOfTicket(ticketId);
     })
     .then((ticketStateList) => {
+      console.log(114);
       let states = arrayTools.extractAttributes(ticketStateList, 'tila');
       if (states.includes(TicketState.resolved) || states.includes(TicketState.commented)) {
         return Promise.resolve();
