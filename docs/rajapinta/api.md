@@ -580,6 +580,7 @@ Tulevaisuudessa lisäksi pitää lähettää:
 ### /api/kurssi/:kurssi-id/osallistujat/
 Rajapinta kurssien käyttäjille.
 #### POST
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kirjautunut sisään
 Tällä saadaan liitettyä käyttäjä kurssille. Liittää kirjautuneen käyttäjän kurssille. Käyttäjä voi liittyä vain kurssille, jos tällä on voimassa oleva kutsu. Uusi käyttäjä laitetaan kurssille siinä roolissa, kun [kutsussa](#apikurssikurssi-idosallistujatkutsu) sille annettiin. 
 ##### Lähetä:
 ```
@@ -618,6 +619,20 @@ Lähettää sähköpostia kutsutulle käyttäjälle. Sähköpostissa on frontend
   kutsu: $UUID (kutsun tunnus)
 }
 ```
+
+### /api/kurssi/:kurssi-id/osallistujat/kutsu/:kutsu-id
+Kutsun tietojen hakemiseen.
+#### GET
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen
+##### Vastaus:
+```
+	"id": $UUID,
+	"kurssi": $int,
+	"sposti": $string,
+	"vanhenee": $aikaleima,
+	"rooli": $string
+```
+rooli-parametri on [kurssilainen-olion](#kurssilainen-olio) mukainen.
 
 
 ### /api/kurssi/:kurssi-id/oikeudet

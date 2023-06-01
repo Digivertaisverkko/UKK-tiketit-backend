@@ -711,6 +711,19 @@ router.post('/kurssi/:courseid/osallistujat/kutsu', function(req, res, next) {
   })
 });
 
+router.get('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, res, next) {
+  access.publicMethods()
+  .then((handle) => {
+    return handle.methods.getInvitation(req.params.invitationid, req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
 
 router.get('/kurssi/:courseid/oikeudet', function(req, res, next) {
   access.readCourse(req, req.params.courseid)

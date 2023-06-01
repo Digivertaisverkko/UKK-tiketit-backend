@@ -42,9 +42,15 @@ module.exports = {
   },
 
   publicMethods: function() {
+    return Promise.resolve()
+    .then(() => {
+      return { methods: publicmethds };
+    })
+    /*
     return new Promise(function(resolve, reject) {
-      resolve({ userid: undefined, methods: publicmethds });
+      resolve({ methods: publicmethds });
     });
+    */
   },
 
   commonMethods: function(request) {

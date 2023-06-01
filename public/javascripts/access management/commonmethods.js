@@ -11,13 +11,11 @@ class CommonMethods {
     let courseId;
     let role;
     let email;
-    let invitationId;
     return sql.users.getUserInvitation(invitationId)
     .then((invitationData) => {
       courseId = invitationData.kurssi;
       role = invitationData.rooli;
       email = invitationData.sposti;
-      invitationId = invitationData.id;
       return sql.users.getUserProfile(userId);
     })
     .then((userData) => {
