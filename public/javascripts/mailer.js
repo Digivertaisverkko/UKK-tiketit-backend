@@ -57,7 +57,7 @@ module.exports = {
 
         content = content == null ? '' : content;
 
-        let subject = 'TUKKI-viesti ' + storedCourseName;
+        let subject = 'DVV_tiketit-viesti ' + storedCourseName;
         let message = '<h1>' + storedCourseName + '</h1> \
         <p>Kysymykseen <b>' + storedTicketTitle + '</b> on tullut viesti:</p> \
         <p>' + content + '</p> \
@@ -89,7 +89,7 @@ module.exports = {
       if (data.contentCount > 0) {
         let now = Date.now();
         let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(now);
-        let subject = 'TUKKI-järjestelmän kooste ' + dateString;
+        let subject = 'DVV-tiketit kooste ' + dateString;
         module.exports.sendMailToUserList([profileId], subject, data.message);
       }
       return data.message;
@@ -133,8 +133,8 @@ module.exports = {
       let contentCount = 0;
       let promise = Promise.resolve();
       let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(Date.now());
-      let content = '<h1>TUKKI-kooste ' + dateString + '</h1> \
-      Tässä on lyhyt kooste siitä, mitä TUKKI-järjestelmässä on tapahtunut eilen:';
+      let content = '<h1>DVV-tiketit-kooste ' + dateString + '</h1> \
+      Tässä on lyhyt kooste siitä, mitä DVV-tiketeissä on tapahtunut eilen:';
       for (course of courseStatus) {
         if (course.asema === 'opettaja') {
           promise = promise.then(() => {
@@ -154,7 +154,7 @@ module.exports = {
       }
       return promise
       .then(() => {
-        content += '<br><br>Jos et halua saada sähköpostia tiketeistä, voit muuttaa asetuksia TUKKI-järjestelmän profiilisivulta.';
+        content += '<br><br>Jos et halua saada sähköpostia tiketeistä, voit muuttaa asetuksia DVV-tiketti-järjestelmän profiilisivulta.';
         return { contentCount: contentCount, message: content };
       });
     })
