@@ -594,7 +594,7 @@ router.delete('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next
 router.post('/tiketti/:ticketid/valmis', function(req, res, next) {
   access.readTicket(req, req.params.ticketid)
   .then((handle) => {
-    return handle.methods.archiveFinishedTicket(req.params.ticketid);
+    return handle.methods.archiveFinishedTicket(req.params.ticketid, handle.userid);
   })
   .then(() => {
     res.send({ success: true });

@@ -121,6 +121,14 @@ INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (9, 1, NOW() - in
 INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (9, 2, NOW() - interval '2 days');
 INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (9, 4, NOW() - interval '1 days');
 INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (9, 6, NOW() - interval '1 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (10, 1, NOW() - interval '2 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (10, 2, NOW() - interval '2 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (10, 4, NOW() - interval '1 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (10, 6, NOW() - interval '1 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (11, 1, NOW() - interval '2 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (11, 2, NOW() - interval '2 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (11, 4, NOW() - interval '1 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (11, 6, NOW() - interval '1 days');
 
 
 -- Kommentit
