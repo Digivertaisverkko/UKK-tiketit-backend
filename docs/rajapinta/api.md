@@ -636,6 +636,7 @@ rooli-parametri on [kurssilainen-olion](#kurssilainen-olio) mukainen.
 
 #### DELETE
 [**Vaaditut oikeudet**](/docs/rajapinta/oikeudet.md) Kirjautunut sisään.
+Palauttaa [1003](/docs/rajapinta/virhe.md), jos kurssi-id on väärin, tai jos kirjautuneen käyttäjän sähköpostiosoite ei mätsää. Tämä tarkoittaa kuitenkin sitä, että tiliä luomatta ei voi kieltäytyä kutsusta (sen voi kyllä jättää huomioitta, joka ajaa lähes saman asian).
 ##### Vastaus:
 ```
 {
