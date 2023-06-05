@@ -9,7 +9,7 @@ module.exports = {
 
   urlToTicket: function(courseId, ticketId) {
     let url = new URL(path.join('course', courseId.toString(), 
-                                'ticket', ticketId.toString()),
+                                'ticket-view', ticketId.toString()),
                       process.env.LTI_REDIRECT);
     return url;
   },
