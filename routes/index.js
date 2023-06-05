@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const { setFlagsFromString } = require('v8');
 const errorFactory = require('../public/javascripts/error.js');
 const splicer = require('../public/javascripts/sqlsplicer.js');
-const { use } = require('express/lib/application.js');
+const { use, handle } = require('express/lib/application.js');
 const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 const sanitizer = require('../public/javascripts/sanitizer.js');
 const { send } = require('process');
@@ -22,6 +22,7 @@ var session = require('express-session');
 const timedJobs = require('../public/javascripts/timedJobs.js');
 const TicketState = require('../public/javascripts/ticketstate.js');
 const mailer = require('../public/javascripts/mailer.js');
+const { errorMonitor } = require('events');
 
 router.use(express.json());
 
@@ -681,7 +682,7 @@ router.post('/kurssi/:courseid/osallistujat', function(req, res, next) {
     return access.commonMethods(req);
   })
   .then((handle) => {
-    return handle.methods.acceptInvitation(req.body.kutsu, handle.userid);
+    return handle.methods.acceptInvitation(req.body.kutsu, handle.userid, req.params.courseid);
   })
   .then(() => {
     res.send({ success: true });
@@ -718,6 +719,19 @@ router.get('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, r
   })
   .then((data) => {
     res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+});
+
+router.delete('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, res, next) {
+  access.commonMethods(req)
+  .then((handle) => {
+    return handle.methods.rejectInvitation(req.params.invitationid, req.params.courseid);
+  })
+  .then(() => {
+    res.send({ success: true});
   })
   .catch((error) => {
     errorFactory.createError(res, error);

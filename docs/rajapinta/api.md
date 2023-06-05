@@ -634,6 +634,15 @@ Kutsun tietojen hakemiseen.
 ```
 rooli-parametri on [kurssilainen-olion](#kurssilainen-olio) mukainen.
 
+#### DELETE
+[**Vaaditut oikeudet**](/docs/rajapinta/oikeudet.md) Kirjautunut sisään.
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
 
 ### /api/kurssi/:kurssi-id/oikeudet
 Tällä rajapinnalla voi hakea omat oikeudet kurssille.
