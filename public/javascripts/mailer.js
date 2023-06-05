@@ -116,7 +116,6 @@ module.exports = {
 
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
-
       let title = 'Kutsu TUKKI-järjestelmän kurssille ' + courseData.nimi;
       let content = '<p>Sinut on kutsuttu kurssille ' + courseData.nimi + '.</p> \
       <p>Paina alla olevaa linkkiä liittyäksesi kurssille.<br>\
