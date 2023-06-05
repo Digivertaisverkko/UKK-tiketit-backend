@@ -105,7 +105,7 @@ module.exports = {
       let title = 'Kutsu kirjautumaan TUKKI-järjestelmään';
       let content = '<p>Sinut on kutsuttu TUKKI-järjestelmän kurssille ' + courseData.nimi + '.</p> \
       <p>Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.<br>\
-      ' + redirect.urlToRegisterationPage(invitationId) + '</p>\
+      ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
       <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
 
       return module.exports.sendMail([email], title, content);
@@ -120,7 +120,7 @@ module.exports = {
       let title = 'Kutsu TUKKI-järjestelmän kurssille ' + courseData.nimi;
       let content = '<p>Sinut on kutsuttu kurssille ' + courseData.nimi + '.</p> \
       <p>Paina alla olevaa linkkiä liittyäksesi kurssille.<br>\
-      ' + redirect.urlToJoinPage(invitationId) + '</p>\
+      ' + redirect.urlToJoinPage(courseId, invitationId) + '</p>\
       <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
 
       return module.exports.sendMail([email], title, content);
