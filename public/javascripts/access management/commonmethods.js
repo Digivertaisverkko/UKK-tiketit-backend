@@ -8,7 +8,6 @@ const errorcodes = require('../errorcodes.js');
 class CommonMethods {
   
   acceptInvitation(invitationId, userId, courseId) {
-    let courseId;
     let role;
     let email;
     return sql.users.getUserInvitation(invitationId)
@@ -16,7 +15,6 @@ class CommonMethods {
       if (invitationData.kurssi != courseId) {
         return Promise.reject(errorcodes.noPermission);
       }
-      courseId = invitationData.kurssi;
       role = invitationData.rooli;
       email = invitationData.sposti;
       return sql.users.getUserProfile(userId);
