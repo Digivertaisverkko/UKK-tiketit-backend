@@ -23,6 +23,7 @@ const timedJobs = require('../public/javascripts/timedJobs.js');
 const TicketState = require('../public/javascripts/ticketstate.js');
 const mailer = require('../public/javascripts/mailer.js');
 const { errorMonitor } = require('events');
+const filessystem = require('../public/javascripts/filessystem.js');
 
 router.use(express.json());
 
@@ -128,6 +129,16 @@ router.get('/testi/', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(res, error);
   });
+});
+
+router.get('/testicron/', function(req, res, next) {
+  filessystem.removeAllGdprDumps()
+  .then(() => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    errorFactory.createError(error);
+  })
 });
 
 router.get('/echoheaders/', function(req, res, next) {
