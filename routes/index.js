@@ -728,7 +728,7 @@ router.get('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, r
 router.delete('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, res, next) {
   access.commonMethods(req)
   .then((handle) => {
-    return handle.methods.rejectInvitation(req.params.invitationid, req.params.courseid);
+    return handle.methods.rejectInvitation(req.params.invitationid, handle.userid, req.params.courseid);
   })
   .then(() => {
     res.send({ success: true});
