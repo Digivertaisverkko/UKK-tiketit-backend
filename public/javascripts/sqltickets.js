@@ -11,7 +11,8 @@ const errorcodes = require('./errorcodes.js');
 const TicketState = require('./ticketstate.js');
 
 module.exports = {
- 
+
+
   getPlainTicket: function(ticketid) {
     const query = 'SELECT aloittaja, kurssi, ukk \
     FROM core.tiketti \
@@ -157,7 +158,7 @@ module.exports = {
   },
 
   getAllCommentCreatedBy: function(userId) {
-    const query = 'SELECT tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
+    const query = 'SELECT id, tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
     return connection.queryAll(query, [userId]);
   },
 

@@ -55,6 +55,14 @@ class ProfileWrites extends ProfileReads {
     })
   }
 
+  getAllUserAttachments(profileId) {
+    return sql.tickets.getAllCommentCreatedBy(profileId)
+    .then((commentDataList) => {
+      let commentIds = arrayTools.extractAttributes(commentDataList, 'id');
+      return sql.tickets.getAttachmentListForCommentList(commentIds);
+    });
+  }
+
 
   updateUserSettings(userId, emailNotification, emailAggregate, emailFeedback) {
     return sql.users.updateUserProfileSettings(userId, emailNotification, 

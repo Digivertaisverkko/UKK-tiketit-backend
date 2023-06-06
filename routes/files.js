@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var fileUpload = require('express-fileupload');
+const crypto = require('crypto');
 var fs = require('fs');
+const JSZip = require('jszip');
 const errorFactory = require('../public/javascripts/error.js')
 const access = require('../public/javascripts/access management/access.js');
 
@@ -45,6 +47,44 @@ router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite/:a
   .then((handle) => {
     return handle.methods.deleteAttachment(req.params.commentid, req.params.attachmentid);
   });
+});
+
+router.get('/minun/gdpr/liite/kaikki/zip', function(req, res, next) {
+  return access.authenticatedUser(req)
+  .then((userId) => {
+    return access.writeProfile(req, userId);
+  })
+  .then((handle) => {
+    return handle.methods.getAllUserAttachments(handle.userid);
+  })
+  .then((attachmentList) => {
+    const zip = new JSZip();
+    for (attachment of attachmentList) {
+      let filePath = process.env.ATTACHMENT_DIRECTORY + attachment.tiedosto;
+      let data = fs.readFileSync(filePath);
+      zip.file(attachment.nimi, data);
+    }
+
+    return zip.generateAsync({type: 'base64'})
+    .then(function (content) {
+      const zipPath = process.env.ATTACHMENT_DIRECTORY + crypto.randomUUID();
+      return new Promise(function(resolve, reject) {
+        fs.writeFile(zipPath, content, function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(zipPath);
+          }
+        });
+      });
+  });
+  })
+  .then((zipPath) => {
+    res.download(zipPath, 'liitteet.zip');
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
 });
 
 
