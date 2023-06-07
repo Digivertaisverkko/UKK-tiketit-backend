@@ -25,7 +25,7 @@ module.exports = {
      * @param {*} replacedKey 
      * @param {*} comparedKey Jos toisessa taulukossa olevan olion arvo tämän nimisessä attribuutissa mätsää ensimmäisessä taulukossa olevan olion replacedKey attribuutissa olevaan arvoon, tämä koko olio laitetaan ensimmäisen taulun olion osaksi.
      */
-    arrayUnionWithKeys: function(firstArray, secondArray, replacedKey, comparedKey) {
+    unionReplaceKey: function(firstArray, secondArray, replacedKey, comparedKey) {
         let retArray = [...firstArray];
         retArray.forEach(firstElement => {
             var value = firstElement[replacedKey]
@@ -63,8 +63,7 @@ module.exports = {
      * @param {*} newKey Uusi avain, johon toisen taulukon olio liitetään.
      * @returns 
      */
-    
-    arrayUnionByAddingToObjects: function(firstArray, secondArray, matchingKey, comparedKey, newKey) {
+    unionNewKey: function(firstArray, secondArray, matchingKey, comparedKey, newKey) {
         let retArray = [...firstArray];
         retArray.forEach(firstElement => {
             var value = firstElement[matchingKey]
@@ -103,8 +102,7 @@ module.exports = {
      * @param {*} newKey Uusi avain, johon toisen taulukon olio liitetään.
      * @returns 
      */
-
-    arrayUnionByAddingObjectsToArray: function(firstArray, secondArray, matchingKey, comparedKey, newKey) {
+    unionNewKeyAsArray: function(firstArray, secondArray, matchingKey, comparedKey, newKey) {
         let retArray = [...firstArray];
         retArray.forEach(firstElement => {
             var value = firstElement[matchingKey]
@@ -145,7 +143,7 @@ module.exports = {
      * @param {*} newKey Uusi avain, johon toisen taulukon olio liitetään.
      * @returns 
      */
-    arrayUnionByAddingPartsOfObjects: function(firstArray, secondArray, matchingKey, comparedKey, newKey, extractedKey) {
+    unionExtractKey: function(firstArray, secondArray, matchingKey, comparedKey, newKey, extractedKey) {
         let retArray = [...firstArray];
         retArray.forEach(firstElement => {
             var value = firstElement[matchingKey]

@@ -50,20 +50,21 @@ module.exports = {
 
   /**
    * Tarkistaa täyttääkö annettu olio annetut ehdot. Voi antaa useamman ehdon, ja ehdot ovat moninaisia.
+   * Vaatimuksissa voi olla seuraavat attribuutit:
+   * - key      - $string   - Olion attribuutin avain.
+   * - keyPath  - [$string] - Olion attribuutin avain, voi käyttää, jos olio sisältää aliolioita. Jos keyPath on määritelty, niin key ei tee mitään.
+   * - value    - [$any]    - Taulukko hyväksytyistä arvoista. 
+   * - type     - $string   - Olion attribuutin tyyppi.
+   * - max      - $int      - Joko merkkijonon maksimipituus, tai luvun suurin sallittu koko. 
+   * - min      - $int      - Joko merkkijonon minimipituus, tai luvun pienin sallittu koko.
+   * - regex    - $RegExp   - Regular expression, joka muuttujan pitää täyttää.
+   * - optional - $bool     - Haittaako, jos attribuuttia ei löydy.
    * 
    * @param object Olio, jonka ominaisuudet tarkistetaan.
    * @param requirementsList Lista vaatimuksista, jotka oliolta tarkistetaan. Vain määritellyt attribuutit tarkistetaan.
    *  Jokainen taulukon alkio viittaa yhteen olion avaimeen.
    * @returns Promise, joka resolvaa onnistuessaan ja rejectaa jos vaatimukset ei päde.
-   * 
-   * Vaatimuksissa voi olla seuraavat attribuutit:
-   * key      - $string   - Olion attribuutin avain.
-   * keyPath  - [$string] - Olion attribuutin avain, voi käyttää, jos olio sisältää aliolioita. Jos keyPath on määritelty, niin key ei tee mitään.
-   * value    - [$any]    - Taulukko hyväksytyistä arvoista. 
-   * type     - $string   - Olion attribuutin tyyppi.
-   * max      - $int      - Joko merkkijonon maksimipituus, tai luvun suurin sallittu koko. 
-   * min      - $int      - Joko merkkijonon minimipituus, tai luvun pienin sallittu koko.
-   * optional - $bool     - Haittaako, jos attribuuttia ei löydy.
+   *
    */
   test: function(object, requirementList) {
     return new Promise(function(resolve, reject) {
@@ -137,7 +138,7 @@ function checkObjectForRequirements(object, requirementsList) {
         if (requirement.optional == true) {
           return;
         } else {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> puuttuu.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> puuttuu.');
           success = false;
           return;
         }
@@ -145,31 +146,37 @@ function checkObjectForRequirements(object, requirementsList) {
 
       //Tarkista arvo
       if (requirement.value && requirement.value.includes(value) == false) {
-        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> Huono arvo.');
+        console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> Huono arvo.');
         success = false;
       }
       
       //Tarkista tyyppi
       if (requirement.type && typeof value !== requirement.type) {
-        console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> Väärä tyyppi.');
+        console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + 
+                    JSON.stringify(requirement) + ' -> Väärä tyyppi <' + typeof value + '>.');
+        success = false;
+      }
+
+      if (requirement.regex && requirement.regex.test(value) == false) {
+        console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> regex');
         success = false;
       }
 
       //Tarkista koko
       if (typeof value === 'number') {
         if (requirement.max != null && value > requirement.max) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
           success = false;
         } else if (requirement.min && value < requirement.min) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
           success = false;
         }
       } else {
         if (requirement.max && value.length > requirement.max) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> > MAX.');
           success = false;
         } else if (requirement.min && value.length < requirement.min) {
-          console.log('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
+          console.warn('Parametri: ' + value + ' ei täytä vaatimuksia ' + JSON.stringify(requirement) + ' -> < MIN.');
           success = false;
         }
       }

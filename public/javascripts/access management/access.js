@@ -10,6 +10,7 @@ const CourseWrites = require('./coursewrites.js');
 const ProfileReads = require('./profilereads.js');
 const ProfileWrites = require('./profilewrites.js');
 const PublicMethods = require('./publicmethods.js');
+const LoginMethods = require('./loginmethods.js');
 
 const TicketReads = require('./ticketreads.js');
 const TicketWrites = require('./ticketwrites.js');
@@ -24,11 +25,18 @@ const coursewrites = new CourseWrites();
 const profilereads = new ProfileReads();
 const profilewrites = new ProfileWrites();
 const commentWrites = new CommentWrites();
+const loginMethods = new LoginMethods();
 
 module.exports = {
 
   authenticatedUser: function(request) {
     return auth.authenticatedUser(request);
+  },
+
+  loginMethods: function() {
+    return new Promise(function(resolve, reject) {
+      return resolve({ methods: loginMethods });
+    });
   },
 
   publicMethods: function() {
@@ -111,7 +119,10 @@ module.exports = {
     return module.exports.readTicket(request, ticketId)
     .then((handle) => {
       storedUserId = handle.userid;
-      return sql.tickets.getComment(commentId);
+      return sql.tickets.getComment(commentId)
+      .then((dataList) => {
+        return dataList.length === 0 ? Promise.reject(errorcodes.noResults) : dataList;
+      });
     })
     .then((commentDataList) => {
       let commentData = commentDataList[0];
@@ -120,6 +131,13 @@ module.exports = {
       } else {
         return Promise.reject(errorcodes.noPermission);
       }
+    });
+  },
+
+  listCourses: function(request) {
+    return auth.authenticatedUser(request)
+    .then((userid) => {
+      return {userid: userid, methods: courselists };
     });
   },
 
@@ -140,13 +158,6 @@ module.exports = {
     .then(() => {
       return { userid: storedUserId, methods: coursewrites };
     })
-  },
-
-  listCourses: function(request) {
-    return auth.authenticatedUser(request)
-    .then((userid) => {
-      return {userid: userid, methods: courselists };
-    });
   },
 
   readCourse: function(request, courseid) {

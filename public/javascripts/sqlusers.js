@@ -7,11 +7,20 @@ const con = connection.getConnection();
 
 module.exports = {
 
-  createLoginUrl: function(loginid, codeChallenge, frontcode) {
+  createLoginUrl: function(loginid, codeChallenge, frontcode, courseId) {
     const query = 'INSERT INTO core.loginyritys (loginid, codeChallenge, fronttunnus, profiili) VALUES ($1, $2, $3, NULL)';
     return connection.queryAll(query, [loginid, codeChallenge, frontcode])
-    .then((sqldata) => { return '/login?loginid=' + loginid })
+    .then((sqldata) => { return 'course/' + courseId + '/login?loginid=' + loginid })
     .catch((error) => { return Promise.reject('createLogin: ' + error + ' loginid: ' + loginid) });
+  },
+
+  getAllUsersFromListWhoWantNotifications: function(userIdList) {
+    const query = 'SELECT p.id, p.sposti \
+    FROM core.profiili p \
+    INNER JOIN core.profiiliasetukset a \
+    ON p.id=a.profiili \
+    WHERE p.id=ANY($1) AND a.sposti_ilmoitus=true';
+    return connection.queryAll(query, [userIdList]);
   },
 
   updateLoginAttemptWithAccount: function(loginid, userid) {
@@ -38,6 +47,46 @@ module.exports = {
         const query = 'SELECT * FROM core.sessio WHERE sessionid=$1';
         return connection.query(query, [sessionid]);
     });
+  },
+
+  temporarilyStoreLtiToken: function(token, profileId, version, storageId) {
+    const query = 'INSERT INTO core.lti_tilipyynto (id, olemassa_oleva_profiili, lti_versio, token) \
+    VALUES ($1, $2, $3, $4) \
+    ON CONFLICT (id) \
+    DO \
+    UPDATE SET olemassa_oleva_profiili = EXCLUDED.olemassa_oleva_profiili, \
+               lti_versio              = EXCLUDED.lti_versio, \
+               token                   = EXCLUDED.token';
+    return connection.queryNone(query, [storageId, profileId, version, JSON.stringify(token)]);
+  },
+
+  getStoredLtiToken: function(storageId) {
+    const query = 'SELECT * FROM core.lti_tilipyynto WHERE id=$1';
+    return connection.queryOne(query, [storageId])
+    .then((tokenData) => {
+      tokenData.token = JSON.parse(tokenData.token);
+      return tokenData;
+    });
+  },
+
+  deleteAllStoredLtiTokens: function() {
+    const query = 'DELETE FROM core.lti_tilipyynto';
+    return connection.queryNone(query);
+  },
+
+  deleteStoredLtiToken(storageId) {
+    const query = 'DELETE FROM core.lti_tilipyynto WHERE id=$1';
+    return connection.queryNone(query, [storageId]);
+  },
+
+  getSession: function(sessionid) {
+    const query = 'SELECT * from core.sessio WHERE sessionid=$1';
+    return connection.queryAll(query, [sessionid]);
+  },
+
+  getAllSessions: function() {
+    const query = 'SELECT * from core.sessio';
+    return connection.queryAll(query);
   },
 
   getSalt: function(username) {
@@ -80,7 +129,18 @@ module.exports = {
   createEmptyUser: function(name, email) {
     const query = 'INSERT INTO core.profiili (nimi, sposti) VALUES ($1, $2) RETURNING id';
     return connection.queryOne(query, [name, email])
-    .then((sqldata) => { return sqldata.id });
+    .then((sqldata) => {
+      return module.exports.createEmptyProfileSettings(sqldata.id)
+      .then(() => {
+        return sqldata.id;
+      });
+    });
+  },
+
+  createEmptyProfileSettings: function(userid) {
+    const query = 'INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, sposti_kooste, sposti_palaute, gdpr_lupa) \
+    VALUES ($1, true, false, true, true)';
+    return connection.queryNone(query, [userid]);
   },
 
   createAccount: function(username, passwordhash, salt, userid) {
@@ -110,6 +170,20 @@ module.exports = {
     return connection.queryOne(query, [userid]);
   },
 
+  getAllUsersWhoWantAggregateMails: function() {
+    const query = 'SELECT p.id, p.nimi, p.sposti \
+    FROM core.profiili p \
+    INNER JOIN core.profiiliasetukset a \
+    ON p.id=a.profiili \
+    WHERE a.sposti_kooste=true AND a.sposti_ilmoitus=true';
+    return connection.queryAll(query, []);
+  },
+
+  getUserProfileSettings: function(userid) {
+    const query = 'SELECT * from core.profiiliasetukset WHERE profiili=$1';
+    return connection.queryOne(query, [userid]);
+  },
+
   updateUserProfile: function(userid, newName, newEmail) {
     const query = '\
     UPDATE core.profiili \
@@ -118,25 +192,58 @@ module.exports = {
     return connection.queryNone(query, [newName, newEmail, userid]);
   },
 
-  removeProfile: function(profileid) {
+  updateUserProfileSettings: function(userid, emailNotification, emailAggregate, emailFeedback) {
     const query = '\
-    DELETE FROM core.profiili \
-    WHERE id=$1';
-    return connection.queryNone(query, [profileid]);
+    INSERT INTO core.profiiliasetukset (profiili, sposti_ilmoitus, \
+       sposti_kooste, sposti_palaute, gdpr_lupa) \
+    VALUES ($1, $2, $3, $4, true) \
+    ON CONFLICT (profiili) \
+    DO \
+    UPDATE SET sposti_ilmoitus = EXCLUDED.sposti_ilmoitus, \
+               sposti_kooste   = EXCLUDED.sposti_kooste, \
+               sposti_palaute  = EXCLUDED.sposti_palaute';
+    return connection.queryNone(query, [userid, emailNotification, 
+                                        emailAggregate, emailFeedback]);
+  },
+
+  updateUserProfileGDPRPermission(userid, hasPermission) {
+    const query = '\
+    UPDATE core.profiiliasetukset \
+    SET gdpr_lupa=$1 \
+    WHERE profiili=$2';
+    return connection.queryNone(query, [hasPermission, userid]);
+  },
+
+  removeProfile: function(profileid) {
+    const profileQuery  = 'DELETE FROM core.profiili WHERE id=$1';
+    const settingsQuery = 'DELETE FROM core.profiiliasetukset WHERE profiili=$1';
+    return connection.queryNone(settingsQuery, [profileid])
+    .then(() => {
+      return connection.queryNone(profileQuery, [profileid]);
+    })
   },
 
   removeAccount: function(profileid) {
     const defaultQuery = 'DELETE FROM core.login WHERE profiili=$1';
     const ltiQuery     = 'DELETE FROM core.lti_login WHERE profiili=$1';
+    const requestQuery = 'DELETE FROM core.lti_tilipyynto WHERE olemassa_oleva_profiili=$1';
     return connection.queryNone(defaultQuery, [profileid])
     .then(() => {
       return connection.queryNone(ltiQuery, [profileid]);
+    })
+    .then(() => {
+      return connection.queryNone(requestQuery, [profileid]);
     });
   },
 
   removeSession: function(profileid) {
     const query = 'DELETE FROM core.sessio WHERE profiili=$1';
     return connection.queryNone(query, [profileid]);
+  },
+
+  removeSessionWithId: function(sessionid) {
+    const query = 'DELETE FROM core.sessio WHERE sessionid=$1';
+    return connection.queryNone(query, [sessionid]);
   }
  
 

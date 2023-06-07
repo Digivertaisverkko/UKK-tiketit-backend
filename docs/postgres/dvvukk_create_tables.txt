@@ -146,4 +146,44 @@ PRIMARY KEY (kommentti, tiedosto),
 FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );
 
+CREATE TABLE core.lti_tilipyynto (
+id VARCHAR(98) NOT NULL,
+lti_versio VARCHAR(5) NOT NULL,
+olemassa_oleva_profiili INT,
+token TEXT NOT NULL,
+PRIMARY KEY (id),
+FOREIGN KEY (olemassa_oleva_profiili) REFERENCES core.profiili(id)
+);
+
+CREATE TABLE core.keksisalaisuus (
+salaisuus VARCHAR(36) NOT NULL,
+vanhenee TIMESTAMPTZ NOT NULL,
+PRIMARY KEY (salaisuus)
+);
+
+CREATE TABLE core.profiiliasetukset (
+profiili INT NOT NULL,
+sposti_ilmoitus BOOL NOT NULL,
+sposti_kooste BOOL NOT NULL,
+sposti_palaute BOOL NOT NULL,
+gdpr_lupa BOOL NOT NULL,
+PRIMARY KEY (profiili),
+FOREIGN KEY (profiili) REFERENCES core.profiili(id)
+);
+
+CREATE TABLE core.lti_client (
+key VARCHAR(36) NOT NULL,
+secret VARCHAR(36) NOT NULL,
+PRIMARY KEY (key)
+);
+
+CREATE TABLE core.session (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+ALTER TABLE core.session ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+CREATE INDEX "IDX_session_expire" ON core.session ("expire");
+
 INSERT INTO core.profiili (id, nimi, sposti) OVERRIDING SYSTEM VALUE VALUES (0, 'POISTETTU', '');

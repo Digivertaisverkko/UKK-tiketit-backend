@@ -50,6 +50,13 @@ class TicketReads {
 
   }
 
+  archiveFinishedTicket(ticketId, userId) {
+    return this.isTicketArchivable(ticketId, userId)
+    .then(() => {
+      return sql.tickets.archiveTicket(ticketId);
+    });
+  }
+
   getAttachment(commentid, fileid) {
     return sql.tickets.getAttachmentForComment(commentid, fileid)
     .then((foundDataList) => {
@@ -60,10 +67,44 @@ class TicketReads {
     });
   }
 
+  getComments(ticketId) {
+    let storedCourseId;
+    return sql.tickets.getTicket(ticketId)
+    .then((ticket) => {
+      storedCourseId = ticket.kurssi;
+      return sql.tickets.getComments(ticketId);
+    })
+    .then((comments) => {
+      return splicer.insertCourseUserInfoToUserIdReferences(comments, 'lahettaja', storedCourseId);
+    })
+    .then((comments) => {
+      let commentIdList = arrayTools.extractAttributes(comments, 'id');
+      return sql.tickets.getAttachmentListForCommentList(commentIdList)
+      .then((attachmentList) => {
+        return arrayTools.unionNewKeyAsArray(comments, attachmentList, 'id', 'kommentti', 'liitteet');
+      })
+    });
+  }
+
+  getFields(ticketId) {
+    return sql.tickets.getFieldsOfTicket(ticketId);
+  }
+
   getTicketMetadata(currentUserId, ticketId) {
     return sql.tickets.getTicket(ticketId)
     .then((ticketdata) => {
       return splicer.insertCourseUserInfoToUserIdReferences([ticketdata], 'aloittaja', ticketdata.kurssi);
+    })
+    .then((results) => {
+      return this.isTicketArchivable(ticketId, currentUserId)
+      .then(() => {
+        results[0].arkistoitava = true;
+        return results;
+      })
+      .catch(() => {
+        results[0].arkistoitava = false;
+        return results;
+      })
     })
     .then((results) => {
       if (currentUserId == null) {
@@ -83,27 +124,29 @@ class TicketReads {
     });
   }
 
-  getComments(ticketId) {
-    let storedCourseId;
+  isTicketArchivable(ticketId, userId) {
     return sql.tickets.getTicket(ticketId)
-    .then((ticket) => {
-      storedCourseId = ticket.kurssi;
-      return sql.tickets.getComments(ticketId);
+    .then((ticketData) => {
+      return sql.courses.getUserInfoForCourse(userId, ticketData.kurssi);
     })
-    .then((comments) => {
-      return splicer.insertCourseUserInfoToUserIdReferences(comments, 'lahettaja', storedCourseId);
+    .then((userInfo) => {
+      if (userInfo.asema === 'opiskelija') {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
     })
-    .then((comments) => {
-      let commentIdList = arrayTools.extractAttributes(comments, 'id');
-      return sql.tickets.getAttachmentListForCommentList(commentIdList)
-      .then((attachmentList) => {
-        return arrayTools.arrayUnionByAddingObjectsToArray(comments, attachmentList, 'id', 'kommentti', 'liitteet');
-      })
-    });
-  }
-
-  getFields(ticketId) {
-    return sql.tickets.getFieldsOfTicket(ticketId);
+    .then(() => {
+      return sql.tickets.getStateHistoryOfTicket(ticketId);
+    })
+    .then((ticketStateList) => {
+      let states = arrayTools.extractAttributes(ticketStateList, 'tila');
+      if ((states.includes(TicketState.resolved) ||
+          states.includes(TicketState.commented)) &&
+          states.includes(TicketState.archived) == false) {
+        return Promise.resolve();
+      } else {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
+    })
   }
 
 }

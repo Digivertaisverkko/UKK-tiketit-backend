@@ -8,6 +8,10 @@ class ProfileReads {
     return sql.users.getUserProfile(profileId);
   }
 
+  getProfileSettings(profileId) {
+    return sql.users.getUserProfileSettings(profileId);
+  }
+
 }
 
 module.exports = ProfileReads;

@@ -25,8 +25,13 @@ class CommentWrites extends TicketReads {
   }
 
 
-  updateCommentText(commentid, content) {
-    return sql.tickets.updateComment(commentid, content);
+  deleteComment(commentid) {
+    return sql.tickets.deleteComment(commentid);
+  }
+
+
+  updateCommentText(commentid, content, newState) {
+    return sql.tickets.updateComment(commentid, content, newState);
   }
 
 }

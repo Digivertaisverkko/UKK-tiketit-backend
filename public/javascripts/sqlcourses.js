@@ -140,7 +140,6 @@ module.exports = {
     INNER JOIN core.profiili t \
     ON t.id = ko.profiili \
     WHERE ko.kurssi=$1 AND t.id=$2';
-
     return connection.queryOne(query, [courseid, userid]);
   },
 
@@ -189,21 +188,34 @@ module.exports = {
     });
   },
 
+  insertNewField(title, prefilled, mandatory, tip, choices) {
+    const query = '\
+    INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) \
+    VALUES ($1, $2, $3, $4, $5, $6) \
+    RETURNING id';
+    let choicesString = choices.join(';');
+    return connection.queryAll(query, [title,
+                                       1,
+                                       prefilled,
+                                       mandatory,
+                                       tip,
+                                       choicesString]);
+  },
+
   insertFieldsToTicketBase: function(courseid, fieldArray) {
     let storedTicketId;
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((ticketIdList) => {
       storedTicketId = ticketIdList[0].id;
-      const query = '\
-      INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) \
-      VALUES ($1, $2, $3, $4, $5, $6) \
-      RETURNING id';
       let promiseChain = Promise.resolve();
       for (index in fieldArray) {
         let element = fieldArray[index];
-        let choices = element.valinnat.join(';');
         promiseChain = promiseChain.then(() => {
-          return connection.queryAll(query, [element.otsikko, 1, element.esitaytettava, element.pakollinen, element.ohje, choices])
+          return module.exports.insertNewField(element.otsikko, 
+                                               element.esitaytettava, 
+                                               element.pakollinen, 
+                                               element.ohje, 
+                                               element.valinnat);
         })
         .then((fieldIdList) => {
           let id = fieldIdList[0].id;
@@ -211,19 +223,7 @@ module.exports = {
         });
       }
       return promiseChain;
-    })
-    /*
-    .then((fieldIdPromiseList) => {
-      let promises = [];
-      for (index in fieldIdPromiseList) {
-        /*Jokainen promise palauttaa erillisen taulun. 
-        Index viittaa promiseen, jonka jälkeen promisen palauttamassa taulussa on vain 1 olio.*/
-        /*let id = fieldIdPromiseList[index][0].id;
-        promises.push(module.exports.connectTicketBaseToField(storedTicketId, id));
-      }
-      return Promise.all(promises);
     });
-    */
   },
 
   connectTicketBaseToField: function(ticketbaseid, fieldid) {
