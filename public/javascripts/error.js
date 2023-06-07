@@ -44,6 +44,7 @@ module.exports = {
 
         switch (errorid) {
             case CODE.notSignedIn:
+                console.warn('[ACCESS] Kirjautumaton käyttäjä yrittää koskea resurssiin, johon sillä ei ole oikeuksia.');
                 e.error.virheilmoitus = "Et ole kirjautunut.";
                 status = 403
                 break;
@@ -57,6 +58,7 @@ module.exports = {
                 break;
             case CODE.noPermission:
                 e.error.virheilmoitus = "Ei tarvittavia oikeuksia.";
+                console.warn('[ACCESS] Kirjautunut käyttäjä yrittää päästä käsiksi resurssiin, johon sillä ei ole oikeuksia.');
                 status = 403
                 break;
             case CODE.accountAlreadyExists:
