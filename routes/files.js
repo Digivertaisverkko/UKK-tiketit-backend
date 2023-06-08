@@ -23,7 +23,7 @@ router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite', fu
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 
 });
@@ -37,7 +37,7 @@ router.get('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite/:atta
     res.download(attachmentData.polku, attachmentData.nimi);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -63,7 +63,7 @@ router.get('/minun/gdpr/liite/kaikki/zip', function(req, res, next) {
     res.download(zipPath, 'liitteet.zip');
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 

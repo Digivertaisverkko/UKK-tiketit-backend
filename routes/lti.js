@@ -11,6 +11,8 @@ const redirect = require('../public/javascripts/redirect.js');
 
 router.use(express.json());
 
+//Onko meillä mitään tietoa siitä, kuinka moni on hyväksynyt GDPR:n ja kuinka moni kieltäytynyt
+
 router.post('/1p1/start/', function(req, res, next) {
 
   sanitizer.objectHasRequiredParameters(req.body, ['user_id', 'context_id',
@@ -37,7 +39,7 @@ router.post('/1p1/start/', function(req, res, next) {
     }
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -57,7 +59,7 @@ router.post('/gdpr-lupa-ok/', function(req, res, next) {
   })
   .catch((error) => {
     console.log('error: ' + error);
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -75,7 +77,7 @@ router.post('/gdpr-lupa-kielto/', function(req, res, next) {
     res.send({ success: true, kurssi: deletedData.courseId });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 

@@ -47,7 +47,7 @@ router.post('/login/', function(req, res, next) {
     }
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -70,7 +70,7 @@ router.get('/authtoken/', function(req, res, next) {
       return sql.users.removeLoginAttempt(logincode);
     })
     .catch((error) => {
-      errorFactory.createError(res, error);
+      errorFactory.createError(req, res, error);
     });
   }
 });
@@ -79,7 +79,7 @@ router.post('/omalogin/', function(req, res, next) {
   sanitizer.hasRequiredHeaders(req, ['ktunnus', 'salasana', 'login-id'])
   .then((header) => auth.login(header.ktunnus, header.salasana, header['login-id']))
   .then((data) => res.send(data))
-  .catch((error) => errorFactory.createError(res, error));
+  .catch((error) => errorFactory.createError(req, res, error));
 });
 
 router.post('/kirjauduulos/', function(req, res, next) {
@@ -89,7 +89,7 @@ router.post('/kirjauduulos/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -108,9 +108,9 @@ router.post('/luotili/', function(req, res, next) {
   })
   .catch((error) => {
     if (error === errorFactory.code.noResults) {
-      errorFactory.createError(res, errorFactory.code.wrongParameters);
+      errorFactory.createError(req, res, errorFactory.code.wrongParameters);
     } else {
-      errorFactory.createError(res, error);
+      errorFactory.createError(req, res, error);
     }
   });
 });
@@ -127,7 +127,7 @@ router.get('/testi/', function(req, res, next) {
     res.send(true);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -137,7 +137,7 @@ router.get('/testicron/', function(req, res, next) {
     res.send({success: true});
   })
   .catch((error) => {
-    errorFactory.createError(error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -187,7 +187,7 @@ router.get('/minun/', function(req, res, next) {
     res.send(userData);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -205,7 +205,7 @@ router.get('/minun/asetukset/', function(req, res, next) {
                'sposti-palaute':  settings.sposti_palaute });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -231,7 +231,7 @@ router.post('/minun/asetukset/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -245,7 +245,7 @@ router.get('/minun/gdpr/', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -275,7 +275,7 @@ router.delete('/minun/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -290,7 +290,7 @@ router.get('/minun/kurssit/', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -305,7 +305,7 @@ router.get('/kurssi/:courseid', function(req, res, next) {
     res.send(coursedata);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -320,7 +320,7 @@ router.get('/kurssi/:courseid/tiketti/omat/', function(req, res, next) {
     res.send(sqldata);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -332,7 +332,7 @@ router.get('/kurssi/:courseid/tiketti/kaikki/', function(req, res, next) {
     return handle.methods.getAllTicketsVisibleToUser(handle.userid, req.params.courseid);
   })
   .then((data) => res.send(data))
-  .catch((error) => errorFactory.createError(res, error));
+  .catch((error) => errorFactory.createError(req, res, error));
 });
 
 router.get('/kurssi/:courseid/tiketti/arkisto', function(req, res, next) {
@@ -344,7 +344,7 @@ router.get('/kurssi/:courseid/tiketti/arkisto', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -356,7 +356,7 @@ router.get('/kurssi/:courseid/ukk/kaikki', function(req, res, next) {
     return handle.methods.getFaqTickets(req.params.courseid);
   })
   .then((data) => res.send(data) )
-  .catch((error) => errorFactory.createError(res, error) );
+  .catch((error) => errorFactory.createError(req, res, error) );
 });
 
 router.get('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
@@ -368,7 +368,7 @@ router.get('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -394,7 +394,7 @@ router.post('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -422,7 +422,7 @@ router.post('/kurssi/:courseid/ukk', function(req, res, next) {
   .then((insertedData) => {
     res.send({ success: true, uusi: insertedData });
   })
-  .catch((error) => errorFactory.createError(res, error));
+  .catch((error) => errorFactory.createError(req, res, error));
 });
 
 
@@ -435,7 +435,7 @@ router.get('/kurssit/', function(req, res, next) {
     res.send(sqldata)
   )
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -455,7 +455,7 @@ router.get('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
     }
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -482,7 +482,7 @@ router.put('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -497,7 +497,7 @@ router.delete('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -519,7 +519,7 @@ router.get('/kurssi/:courseid/tiketti/:ticketid/kentat', function(req, res, next
   })
   .then((sqldata) => res.send(sqldata))
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -531,7 +531,7 @@ router.get('/kurssi/:courseid/tiketti/:ticketid/kommentti/kaikki', function(req,
   })
   .then((data) => res.send(data))
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -555,7 +555,7 @@ router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti', function(req, res, 
     res.send({ success: true, kommentti: newCommentId });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -583,7 +583,7 @@ router.put('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', function(
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -597,7 +597,7 @@ router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', functi
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -616,7 +616,7 @@ router.post('/kurssi/:courseid/tiketti/arkisto/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -635,7 +635,7 @@ router.post('/kurssi/:courseid/ukk/arkisto/', function(req, res, next) {
     res.send({success: true});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -659,14 +659,14 @@ router.put('/kurssi/:courseid/ukk/:ticketid/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 
 });
 
 
 router.post('/kurssi/', function(req, res, next) {
-  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
+  errorFactory.createError(req, res, errorFactory.code.unfinishedAPI);
   //Kommentoitu tilapäisesti, kunnes oikea toteutus tarvitaan.
   /*
   sanitizer.hasRequiredParameters(req, ['nimi', 'ohjeteksti'])
@@ -678,7 +678,7 @@ router.post('/kurssi/', function(req, res, next) {
     res.send({success: true});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
   */
 });
@@ -699,7 +699,7 @@ router.post('/kurssi/:courseid/osallistujat', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -719,7 +719,7 @@ router.post('/kurssi/:courseid/osallistujat/kutsu', function(req, res, next) {
     res.send({ success: true, kutsu: invitationId });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -732,7 +732,7 @@ router.get('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, r
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -745,7 +745,7 @@ router.delete('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req
     res.send({ success: true});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -759,7 +759,7 @@ router.get('/kurssi/:courseid/oikeudet', function(req, res, next) {
     res.send(sqldata);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -773,7 +773,7 @@ router.get('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -802,7 +802,7 @@ router.put('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -819,7 +819,7 @@ router.get('/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 */
@@ -837,7 +837,7 @@ router.get('/kurssi/:courseid/uusitiketti', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 */
@@ -860,7 +860,7 @@ router.post('/kurssi/:courseid/tiketti', function(req, res, next) {
     res.send({success: true, uusi: newData});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
