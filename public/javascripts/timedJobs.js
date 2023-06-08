@@ -16,7 +16,7 @@ module.exports = {
       return sql.tickets.getLatestCommentForEachTicketInList(ids);
     })
     .then((ticketList) => {
-      const twoWeeks = 1000*60*60*24*4;
+      const twoWeeks = 1000*60*60*24*14;
       let now = new Date();
       let oldTickets = ticketList.filter(ticket => {
         let time = new Date(ticket.aika);
