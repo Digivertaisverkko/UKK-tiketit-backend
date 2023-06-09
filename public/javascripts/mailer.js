@@ -163,7 +163,7 @@ module.exports = {
 
   createStudentAggregateForCourse: function(courseId, profileId, oldContent) {
     let title = '<h2>[Kurssi]</h2>';
-    let ingress = '<h3>Seuraaviin kysymyksiin on tullut vastaus:</h3>';
+    let ingress = '<h3>Seuraavissa kysymyksissä on tapahtunut jotain eilen:</h3>';
     let row = '<b>[Tiketin otsikko]</b> ([linkki])<br>';
 
     let rowCount = 0;
