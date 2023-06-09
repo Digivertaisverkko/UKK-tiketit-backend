@@ -17,7 +17,7 @@ const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
 const fs = require('fs');
 const { sendMailNotifications } = require('../public/javascripts/mailer.js');
-const { profile } = require('console');
+const { profile, timeEnd } = require('console');
 var session = require('express-session');
 const timedJobs = require('../public/javascripts/timedJobs.js');
 const TicketState = require('../public/javascripts/ticketstate.js');
@@ -102,7 +102,17 @@ router.post('/luotili/', function(req, res, next) {
   });
 });
 
-
+router.post('/testi-cron/', function(req, res, next) {
+  //timedJobs.archiveOldTickets();
+  //timedJobs.deletePendingLtiLogins();
+  timedJobs.sendAggregateEmails()
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(res, error);
+  })
+})
 
 router.get('/testi/', function(req, res, next) {
   sanitizer.test(req.body, [

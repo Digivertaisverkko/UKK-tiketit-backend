@@ -100,34 +100,35 @@ module.exports = {
   createAggregateMailForUser: function(profileId) {
     return sql.courses.getAllCoursesWithUser(profileId)
     .then((courseStatus) => {
-      let contentCount = 0;
-      let promise = Promise.resolve();
       let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(Date.now());
       let content = '<h1>DVV-tiketit-kooste ' + dateString + '</h1> \
       Tässä on lyhyt kooste siitä, mitä DVV-tiketeissä on tapahtunut eilen:';
+
+      let promise = Promise.resolve({ contentCount: 0, rowCount: 0, message: content });
       for (course of courseStatus) {
-        if (course.asema === 'opettaja') {
-          promise = promise.then(() => {
-            return this.createTeacherAggregateForCourse(course.kurssi, profileId);
-          })
-        } else {
-          promise = promise.then(() => {
-            return this.createStudentAggregateForCourse(course.kurssi, profileId);
-          })
-        }
-        promise = promise.then((newContent) => {
-          if (newContent.rowCount > 0) {
-            contentCount += 1;
-            content += newContent.message;
-          }
-        })
+        promise = this.createAggregateMailWithCourseData(course.kurssi, profileId, course.asema, promise);
       }
       return promise
-      .then(() => {
-        content += '<br><br>Jos et halua saada sähköpostia tiketeistä, voit muuttaa asetuksia DVV-tiketti-järjestelmän profiilisivulta.';
-        return { contentCount: contentCount, message: content };
+      .then((content) => {
+        content.message += '<br><br>Jos et halua saada sähköpostia tiketeistä, voit muuttaa asetuksia DVV-tiketti-järjestelmän profiilisivulta.';
+        return content;
       });
     })
+  },
+
+  createAggregateMailWithCourseData: function(courseId, profileId, status, chainedPromise) {
+    
+    if (status === 'opettaja') {
+      chainedPromise = chainedPromise.then((content) => {
+        return this.createTeacherAggregateForCourse(courseId, profileId, content);
+      })
+    } else {
+      chainedPromise = chainedPromise.then((content) => {
+        return this.createStudentAggregateForCourse(courseId, profileId, content);
+      })
+    }
+    return chainedPromise;
+
   },
 
   sendMail: function(receiverList, subject, content) {
@@ -160,7 +161,7 @@ module.exports = {
     });
   },
 
-  createStudentAggregateForCourse: function(courseId, profileId) {
+  createStudentAggregateForCourse: function(courseId, profileId, oldContent) {
     let title = '<h2>[Kurssi]</h2>';
     let ingress = '<h3>Seuraaviin kysymyksiin on tullut vastaus:</h3>';
     let row = '<b>[Tiketin otsikko]</b> ([linkki])<br>';
@@ -189,11 +190,13 @@ module.exports = {
       }
     })
     .then(() => {
-      return { rowCount: rowCount, message: content };
+      let contentCount = oldContent.contentCount;
+      contentCount += (rowCount > 0) ? 1 : 0;
+      return { contentCount: contentCount, rowCount: rowCount, message: oldContent.message + content };
     })
   },
 
-  createTeacherAggregateForCourse: function(courseId, profileId) {
+  createTeacherAggregateForCourse: function(courseId, profileId, oldContent) {
     let title = '<h2>[Kurssi]</h2>';
     let ingress1 = '<h3>Seuraavat kysymykset odottavat vastausta:</h3>';
     let row = '<b>[Tiketin otsikko]</b> ([linkki])<br>';
@@ -237,7 +240,9 @@ module.exports = {
       }
     })
     .then(() => {
-      return { rowCount: rowCount, message: content };
+      let contentCount = oldContent.contentCount;
+      contentCount += (rowCount > 0) ? 1 : 0;
+      return { contentCount: contentCount, rowCount: rowCount, message: oldContent.message + content };
     });
 
   }
