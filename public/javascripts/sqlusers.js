@@ -175,7 +175,7 @@ module.exports = {
     FROM core.profiili p \
     INNER JOIN core.profiiliasetukset a \
     ON p.id=a.profiili \
-    WHERE a.sposti_kooste=true AND a.sposti_ilmoitus=true';
+    WHERE a.sposti_kooste=true';
     return connection.queryAll(query, []);
   },
 
