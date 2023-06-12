@@ -179,12 +179,17 @@ module.exports = {
       return sql.tickets.getAllTicketsFromList(ticketIds);
     })
     .then((ticketList) => {
+      return ticketList.filter((value, index, array) => {
+        return value.aloittaja == profileId;
+      })
+    })
+    .then((ticketList) => {
       if (ticketList.length > 0) {
         content += ingress;
         rowCount += ticketList.length;
         for (ticket of ticketList) {
           let newRow = row.replace('[Tiketin otsikko]', ticket.otsikko)
-                          .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
+          .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
           content = content + newRow;
         }
       }
