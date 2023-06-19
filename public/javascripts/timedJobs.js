@@ -14,10 +14,19 @@ module.exports = {
     return sql.tickets.getAllStatesFromUnarchivedTickets()
     .then((ticketStates) => {
       let ids = arrayTools.extractAttributes(ticketStates, 'tiketti');
+      return sql.tickets.getAllTicketsFromList(ids);
+    })
+    .then((ticketDataList) => {
+      return ticketDataList.filter((value, index, array) => {
+        return value.ukk == false;
+      })
+    })
+    .then((ticketStates) => {
+      let ids = arrayTools.extractAttributes(ticketStates, 'id');
       return sql.tickets.getLatestCommentForEachTicketInList(ids);
     })
     .then((ticketList) => {
-      const twoWeeks = 1000*60*60*24*4;
+      const twoWeeks = 1000*60*60*24*30;
       let now = new Date();
       let oldTickets = ticketList.filter(ticket => {
         let time = new Date(ticket.aika);
