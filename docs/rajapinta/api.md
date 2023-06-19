@@ -662,6 +662,15 @@ Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Profiililuku
 #### Vastaus:
+```
+{
+  oikeudet: $kurssilainen-olio
+  login: {
+    lti_login: $bool
+    perus: $bool
+  }
+}
+```
 Vastauksena tulee [kurssilainen-olio](#kurssilainen-olio)
 
 <br><br><br>

@@ -120,6 +120,22 @@ module.exports = {
     });
   },
 
+  getUserLoginType(profileId) {
+    const query = '\
+    SELECT * \
+    FROM core.login \
+    WHERE profiili=$1';
+
+    return connection.queryAll(query, [profileId])
+    .then((loginData) => {
+      if (loginData.length == 0) {
+        return { lti_login: true, perus: false };
+      } else {
+        return { lti_login: false, perus: true };
+      }
+    })
+  },
+
   removeLoginAttempt: function(frontcode) {
     const query = 'DELETE FROM core.loginyritys WHERE fronttunnus=$1';
     return connection.queryAll(query, [frontcode]); 

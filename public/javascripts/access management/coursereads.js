@@ -109,7 +109,13 @@ class CourseReads extends CourseLists {
   }
 
   getUserInfo(userId, courseId) {
-    return sql.courses.getUserInfoForCourse(userId, courseId);
+    return sql.courses.getUserInfoForCourse(userId, courseId)
+    .then((userData) => {
+      return sql.users.getUserLoginType(userId)
+      .then((loginType) => {
+        return { oikeudet: userData, login: loginType };
+      })
+    })
   }
 
   getFieldsOfTicketBase(courseId) {
