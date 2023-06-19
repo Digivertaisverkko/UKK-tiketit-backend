@@ -272,6 +272,13 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
   }]
 }
 ```
+
+## /minun/gdpr/liite/kaikki/zip
+### GET
+[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
+Täältä voi hakea pakatun .zip-tiedoston, jossa on kaikki käyttäjän tallentama data.
+#### Vastaus:
+Ladattava .zip-tiedosto.
  
 
 ## Kurssien rajapinta 
