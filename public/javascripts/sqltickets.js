@@ -367,6 +367,14 @@ module.exports = {
     });
   },
 
+  insertTimestampsToTicketIdReferences: function(array, idReferenceKey) {
+    var ids = arrayTools.extractAttributes(array, idReferenceKey);
+    return module.exports.getLatestCommentForEachTicketInList(ids)
+    .then((commentList) => {
+      return arrayTools.unionExtractKey(array, commentList, idReferenceKey, 'tiketti', 'viimeisin', 'aika');
+    })
+  },
+ 
   createComment: function(ticketid, userid, content, state) {
     const query = '\
     INSERT INTO core.kommentti (tiketti, lahettaja, viesti, tila, aikaleima) \

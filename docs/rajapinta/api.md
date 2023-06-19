@@ -916,6 +916,7 @@ Poistaa annetun kommentin, jos se on kirjautuneen käyttäjän luoma.
   id: $int
   lahettaja: $kurssilainen-olio
   aikaleima: $string 
+  viimeisin: $string (uusimman kommentin aikaleima)
   tila: $int 
   viesti: $string
   liitteet: [
