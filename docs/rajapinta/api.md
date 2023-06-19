@@ -931,6 +931,7 @@ kentän nimi on tiedosto.
 }
 ```
 
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/:liite-id
 #### DELETE
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kommenttikirjoitus
 ##### Vastaus:
