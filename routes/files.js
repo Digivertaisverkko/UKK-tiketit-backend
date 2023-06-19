@@ -12,8 +12,10 @@ router.use(fileUpload({
 }));
 
 router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, next) {
+  console.log("asdd");
   access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
   .then((handle) => {
+    console.log("asd");
     return handle.methods.addAttachment(req.params.commentid, 
                                         req.files.tiedosto.data, 
                                         req.files.tiedosto.name,
@@ -48,16 +50,24 @@ router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite/:a
   });
 });
 
-router.get('/minun/gdpr/liite/kaikki/zip', function(req, res, next) {
+router.get('/minun/gdpr/kaikki/zip', function(req, res, next) {
+  let userDataJson;
   return access.authenticatedUser(req)
   .then((userId) => {
     return access.writeProfile(req, userId);
   })
   .then((handle) => {
+    return handle.methods.exportAllUserData(handle.userid)
+    .then((userData) => {
+      userDataJson = userData;
+      return handle;
+    });
+  })
+  .then((handle) => {
     return handle.methods.getAllUserAttachments(handle.userid);
   })
   .then((attachmentList) => {
-    return filessystem.createZipFromAttachmentList(attachmentList);
+    return filessystem.createZipFromAttachmentList(userDataJson, attachmentList);
   })
   .then((zipPath) => {
     res.download(zipPath, 'liitteet.zip');

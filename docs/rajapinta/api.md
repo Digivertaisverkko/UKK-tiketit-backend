@@ -273,10 +273,10 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
 }
 ```
 
-## /minun/gdpr/liite/kaikki/zip
+## /minun/gdpr/kaikki/zip
 ### GET
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
-Täältä voi hakea pakatun .zip-tiedoston, jossa on kaikki käyttäjän tallentama data.
+Täältä voi hakea pakatun .zip-tiedoston, jossa on kaikki käyttäjän tallentama data, mukaanlukien liitteet ja json, jossa on kaikki tieto.
 #### Vastaus:
 Ladattava .zip-tiedosto.
  
