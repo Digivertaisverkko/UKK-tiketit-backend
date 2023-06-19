@@ -12,10 +12,8 @@ router.use(fileUpload({
 }));
 
 router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite', function(req, res, next) {
-  console.log("asdd");
   access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
   .then((handle) => {
-    console.log("asd");
     return handle.methods.addAttachment(req.params.commentid, 
                                         req.files.tiedosto.data, 
                                         req.files.tiedosto.name,

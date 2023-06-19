@@ -358,6 +358,15 @@ module.exports = {
     });
   },
 
+  insertTicketFieldsToTicketIdReferences: function(array, idReferenceKey) {
+    var ids = arrayTools.extractAttributes(array, idReferenceKey);
+    return module.exports.getFieldsOfTicketList(ids)
+    .then((fieldDataList) => {
+      fieldDataList = arrayTools.removeAttributes(fieldDataList, ['tyyppi', 'ohje']);
+      return arrayTools.unionNewKeyAsArray(array, fieldDataList, idReferenceKey, 'tiketti', 'kentat');
+    });
+  },
+
   createComment: function(ticketid, userid, content, state) {
     const query = '\
     INSERT INTO core.kommentti (tiketti, lahettaja, viesti, tila, aikaleima) \

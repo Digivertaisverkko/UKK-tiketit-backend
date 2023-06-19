@@ -73,6 +73,9 @@ class CourseReads extends CourseLists {
     .then((ticketData) => {
       return sql.tickets.insertTicketStateToTicketIdReferences(ticketData, 'id');
     })
+    .then((ticketData) => {
+      return sql.tickets.insertTicketFieldsToTicketIdReferences(ticketData, 'id');
+    });
   }
 
   getAllArchivedTicketsVisibleToUser(userId, courseId) {

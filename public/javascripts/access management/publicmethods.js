@@ -21,7 +21,6 @@ class PublicMethods {
   getInvitation(invitationId, courseId) {
     return sql.users.getUserInvitation(invitationId)
     .then((data) => {
-      console.log(data.kurssi + ' ;; ' + courseId);
       if (data.kurssi == courseId) {
         return data;
       } else {

@@ -11,11 +11,8 @@ module.exports = {
 
   createZipFromAttachmentList: function(userJson, attachmentList) {
     const zip = new JSZip();
-    console.log(1);
     let buff = Buffer.from(JSON.stringify(userJson), "utf-8")
-    console.log(2);
     zip.file('data.json', buff);
-    console.log(3);
 
     for (attachment of attachmentList) {
       let filePath = process.env.ATTACHMENT_DIRECTORY + attachment.tiedosto;
@@ -30,9 +27,6 @@ module.exports = {
       .generateNodeStream({type:'nodebuffer',streamFiles:true})
       .pipe(fs.createWriteStream(zipPath))
       .on('finish', function () {
-          // JSZip generates a readable stream with a "end" event,
-          // but is piped here in a writable stream which emits a "finish" event.
-          console.log(zipPath + " written.");
           resolve(zipPath);
       })
       .on('error', function() {

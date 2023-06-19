@@ -365,6 +365,11 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
   otsikko: $string
   aikaleima: $string
   aloittaja: $kurssilainen-olio
+  kentat: [{
+    tiketti: $int
+    arvo: $string
+    otsikko: $string
+  }]
 }]
 ```
 
