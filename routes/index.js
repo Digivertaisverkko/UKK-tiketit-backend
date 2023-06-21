@@ -245,20 +245,6 @@ router.post('/minun/asetukset/', function(req, res, next) {
   })
 });
 
-router.get('/minun/gdpr/', function(req, res, next) {
-  access.authenticatedUser(req)
-  .then((userid) => access.writeProfile(req, userid))
-  .then((handle) => {
-    return handle.methods.exportAllUserData(handle.userid);
-  })
-  .then((data) => {
-    res.send(data);
-  })
-  .catch((error) => {
-    errorFactory.createError(req, res, error);
-  })
-});
-
 
 router.delete('/minun/', function(req, res, next) {
   sanitizer.test(req.body, [

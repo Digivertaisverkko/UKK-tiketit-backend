@@ -234,45 +234,6 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
 }
 ```
 
-### /api/minun/gdpr/
-#### GET
-[**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
-##### Vastaus:
-```
-{
-  profiili: {
-    nimi
-    sposti
-  }
-  tiketit: [{
-    id
-    kurssi
-    otsikko
-    aikaleima
-    aloittaja
-    ukk
-    omat kommentit: [{
-      tiketti
-      lahettaja
-      viesti
-      aikaleima
-      liitteet: [{
-        kommentti
-        tiedosto
-        nimi
-      }]
-    }]
-  }]
-  kommentit: [{
-    tiketti
-    lahettajaviesti
-  }]
-  kurssit: [{
-    nimi
-  }]
-}
-```
-
 ## /minun/gdpr/kaikki/zip
 ### GET
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
