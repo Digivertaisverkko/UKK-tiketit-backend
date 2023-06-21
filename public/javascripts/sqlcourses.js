@@ -125,7 +125,6 @@ module.exports = {
     const query = '\
     INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) \
     VALUES ($1, $2, $3)';
-
     return connection.queryNone(query, [courseid, userid, position]);
   },
 

@@ -16,6 +16,7 @@
     "express-session": "^1.17.3",
     "http-errors": "~1.6.3",
     "ims-lti": "^3.0.2",
+    "jszip": "^3.10.1",
     "ltijs": "^5.9.0",
     "ltijs-sequelize": "^2.4.4",
     "morgan": "~1.9.1",

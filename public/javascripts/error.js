@@ -34,7 +34,7 @@ module.exports = {
 
     code: CODE,
 
-    createError: function(res, errorid) {
+    createError: function(req, res, errorid) {
         var e = new Object;
         e.success = false;
         e.error = new Object();
@@ -44,6 +44,7 @@ module.exports = {
 
         switch (errorid) {
             case CODE.notSignedIn:
+                console.warn('[ACCESS] Kirjautumaton käyttäjä yrittää koskea resurssiin, johon sillä ei ole oikeuksia. ' + req.ip);
                 e.error.virheilmoitus = "Et ole kirjautunut.";
                 status = 403
                 break;
@@ -57,6 +58,7 @@ module.exports = {
                 break;
             case CODE.noPermission:
                 e.error.virheilmoitus = "Ei tarvittavia oikeuksia.";
+                console.warn('[ACCESS] Kirjautunut käyttäjä yrittää päästä käsiksi resurssiin, johon sillä ei ole oikeuksia. ' + req.ip);
                 status = 403
                 break;
             case CODE.accountAlreadyExists:
@@ -86,7 +88,6 @@ module.exports = {
                 status = 500
                 break;
         }
-
 
         res.status(status).send(e)
     }

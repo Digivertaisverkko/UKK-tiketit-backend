@@ -73,6 +73,12 @@ class CourseReads extends CourseLists {
     .then((ticketData) => {
       return sql.tickets.insertTicketStateToTicketIdReferences(ticketData, 'id');
     })
+    .then((ticketData) => {
+      return sql.tickets.insertTicketFieldsToTicketIdReferences(ticketData, 'id');
+    })
+    .then((ticketData) => {
+      return sql.tickets.insertTimestampsToTicketIdReferences(ticketData, 'id');
+    });
   }
 
   getAllArchivedTicketsVisibleToUser(userId, courseId) {
@@ -106,7 +112,13 @@ class CourseReads extends CourseLists {
   }
 
   getUserInfo(userId, courseId) {
-    return sql.courses.getUserInfoForCourse(userId, courseId);
+    return sql.courses.getUserInfoForCourse(userId, courseId)
+    .then((userData) => {
+      return sql.users.getUserLoginType(userId)
+      .then((loginType) => {
+        return { oikeudet: userData, login: loginType };
+      })
+    })
   }
 
   getFieldsOfTicketBase(courseId) {

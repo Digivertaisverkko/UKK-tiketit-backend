@@ -97,6 +97,35 @@ module.exports = {
 
   },
 
+  sendInvitationToRegisterMail: function(email, courseId, invitationId) {
+
+    return sql.courses.getCourseInfo(courseId)
+    .then((courseData) => {
+
+      let title = 'Kutsu kirjautumaan TUKKI-järjestelmään';
+      let content = '<p>Sinut on kutsuttu TUKKI-järjestelmän kurssille ' + courseData.nimi + '.</p> \
+      <p>Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.<br>\
+      ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
+      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
+
+      return module.exports.sendMail([email], title, content);
+    })
+  },
+
+  sendInvitationToJoinMail: function(email, courseId, invitationId) {
+
+    return sql.courses.getCourseInfo(courseId)
+    .then((courseData) => {
+      let title = 'Kutsu TUKKI-järjestelmän kurssille ' + courseData.nimi;
+      let content = '<p>Sinut on kutsuttu kurssille ' + courseData.nimi + '.</p> \
+      <p>Paina alla olevaa linkkiä liittyäksesi kurssille.<br>\
+      ' + redirect.urlToJoinPage(courseId, invitationId) + '</p>\
+      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
+
+      return module.exports.sendMail([email], title, content);
+    })
+  },
+
   createAggregateMailForUser: function(profileId) {
     return sql.courses.getAllCoursesWithUser(profileId)
     .then((courseStatus) => {
@@ -106,11 +135,15 @@ module.exports = {
 
       let promise = Promise.resolve({ contentCount: 0, rowCount: 0, message: content });
       for (course of courseStatus) {
-        promise = this.createAggregateMailWithCourseData(course.kurssi, profileId, course.asema, promise);
+        promise = this.createAggregateMailWithCourseData(course.kurssi, 
+                                                         profileId,
+                                                         course.asema,
+                                                         promise);
       }
       return promise
       .then((content) => {
-        content.message += '<br><br>Jos et halua saada sähköpostia tiketeistä, voit muuttaa asetuksia DVV-tiketti-järjestelmän profiilisivulta.';
+        content.message += '<br><br>Jos et halua saada sähköpostia tiketeistä, \
+        voit muuttaa asetuksia DVV-tiketti-järjestelmän profiilisivulta.';
         return content;
       });
     })
@@ -188,16 +221,32 @@ module.exports = {
         content += ingress;
         rowCount += ticketList.length;
         for (ticket of ticketList) {
-          let newRow = row.replace('[Tiketin otsikko]', ticket.otsikko)
-          .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
-          content = content + newRow;
+          if (ticket.ukk == false) {
+            let newRow = row.replace('[Tiketin otsikko]', ticket.otsikko)
+            .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
+            content = content + newRow;
+          }
+        }
+
+        content += "<h3>Uusia usein kysyttyjä kysymyksiä:</h3>"
+
+        for (ticket of ticketList) {
+          if (ticket.ukk == true) {
+            let newRow = row.replace('[Tiketin otsikko]', ticket.otsikko)
+            .replace('[linkki]', redirect.urlToFaqTicket(courseId, ticket.id));
+            content = content + newRow;
+          }
         }
       }
     })
     .then(() => {
       let contentCount = oldContent.contentCount;
-      contentCount += (rowCount > 0) ? 1 : 0;
-      return { contentCount: contentCount, rowCount: rowCount, message: oldContent.message + content };
+      let message = oldContent.message;
+      if (rowCount > 0) {
+        contentCount += 1;
+        message += content;
+      }
+      return { contentCount: contentCount, rowCount: rowCount, message: message };
     })
   },
 
@@ -223,8 +272,10 @@ module.exports = {
         content += ingress1;
         rowCount += ticketList.length;
         for (ticket of ticketList) {
-          content += row.replace('[Tiketin otsikko]', ticket.otsikko)
-                        .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
+          if (ticket.ukk == false) {
+            content += row.replace('[Tiketin otsikko]', ticket.otsikko)
+                          .replace('[linkki]', redirect.urlToTicket(courseId, ticket.id));
+          }
         }
       }
       return sql.tickets.getAllCommentsFromCourseSinceYesterday(courseId, []);
@@ -246,8 +297,13 @@ module.exports = {
     })
     .then(() => {
       let contentCount = oldContent.contentCount;
-      contentCount += (rowCount > 0) ? 1 : 0;
-      return { contentCount: contentCount, rowCount: rowCount, message: oldContent.message + content };
+      let message = oldContent.message;
+      if (rowCount > 0) {
+        contentCount += 1;
+        message += content;
+      }
+      return { contentCount: contentCount, rowCount: rowCount,
+               message: message };
     });
 
   }

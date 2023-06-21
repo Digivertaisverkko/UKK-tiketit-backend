@@ -142,6 +142,7 @@ CREATE TABLE core.liite (
 kommentti INT NOT NULL,
 tiedosto VARCHAR(36) NOT NULL,
 nimi VARCHAR(256) NOT NULL,
+koko INT NOT NULL,
 PRIMARY KEY (kommentti, tiedosto),
 FOREIGN KEY (kommentti) REFERENCES core.kommentti(id)
 );
@@ -169,6 +170,16 @@ sposti_palaute BOOL NOT NULL,
 gdpr_lupa BOOL NOT NULL,
 PRIMARY KEY (profiili),
 FOREIGN KEY (profiili) REFERENCES core.profiili(id)
+);
+
+CREATE TABLE core.kurssikutsu (
+id VARCHAR(36) NOT NULL,
+kurssi INT NOT NULL,
+sposti VARCHAR(255) NOT NULL,
+vanhenee TIMESTAMPTZ NOT NULL,
+rooli VARCHAR(255) NOT NULL,
+PRIMARY KEY (id),
+FOREIGN KEY (kurssi) REFERENCES core.kurssi(id)
 );
 
 CREATE TABLE core.lti_client (

@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const { setFlagsFromString } = require('v8');
 const errorFactory = require('../public/javascripts/error.js');
 const splicer = require('../public/javascripts/sqlsplicer.js');
-const { use } = require('express/lib/application.js');
+const { use, handle } = require('express/lib/application.js');
 const sqlsplicer = require('../public/javascripts/sqlsplicer.js');
 const sanitizer = require('../public/javascripts/sanitizer.js');
 const { send } = require('process');
@@ -22,6 +22,8 @@ var session = require('express-session');
 const timedJobs = require('../public/javascripts/timedJobs.js');
 const TicketState = require('../public/javascripts/ticketstate.js');
 const mailer = require('../public/javascripts/mailer.js');
+const { errorMonitor } = require('events');
+const filessystem = require('../public/javascripts/filessystem.js');
 
 router.use(express.json());
 
@@ -45,7 +47,7 @@ router.post('/login/', function(req, res, next) {
     }
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -68,7 +70,7 @@ router.get('/authtoken/', function(req, res, next) {
       return sql.users.removeLoginAttempt(logincode);
     })
     .catch((error) => {
-      errorFactory.createError(res, error);
+      errorFactory.createError(req, res, error);
     });
   }
 });
@@ -77,7 +79,7 @@ router.post('/omalogin/', function(req, res, next) {
   sanitizer.hasRequiredHeaders(req, ['ktunnus', 'salasana', 'login-id'])
   .then((header) => auth.login(header.ktunnus, header.salasana, header['login-id']))
   .then((data) => res.send(data))
-  .catch((error) => errorFactory.createError(res, error));
+  .catch((error) => errorFactory.createError(req, res, error));
 });
 
 router.post('/kirjauduulos/', function(req, res, next) {
@@ -87,18 +89,29 @@ router.post('/kirjauduulos/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
 router.post('/luotili/', function(req, res, next) {
-  sanitizer.hasRequiredParameters(req, ['ktunnus', 'salasana', 'sposti'])
-  .then((header) => auth.createAccount(header.ktunnus, header.salasana, header.sposti))
+  sanitizer.test(req.body, [
+    {key: 'ktunnus', type: 'string', min: 5, max: 255},
+    {key: 'salasana', type: 'string'},
+    {key: 'sposti', type: 'string', min: 1, max: 255},
+    {key: 'kutsu', type: 'string', min: 36, max: 36}
+  ])
+  .then(() => { 
+    return auth.createAccount(req.body.ktunnus, req.body.salasana, req.body.sposti, req.body.kutsu)
+  })
   .then((data) => {
     res.send({success: true});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    if (error === errorFactory.code.noResults) {
+      errorFactory.createError(req, res, errorFactory.code.wrongParameters);
+    } else {
+      errorFactory.createError(req, res, error);
+    }
   });
 });
 
@@ -124,8 +137,18 @@ router.get('/testi/', function(req, res, next) {
     res.send(true);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
+});
+
+router.get('/testicron/', function(req, res, next) {
+  filessystem.removeAllGdprDumps()
+  .then(() => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    errorFactory.createError(req, res, error);
+  })
 });
 
 router.get('/echoheaders/', function(req, res, next) {
@@ -174,7 +197,7 @@ router.get('/minun/', function(req, res, next) {
     res.send(userData);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -192,7 +215,7 @@ router.get('/minun/asetukset/', function(req, res, next) {
                'sposti-palaute':  settings.sposti_palaute });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -218,21 +241,7 @@ router.post('/minun/asetukset/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
-  })
-});
-
-router.get('/minun/gdpr/', function(req, res, next) {
-  access.authenticatedUser(req)
-  .then((userid) => access.writeProfile(req, userid))
-  .then((handle) => {
-    return handle.methods.exportAllUserData(handle.userid);
-  })
-  .then((data) => {
-    res.send(data);
-  })
-  .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
@@ -262,13 +271,12 @@ router.delete('/minun/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/minun/kurssit'
-router.get('/kurssi/omatkurssit', function(req, res, next) {
+router.get('/minun/kurssit/', function(req, res, next) {
   //ACCESS
   access.listCourses(req)
   .then((handle) => {
@@ -278,12 +286,11 @@ router.get('/kurssi/omatkurssit', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/'
 router.get('/kurssi/:courseid', function(req, res, next) {
   //ACCESS
   access.publicMethods()
@@ -294,12 +301,12 @@ router.get('/kurssi/:courseid', function(req, res, next) {
     res.send(coursedata);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
-// '/kurssi/:kurssi-id/tiketti/omat'
-router.get('/kurssi/:courseid/omat', function(req, res, next) {
+
+router.get('/kurssi/:courseid/tiketti/omat/', function(req, res, next) {
   //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
@@ -309,22 +316,22 @@ router.get('/kurssi/:courseid/omat', function(req, res, next) {
     res.send(sqldata);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
-// '/kurssi/:kurssi-id/tiketti/kaikki'
-router.get('/kurssi/:courseid/kaikki', function(req, res, next) {
+
+router.get('/kurssi/:courseid/tiketti/kaikki/', function(req, res, next) {
   //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
     return handle.methods.getAllTicketsVisibleToUser(handle.userid, req.params.courseid);
   })
   .then((data) => res.send(data))
-  .catch((error) => errorFactory.createError(res, error));
+  .catch((error) => errorFactory.createError(req, res, error));
 });
 
-router.get('/kurssi/:courseid/arkistoidut', function(req, res, next) {
+router.get('/kurssi/:courseid/tiketti/arkisto', function(req, res, next) {
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
     return handle.methods.getAllArchivedTicketsVisibleToUser(handle.userid, req.params.courseid);
@@ -333,19 +340,19 @@ router.get('/kurssi/:courseid/arkistoidut', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
-// '/kurssi/:kurssi-id/ukk/kaikki'
-router.get('/kurssi/:courseid/ukk', function(req, res, next) {
+
+router.get('/kurssi/:courseid/ukk/kaikki', function(req, res, next) {
   //ACCESS
   access.publicMethods()
   .then((handle) => {
     return handle.methods.getFaqTickets(req.params.courseid);
   })
   .then((data) => res.send(data) )
-  .catch((error) => errorFactory.createError(res, error) );
+  .catch((error) => errorFactory.createError(req, res, error) );
 });
 
 router.get('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
@@ -357,7 +364,7 @@ router.get('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
@@ -383,13 +390,12 @@ router.post('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
-// '/kurssi/:kurssi-id/ukk' POST
+
 router.post('/kurssi/:courseid/ukk', function(req, res, next) {
-  //ACCESS
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', min: 1,  max: 255},
     {key: 'viesti', type: 'string'},
@@ -412,10 +418,10 @@ router.post('/kurssi/:courseid/ukk', function(req, res, next) {
   .then((insertedData) => {
     res.send({ success: true, uusi: insertedData });
   })
-  .catch((error) => errorFactory.createError(res, error));
+  .catch((error) => errorFactory.createError(req, res, error));
 });
 
-// '/kurssit/'
+
 router.get('/kurssit/', function(req, res, next) {
   auth.authenticatedUser(req)
   .then((userid) => {
@@ -425,15 +431,15 @@ router.get('/kurssit/', function(req, res, next) {
     res.send(sqldata)
   )
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/tiketti/:tiketti-id'
-router.get('/tiketti/:ticketid', function(req, res, next) {
+// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
+router.get('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
   //ACCESS
-  access.readTicket(req, req.params.ticketid)
+  access.readTicket(req, req.params.courseid, req.params.ticketid)
   .then((handle) => {
     return handle.methods.getTicketMetadata(handle.userid, req.params.ticketid);
   })
@@ -445,12 +451,13 @@ router.get('/tiketti/:ticketid', function(req, res, next) {
     }
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-router.put('/tiketti/:ticketid', function(req, res, next) {
+// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
+router.put('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', min: 1, max: 255},
     {key: 'viesti', type: 'string', min: 1, optional: true},
@@ -459,7 +466,7 @@ router.put('/tiketti/:ticketid', function(req, res, next) {
     {keyPath: ['kentat', 'arvo'], type: 'string', max: 255}
   ])
   .then(() => {
-    return access.writeTicket(req, req.params.ticketid);
+    return access.writeTicket(req, req.params.courseid, req.params.ticketid);
   })
   .then((handle) => {
     return handle.methods.updateTicket(req.params.ticketid, 
@@ -471,13 +478,14 @@ router.put('/tiketti/:ticketid', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
 
-router.delete('/tiketti/:ticketid', function(req, res, next) {
-  access.writeTicket(req, req.params.ticketid)
+// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
+router.delete('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
+  access.writeTicket(req, req.params.courseid, req.params.ticketid)
   .then((handle) => {
     return handle.methods.deleteTicket(req.params.ticketid);
   })
@@ -485,66 +493,53 @@ router.delete('/tiketti/:ticketid', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
 
-//TODO: '/kurssi/:kurssi-id/tiketti/tiketti-id/kooste
-router.get('/tiketti/:ticketid/kooste', function(req, res, next) {
-  access.readTicket(req, ticketid)
+// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
+router.get('/kurssi/:courseid/tiketti/:ticketid/kooste', function(req, res, next) {
+  access.readTicket(req, req.params.courseid, ticketid)
   .then((handle) => {
     return handle.methods.getTicketMetadata(handle.userid, ticketid);
   })
 });
 
-router.post('/testiarkisto', function(req, res, next) {
-  timedJobs.archiveOldTickets()
-  .then(() => {
-    res.send({success: true});
-  })
-  .catch((error) => {
-    errorFactory.createError(res, error);
-  })
-});
 
-// '/kurssi/:kurssi-id/tiketti/:tiketti-id/kentat'
-router.get('/tiketti/:ticketid/kentat', function(req, res, next) {
-  //ACCESS
-  access.readTicket(req, req.params.ticketid)
+// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
+router.get('/kurssi/:courseid/tiketti/:ticketid/kentat', function(req, res, next) {
+  access.readTicket(req, req.params.courseid, req.params.ticketid)
   .then((handle) => {
     return handle.methods.getFields(req.params.ticketid);
   })
   .then((sqldata) => res.send(sqldata))
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/tiketti/tiketti-id/kommentit'
-router.get('/tiketti/:ticketid/kommentit', function(req, res, next) {
-  //ACCESS
-  access.readTicket(req, req.params.ticketid)
+router.get('/kurssi/:courseid/tiketti/:ticketid/kommentti/kaikki', function(req, res, next) {
+  access.readTicket(req, req.params.courseid, req.params.ticketid)
   .then((handle) => {
     return handle.methods.getComments(req.params.ticketid);
   })
   .then((data) => res.send(data))
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentit' POST
-router.post('/tiketti/:ticketid/uusikommentti', function(req, res, next) {
-  //ACCESS
+
+router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'viesti', type: 'string'},
     {key: 'tila', type: 'number', min: 0, max: 6}
   ])
   .then(() => {
-    return access.readTicket(req, req.params.ticketid);
+    return access.readTicket(req, req.params.courseid, req.params.ticketid);
   })
   .then((handle) => {
     return handle.methods.addComment(req.params.ticketid,
@@ -556,13 +551,13 @@ router.post('/tiketti/:ticketid/uusikommentti', function(req, res, next) {
     res.send({ success: true, kommentti: newCommentId });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id' PUT
-router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
+
+router.put('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
   sanitizer.test(req.body, [
     { key: 'viesti', type: 'string' },
     { key: 'tila',   type: 'number', optional: true, 
@@ -572,7 +567,7 @@ router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
     }
   ])
   .then(() => {
-    return access.writeComment(req, req.params.ticketid, req.params.commentid)
+    return access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
   })
   .then((handle) => {
     let commentid = req.params.commentid;
@@ -584,12 +579,13 @@ router.put('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
-router.delete('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
-  access.writeComment(req, req.params.ticketid, req.params.commentid)
+
+router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid', function(req, res, next) {
+  access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
   .then((handle) => {
     return handle.methods.deleteComment(req.params.commentid);
   })
@@ -597,42 +593,50 @@ router.delete('/tiketti/:ticketid/kommentti/:commentid', function(req, res, next
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
-router.post('/tiketti/:ticketid/valmis', function(req, res, next) {
-  access.readTicket(req, req.params.ticketid)
+
+router.post('/kurssi/:courseid/tiketti/arkisto/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'tiketti', type: 'number'}
+  ])
+  .then(() => {
+    return access.readTicket(req, req.params.courseid, req.body.tiketti);
+  })
   .then((handle) => {
-    return handle.methods.archiveFinishedTicket(req.params.ticketid, handle.userid);
+    return handle.methods.archiveFinishedTicket(req.body.tiketti, handle.userid);
   })
   .then(() => {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
-// '/kurssi/:kurssi-id/ukk/:tiketti-id/arkistoi
-router.post('/tiketti/:ticketid/arkistoiukk', function(req, res, next) {
-  //ACCESS
-  access.writeFaq(req, req.params.ticketid)
+
+router.post('/kurssi/:courseid/ukk/arkisto/', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'tiketti', type: 'number'}
+  ])
+  .then(() => {
+    return access.writeFaq(req, req.params.courseid, req.body.tiketti);
+  })
   .then((handle) => {
-    return handle.methods.archiveFaqTicket(req.params.ticketid);
+    return handle.methods.archiveFaqTicket(req.body.tiketti);
   })
   .then(() => {
     res.send({success: true});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/ukk/:tiketti-id/' PUT
-router.post('/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
-  //ACCESS
+router.put('/kurssi/:courseid/ukk/:ticketid/', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', max: 255},
     {key: 'viesti', type: 'string'},
@@ -642,7 +646,7 @@ router.post('/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
     {key: 'vastaus', type: 'string'}
   ])
   .then(() => {
-    return access.writeFaq(req, req.params.ticketid);
+    return access.writeFaq(req, req.params.courseid, req.params.ticketid);
   })
   .then((handle) => {
     return handle.methods.editFaqTicket(req.params.ticketid, req.body.otsikko, req.body.viesti, req.body.vastaus, req.body.kentat);
@@ -651,15 +655,14 @@ router.post('/tiketti/:ticketid/muokkaaukk', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 
 });
 
 
-// '/kurssi/' POST
-router.post('/luokurssi', function(req, res, next) {
-  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
+router.post('/kurssi/', function(req, res, next) {
+  errorFactory.createError(req, res, errorFactory.code.unfinishedAPI);
   //Kommentoitu tilapäisesti, kunnes oikea toteutus tarvitaan.
   /*
   sanitizer.hasRequiredParameters(req, ['nimi', 'ohjeteksti'])
@@ -671,66 +674,79 @@ router.post('/luokurssi', function(req, res, next) {
     res.send({success: true});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
   */
 });
 
 
-// '/kurssi/:kurssi-id/osallistujat' POST
-router.post('/kurssi/:courseid/liity', function(req, res, next) {
-  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
-  //TODO: Tietoturva-aukko: Kuka tahansa voi liittyä mille tahansa kurssille.
-  //Kommentoitu tilapäisesti tietoturva-aukon korjaamista odotellessa.
-  /*
-  auth.authenticatedUser(req)
-  .then((userid) => {
-    sql.courses.addUserToCourse(req.params.courseid, userid, false);
+router.post('/kurssi/:courseid/osallistujat', function(req, res, next) {
+
+  sanitizer.test(req.body, [
+    {key: 'kutsu', type: 'string', min: 36, max: 36}
+  ])
+  .then(() => {
+    return access.commonMethods(req);
   })
-  .then((sqldata) => {
-    res.send({success: true});
+  .then((handle) => {
+    return handle.methods.acceptInvitation(req.body.kutsu, handle.userid, req.params.courseid);
+  })
+  .then(() => {
+    res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
-  */
 });
 
 
-// '/kurssi/:kurssi-id/osallistujat/kutsu'
-router.post('/kurssi/:courseid/kutsu', function(req, res, next) {
-  errorFactory.createError(res, errorFactory.code.unfinishedAPI);
-  //Kommentoitu tiläpäisesti, kunnes oikea toteutus tarvitaan.
-  /*
-  sanitizer.hasRequiredParameters(req, ["sposti", "opettaja"])
-  .then(() => auth.authenticatedUser(req))
-  .then((userid) => {
-    return sql.courses.getUserInfoForCourse(userid, req.params.courseid);
+router.post('/kurssi/:courseid/osallistujat/kutsu', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'sposti', type: 'string'},
+    {key: 'rooli', type: 'string', value: ['opettaja', 'opiskelija']}
+  ])
+  .then(() => {
+    return access.writeCourse(req, req.params.courseid);
   })
-  .then((userinfo) => {
-    if (userinfo.asema !== "opettaja") {
-      return Promise.reject(errorFactory.code.noPermission);
-    } else {
-      return sql.users.userIdsWithEmail(req.body.sposti);
-    }
+  .then((handle) => {
+    return handle.methods.inviteUserToCourse(req.params.courseid, req.body.sposti, req.body.rooli);
   })
-  .then((usersWithMatchingEmail) => {
-    if (usersWithMatchingEmail.length == 0) {
-      //TODO: Lähetä kutsu ihmiselle, joka ei käytä ohjelmaa tällä hetkellä.
-      return Promise.reject(errorFactory.code.noResults);
-    } else {
-      sql.courses.addUserToCourse(req.params.courseid, usersWithMatchingEmail[0], req.body.opettaja);
-    }
+  .then((invitationId) => {
+    res.send({ success: true, kutsu: invitationId });
   })
-  .then(() => res.send({success: true}))
-  .catch((error) => errorFactory.createError(res, error));
-  */
+  .catch((error) => {
+    errorFactory.createError(req, res, error);
+  })
+});
+
+router.get('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, res, next) {
+  access.publicMethods()
+  .then((handle) => {
+    return handle.methods.getInvitation(req.params.invitationid, req.params.courseid);
+  })
+  .then((data) => {
+    res.send(data);
+  })
+  .catch((error) => {
+    errorFactory.createError(req, res, error);
+  })
+});
+
+router.delete('/kurssi/:courseid/osallistujat/kutsu/:invitationid', function(req, res, next) {
+  access.commonMethods(req)
+  .then((handle) => {
+    return handle.methods.rejectInvitation(req.params.invitationid, handle.userid, req.params.courseid);
+  })
+  .then(() => {
+    res.send({ success: true});
+  })
+  .catch((error) => {
+    errorFactory.createError(req, res, error);
+  })
 });
 
 
-// '/kurssi/:kurssi-id/minunoikeudet'
 router.get('/kurssi/:courseid/oikeudet', function(req, res, next) {
-  //ACCESS
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
     return handle.methods.getUserInfo(handle.userid, req.params.courseid);
@@ -739,14 +755,12 @@ router.get('/kurssi/:courseid/oikeudet', function(req, res, next) {
     res.send(sqldata);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/tikettipohja/kentat'
-router.get('/kurssi/:courseid/tiketinkentat', function(req, res, next) {
-  //ACCESS
+router.get('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
     return handle.methods.getFieldsOfTicketBase(req.params.courseid);
@@ -755,13 +769,12 @@ router.get('/kurssi/:courseid/tiketinkentat', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 
 
-// '/kurssi/:kurssi-id/tikettipohja/kentat' PUT
-router.put('/kurssi/:courseid/tiketinkentat', function(req, res, next) {
+router.put('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
   //ACCESS
   sanitizer.test(req.body, [
     {key: 'kentat', type: 'object'},
@@ -785,11 +798,12 @@ router.put('/kurssi/:courseid/tiketinkentat', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 });
 
 
+/*
 // POISTA UUDESTA MUOTOILUSTA
 router.get('/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
   //ACCESS
@@ -801,11 +815,13 @@ router.get('/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
+*/
 
 
+/*
 // POISTA UUDESTA MUOTOILUSTA
 router.get('/kurssi/:courseid/uusitiketti', function(req, res, next) {
   //ACCESS
@@ -817,13 +833,12 @@ router.get('/kurssi/:courseid/uusitiketti', function(req, res, next) {
     res.send(data);
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
+*/
 
-
-// '/kurssi/:kurssi-id/tiketti' POST
-router.post('/kurssi/:courseid/uusitiketti', function(req, res, next) {
+router.post('/kurssi/:courseid/tiketti', function(req, res, next) {
   //ACCESS
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', min: 1, max: 255},
@@ -841,7 +856,7 @@ router.post('/kurssi/:courseid/uusitiketti', function(req, res, next) {
     res.send({success: true, uusi: newData});
   })
   .catch((error) => {
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   });
 });
 

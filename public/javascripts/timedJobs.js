@@ -4,6 +4,7 @@
 const sql = require('../../routes/sql');
 const arrayTools = require('./arrayTools.js');
 const auth = require('./auth');
+const filessystem = require('./filessystem');
 const mailer = require('./mailer');
 const TicketState = require('./ticketstate');
 
@@ -53,6 +54,10 @@ module.exports = {
 
   sendAggregateEmails: function() {
     return mailer.sendAggregateMails();
+  },
+
+  deleteGdprDumps: function() {
+    return filessystem.removeAllGdprDumps();
   }
 
 }

@@ -117,7 +117,7 @@ Lähettää myös http-only sessioevästeen osana vastausta.
 ```
 
 
-### /api/luotili/ 
+### /api/minun/tili/ 
 #### POST
 **Tätä ei ole toteutettu tällä hetkellä.**
 ##### Lähetä: 
@@ -153,6 +153,26 @@ Lähettää myös http-only sessioevästeen osana vastausta.
 {
   success: $bool
   login-code: $string
+}
+```
+
+### /api/luotili/
+#### POST
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen.
+Tällä rajapinnalla voi luoda tilin, jos on saanut kutsun. Liittää käyttäjän myös automaattisesti kurssille, jolta on saanut kutsun.
+##### Lähetä:
+´´´
+{
+  "ktunnus": $string
+	"salasana": $string
+	"sposti": $string
+	"kutsu": $UUID (kutsun tunnus)
+}
+´´´
+##### Vastaus:
+```
+{
+  success: true
 }
 ```
 
@@ -214,44 +234,12 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
 }
 ```
 
-### /api/minun/gdpr/
-#### GET
+## /minun/gdpr/kaikki/zip
+### GET
 [**Vaaditut oikeudet**](#oikeuksienhallinta) Profiilin kirjoitus
-##### Vastaus:
-```
-{
-  profiili: {
-    nimi
-    sposti
-  }
-  tiketit: [{
-    id
-    kurssi
-    otsikko
-    aikaleima
-    aloittaja
-    ukk
-    omat kommentit: [{
-      tiketti
-      lahettaja
-      viesti
-      aikaleima
-      liitteet: [{
-        kommentti
-        tiedosto
-        nimi
-      }]
-    }]
-  }]
-  kommentit: [{
-    tiketti
-    lahettajaviesti
-  }]
-  kurssit: [{
-    nimi
-  }]
-}
-```
+Täältä voi hakea pakatun .zip-tiedoston, jossa on kaikki käyttäjän tallentama data, mukaanlukien liitteet ja json, jossa on kaikki tieto.
+#### Vastaus:
+Ladattava .zip-tiedosto.
  
 
 ## Kurssien rajapinta 
@@ -300,7 +288,7 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 ```
 
 
-### /api/kurssi/omatkurssit/
+### /api/minun/kurssit/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Profiililuku
 ##### Vastaus:
@@ -324,8 +312,8 @@ Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetet
 }
 ```
 
-### /api/kurssi/:kurssi-id/kaikki/ ja
-### /api/kurssi/:kurssi-id/omat/
+### /api/kurssi/:kurssi-id/tiketti/kaikki/ ja
+### /api/kurssi/:kurssi-id/tiketti/omat/
 Näillä rajapinnoilla saadaan kurssille osoitetut tiketit. 
 * /omat lähettää kaikki kirjautuneen käyttäjän luomat tiketit. 
 * /kaikki lähettää kirjautuneen käyttäjän luomat tiketit, jos hän on kurssilla opiskelijana. Jos on kirjautunut opettajana, niin palautetaan kaikki kurssin tiketit.
@@ -338,6 +326,11 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
   otsikko: $string
   aikaleima: $string
   aloittaja: $kurssilainen-olio
+  kentat: [{
+    tiketti: $int
+    arvo: $string
+    otsikko: $string
+  }]
 }]
 ```
 
@@ -346,7 +339,7 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
 
 
 
-### /api/kurssi/:kurssi-id/arkistoidut
+### /api/kurssi/:kurssi-id/tiketti/arkisto/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssiluku
 Palauttaa kaikki arkistoidut tiketit kurssilla, joihin käyttäjällä on oikeus päästä. Opettaja näkee kaikki kurssin tiketit, ja opiskelija näkee vain itse lähettämänsä.
@@ -367,7 +360,7 @@ Palauttaa kaikki arkistoidut tiketit kurssilla, joihin käyttäjällä on oikeus
 ```
 
 
-### /api/kurssi/:kurssi-id/ukk/
+### /api/kurssi/:kurssi-id/ukk/kaikki/
 Tällä rajapinnalla haetaan kurssin kaikki tiketit, jotka opettaja on merkinnyt UKK-tiketeiksi. Tällä on myös POST-muoto, jolla voidaan lisätä UKK-tikettejä kantaan.
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen luku
@@ -459,9 +452,15 @@ Tähän on tarkoitus lähettää toisesta kurssista GET-kutsulla saatu json-tied
 ```
 
 
-### /api/tiketti/:tiketti-id/valmis
+### /api/kurssi/:kurssi-id/tiketti/arkisto
 #### POST
 Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin voi arkistoida, jos sen tila on ollut joskus ratkaistu tai kommentoitu. Tämän voi tarkistaa kutsulla [/api/tiketti/:tiketti-id](#apitikettitiketti-id), joka kertoo onko tiketti *arkistoitava*.
+##### Lähetä:
+```
+{
+  tiketti: $int (arkistoitavan tiketin id)
+}
+```
 ##### Vastaus:
 ```
 {
@@ -471,15 +470,14 @@ Tällä rajapinnalla voi arkistoida tikettejä, jos se on mahdollista. Tiketin v
 
 
 
-### /api/tiketti/:tiketti-id/arkistoiukk
+### /api/kurssi/:kurssi-id/ukk/arkisto/
 Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi. Tiketti arkistoidaan vain siinä tapauksessa, jos tiketti on merkitty UKK:ksi.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) UKK-kirjoitus
 ##### Lähetä:
 ```
-- header -
 {
-  session-id
+  tiketti: $int (arkistoitavan tiketin id)
 }
 ```
 ##### Vastaus:
@@ -490,10 +488,11 @@ Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi. Tik
 }
 ```
 
-### /api/tiketti/:tiketti-id/muokkaaukk
+### /api/kurssi/:kurssi-id/ukk/:tiketti-id/
+Muokkaa annettua UKK-tikettiä.
 Tätä kutsua varten pitää olla kirjautunut tiketin kurssille opettajaksi, ja muokattavan tiketin pitää olla UKK, eikä se saa olla [arkistoitu](#tiketin-tila).
 Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuilla tiedoilla. Lopputulos on siis sama, kuin kutsuisi [/api/tiketti/:tiketti-id/arkistoiukk](#apitikettitiketti-idarkistoiukk) ja **POST** [/api/kurssi/:kurssi-id/ukk](#apikurssikurssi-idukk).
-#### POST
+#### PUT
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) UKK-kirjoitus
 ##### Lähetä:
 ```
@@ -518,7 +517,7 @@ Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuill
 ```
 
  
-### /api/luokurssi/
+### /api/kurssi/
 #### POST
 ##### Lähetä:
 ```
@@ -551,9 +550,17 @@ Tulevaisuudessa lisäksi pitää lähettää:
 
 
 
-### /api/kurssi/:kurssi-id/liity/
-Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena laitetaan opiskelijaksi. *Tämä rajapinta tullaan poistamaan tulevaisuudessa.*
+### /api/kurssi/:kurssi-id/osallistujat/
+Rajapinta kurssien käyttäjille.
 #### POST
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kirjautunut sisään
+Tällä saadaan liitettyä käyttäjä kurssille. Liittää kirjautuneen käyttäjän kurssille. Käyttäjä voi liittyä vain kurssille, jos tällä on voimassa oleva kutsu. Uusi käyttäjä laitetaan kurssille siinä roolissa, kun [kutsussa](#apikurssikurssi-idosallistujatkutsu) sille annettiin. 
+##### Lähetä:
+```
+{
+  kutsu: $UUID (kutsun tunnus)
+}
+```
 ##### Vastaus:
 ```
 - body - 
@@ -563,21 +570,48 @@ Tällä saadaan liitettyä käyttäjä kurssille. Uusi käyttäjä oletuksena la
 ```
 
 
-### /api/kurssi/:kurssi-id/kutsu/
+### /api/kurssi/:kurssi-id/osallistujat/kutsu/
 Tällä rajapinnalla saadaan opiskelijoita ja opettajia liitettyä kurssille. **Vaatii opettajan oikeudet kurssille**, jotta opiskelijoita voi kutsua.
-Jos kutsuttu sähköpostiosoite on jo tietokannassa olevalla käyttäjällä, niin kyseinen käyttäjä lisätään kurssille. Jos käyttäjää ei ole vielä kannassa, käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin. (Toteutus kesken.)
+Käyttäjälle lähetetään sähköpostia, ja ko. käyttäjä lisätään kurssille kun tämä luo tilin tai hyväksyy kutsun. (ks. [POST /api/kurssi/:id/osallistujat/](#apikurssikurssi-idosallistujat) ja [/api/luotili](#apiluotili))
+
+Lähettää sähköpostia kutsutulle käyttäjälle. Sähköpostissa on frontendin osoitteet, joihin käyttäjä ohjataan, riippuen siitä pitääkö käyttäjän luoda tili, vai riittääkö vain kutsun hyväksyntä.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssikirjoitus
 ```
 - body -
 {
   sposti: $string
-  opettaja: $bool
+  rooli: $string (ks. [roolit](#kurssilainen-olio))
 }
 ```
 ##### Vastaus:
 ```
 - body - 
+{
+  success: true
+  kutsu: $UUID (kutsun tunnus)
+}
+```
+
+### /api/kurssi/:kurssi-id/osallistujat/kutsu/:kutsu-id
+Kutsun tietojen hakemiseen.
+#### GET
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen
+##### Vastaus:
+```
+	"id": $UUID,
+	"kurssi": $int,
+	"sposti": $string,
+	"vanhenee": $aikaleima,
+	"rooli": $string
+```
+rooli-parametri on [kurssilainen-olion](#kurssilainen-olio) mukainen.
+
+#### DELETE
+[**Vaaditut oikeudet**](/docs/rajapinta/oikeudet.md) Kirjautunut sisään.
+Palauttaa [1003](/docs/rajapinta/virhe.md), jos kurssi-id on väärin, tai jos kirjautuneen käyttäjän sähköpostiosoite ei mätsää. Tämä tarkoittaa kuitenkin sitä, että tiliä luomatta ei voi kieltäytyä kutsusta (sen voi kyllä jättää huomioitta, joka ajaa lähes saman asian).
+##### Vastaus:
+```
 {
   success: true
 }
@@ -589,6 +623,15 @@ Tällä rajapinnalla voi hakea omat oikeudet kurssille.
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Profiililuku
 #### Vastaus:
+```
+{
+  oikeudet: $kurssilainen-olio
+  login: {
+    lti_login: $bool
+    perus: $bool
+  }
+}
+```
 Vastauksena tulee [kurssilainen-olio](#kurssilainen-olio)
 
 <br><br><br>
@@ -610,7 +653,7 @@ Tiketit muodostuvat tietokannassa useammasta osasesta. Iso osa rajapinnoista yri
     - Tiketeissä on kommentointimahdollisuus, ja tästä löytyy kaikki tiketin kommentit. Myös tiketin alkuperäinen viesti menee kommentiksi.
 
 
-### /api/kurssi/:kurssi-id/tiketinkentat/
+### /api/kurssi/:kurssi-id/tikettipohja/kentat
 Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti.)
 
 #### GET
@@ -655,7 +698,7 @@ Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset
 ```
 
 
-### /api/kurssi/:kurssi-id/uusitiketti/
+### /api/kurssi/:kurssi-id/tiketti/
 Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvelimelle. 
 
 #### POST
@@ -690,14 +733,7 @@ Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** os
 
 
 
-### /api/kurssi/:kurssi-id/uusitiketti/kentat/
-#### GET
-[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssiluku
-Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat*](#apikurssikurssi-idtiketinkentat).
-
-
-
-### /api/tiketti/:tiketti-id/
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 ##### Vastaus:
@@ -753,7 +789,7 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 
 
-### /api/tiketti/:tiketti-id/kentat/
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kentat/
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 ##### Vastaus:
@@ -773,7 +809,7 @@ Tämä rajanpinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** o
 
 
 
-### /api/tiketti/:tiketti-id/uusikommentti
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti
 Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tikettiin.
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
@@ -799,7 +835,7 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 ```
 
 
-### /api/tiketti/:tiketti-id/kommentti/:kommentti-id
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id
 Tällä rajapinnalla voi lueskella ja muokata yksittäistä kommenttia.
 #### PUT
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kommenttikirjoitus
@@ -832,7 +868,7 @@ Poistaa annetun kommentin, jos se on kirjautuneen käyttäjän luoma.
 
 
 
-### /api/tiketti/:tiketti-id/kommentit/
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/kaikki
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 #### GET
 ##### Vastaus:
@@ -841,6 +877,7 @@ Poistaa annetun kommentin, jos se on kirjautuneen käyttäjän luoma.
   id: $int
   lahettaja: $kurssilainen-olio
   aikaleima: $string 
+  viimeisin: $string (uusimman kommentin aikaleima)
   tila: $int 
   viesti: $string
   liitteet: [
@@ -859,7 +896,7 @@ Edellä [*tila*](#tiketin-tila) vastaa sitä tilaa, mikä kommentille asetettiin
 ## Liitteiden rajapinta
 Nämä rajapinnat eivät toimi JSON-tiedostoilla, vaan käyttävät **multipart/form-data** tiedostomuotoa.
 
-### /api/tiketti/:tiketti-id/kommentti/:kommentti-id/liite
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id/liite
 #### POST
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kommenttikirjoitus
 ##### Lähetä:
@@ -874,10 +911,21 @@ kentän nimi on tiedosto.
 ```
 {
   success: true
+  liite: $UUID
 }
 ```
 
-### /api/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/liite-id/lataa
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/:liite-id
+#### DELETE
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kommenttikirjoitus
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+### /api/kurssi/:kurssi-id/tiketti/:tiketti-id/kommentti/:kommentti-id/liite/:liite-id/tiedosto
 #### GET
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 ##### Vastaus:

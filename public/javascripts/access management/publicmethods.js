@@ -2,6 +2,7 @@
 const sql = require('../../../routes/sql.js');
 const { getFaqTickets } = require('../sqltickets.js');
 const splicer = require('../sqlsplicer.js');
+const errorcodes = require('../errorcodes.js');
 
 
 
@@ -14,6 +15,17 @@ class PublicMethods {
     return sql.tickets.getFaqTickets(courseId)
     .then((ticketData) => {
       return splicer.insertTicketFieldsToIdReferences(ticketData, 'id')
+    })
+  }
+
+  getInvitation(invitationId, courseId) {
+    return sql.users.getUserInvitation(invitationId)
+    .then((data) => {
+      if (data.kurssi == courseId) {
+        return data;
+      } else {
+        return Promise.reject(errorcodes.noResults);
+      }
     })
   }
 }
