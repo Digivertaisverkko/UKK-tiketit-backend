@@ -266,7 +266,7 @@ module.exports = {
     SELECT kommentti, tiedosto, nimi, koko \
     FROM core.liite \
     WHERE kommentti=$1 AND tiedosto=$2';
-    return connection.queryAll(query, [commentid, fileid]);
+    return connection.queryOne(query, [commentid, fileid]);
   },
 
   addAttachmentToComment: function(commentid, attachmentid, filename, filesize) {

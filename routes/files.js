@@ -19,8 +19,8 @@ router.post('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite', fu
                                         req.files.tiedosto.name,
                                         req.files.tiedosto.size);
   })
-  .then(() => {
-    res.send({ success: true });
+  .then((attachmentId) => {
+    res.send({ success: true, liite: attachmentId });
   })
   .catch((error) => {
     errorFactory.createError(req, res, error);
@@ -45,7 +45,13 @@ router.delete('/kurssi/:courseid/tiketti/:ticketid/kommentti/:commentid/liite/:a
   access.writeComment(req, req.params.courseid, req.params.ticketid, req.params.commentid)
   .then((handle) => {
     return handle.methods.deleteAttachment(req.params.commentid, req.params.attachmentid);
-  });
+  })
+  .then(() => {
+    res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(req, res, error);
+  })
 });
 
 router.get('/minun/gdpr/liite/kaikki/zip', function(req, res, next) {

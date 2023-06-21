@@ -189,7 +189,6 @@ module.exports = {
   },
 
   getUserInvitation: function(invitationId) {
-    console.log(invitationId);
     const query = 'SELECT * from core.kurssikutsu WHERE id=$1 AND vanhenee > NOW()';
     return connection.queryOne(query, [invitationId]);
   },
