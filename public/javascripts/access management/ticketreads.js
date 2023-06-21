@@ -59,8 +59,7 @@ class TicketReads {
 
   getAttachment(commentid, fileid) {
     return sql.tickets.getAttachmentForComment(commentid, fileid)
-    .then((foundDataList) => {
-      let foundData = foundDataList[0];
+    .then((foundData) => {
       let filePath = process.env.ATTACHMENT_DIRECTORY + foundData.tiedosto;
       foundData.polku = filePath;
       return foundData;

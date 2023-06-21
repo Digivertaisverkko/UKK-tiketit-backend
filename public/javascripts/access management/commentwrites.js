@@ -21,12 +21,15 @@ class CommentWrites extends TicketReads {
     })
     .then(() => {
       return sql.tickets.addAttachmentToComment(commentid, fileid, originalFilename, filesize);
-    });
+    })
+    .then(() => {
+      return fileid;
+    })
   }
 
   deleteAttachment(commentId, attachmentId) {
     let filePath = process.env.ATTACHMENT_DIRECTORY + attachmentId;
-    fs.promises.unlink(filePath)
+    return fs.promises.unlink(filePath)
     .then(() => {
       return sql.tickets.removeAttachmentFromComment(attachmentId, commentId);
     });

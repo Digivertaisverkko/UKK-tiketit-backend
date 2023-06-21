@@ -950,6 +950,7 @@ kentän nimi on tiedosto.
 ```
 {
   success: true
+  liite: $UUID
 }
 ```
 
