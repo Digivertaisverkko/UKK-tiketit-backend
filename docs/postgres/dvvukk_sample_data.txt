@@ -6,10 +6,10 @@
 
 -- Kayttajat
 
-INSERT INTO core.profiili (nimi, sposti) VALUES ('Esko Seppä', 'jonimatiasrajala@gmail.com');
-INSERT INTO core.profiili (nimi, sposti) VALUES ('Marianna Laaksonen', 'jonimatiasrajala@gmail.com');
-INSERT INTO core.profiili (nimi, sposti) VALUES ('Piia Rinne', 'jonimatiasrajala@gmail.com');
-INSERT INTO core.profiili (nimi, sposti) VALUES ('Pentti Lähde', 'jonimatiasrajala@gmail.com');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('Esko Seppä', 'esko.seppa@example.com');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('Marianna Laaksonen', 'marianna.laaksonen@example.com');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('Piia Rinne', 'piia.rinne@example.com');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('Pentti Lähde', 'pentti.lahde@example.com');
 
 -- Profiiliasetukset
 INSERT INTO core.profiiliasetukset values (1, true, true, true, true);

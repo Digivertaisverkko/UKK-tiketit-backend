@@ -77,14 +77,14 @@ module.exports = {
     });
   },
 
-  createAccount: function(username, password, email, invitationId) {
+  createAccount: function(username, fullname, password, email, invitationId) {
     let storedInvitation;
     let storedUserId;
     return sql.users.getUserInvitation(invitationId)
     .then((invitationData) => {
       if (invitationData.sposti == email) {
         storedInvitation = invitationData;
-        return sql.users.createEmptyUser(username, email)
+        return sql.users.createEmptyUser(fullname, email)
       } else {
         return Promise.reject(errorcodes.noPermission);
       }
