@@ -163,9 +163,9 @@ Tällä rajapinnalla voi luoda tilin, jos on saanut kutsun. Liittää käyttäj�
 ##### Lähetä:
 ´´´
 {
-  "ktunnus": $string
-	"salasana": $string
-	"sposti": $string
+  "nimi": $string (käyttäjän muille näkyvä nimi)
+	"salasana": $string 
+	"sposti": $string (tästä tulee myös käyttäjän käyttäjätunnus)
 	"kutsu": $UUID (kutsun tunnus)
 }
 ´´´
