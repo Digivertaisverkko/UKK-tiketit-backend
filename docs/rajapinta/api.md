@@ -161,14 +161,14 @@ Lähettää myös http-only sessioevästeen osana vastausta.
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Julkinen.
 Tällä rajapinnalla voi luoda tilin, jos on saanut kutsun. Liittää käyttäjän myös automaattisesti kurssille, jolta on saanut kutsun.
 ##### Lähetä:
-´´´
+```
 {
   "nimi": $string (käyttäjän muille näkyvä nimi)
 	"salasana": $string 
 	"sposti": $string (tästä tulee myös käyttäjän käyttäjätunnus)
 	"kutsu": $UUID (kutsun tunnus)
 }
-´´´
+```
 ##### Vastaus:
 ```
 {
