@@ -50,7 +50,7 @@ function updateCookieSecret() {
 cron.schedule('0 4 * * *', () => {
   //timedJobs.archiveOldTickets(); //Kommentoitu, koska aiheutti releasessa ongelmia, ja on nopeampaa vain poistaa suht turha ominaisuus.
   timedJobs.deletePendingLtiLogins();
-  //timedJobs.sendAggregateEmails();
+  timedJobs.sendAggregateEmails();
   timedJobs.deleteGdprDumps();
   updateCookieSecret();
 });
