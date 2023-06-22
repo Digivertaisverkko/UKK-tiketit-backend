@@ -95,13 +95,13 @@ router.post('/kirjauduulos/', function(req, res, next) {
 
 router.post('/luotili/', function(req, res, next) {
   sanitizer.test(req.body, [
-    {key: 'ktunnus', type: 'string', min: 5, max: 255},
     {key: 'salasana', type: 'string'},
     {key: 'sposti', type: 'string', min: 1, max: 255},
-    {key: 'kutsu', type: 'string', min: 36, max: 36}
+    {key: 'kutsu', type: 'string', min: 36, max: 36},
+    {key: 'nimi', type: 'string', min: 1, max: 255}
   ])
   .then(() => { 
-    return auth.createAccount(req.body.ktunnus, req.body.salasana, req.body.sposti, req.body.kutsu)
+    return auth.createAccount(req.body.sposti, req.body.nimi, req.body.salasana, req.body.sposti, req.body.kutsu)
   })
   .then((data) => {
     res.send({success: true});
