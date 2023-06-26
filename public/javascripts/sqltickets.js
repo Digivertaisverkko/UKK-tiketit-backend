@@ -157,6 +157,13 @@ module.exports = {
     return connection.queryAll(query, [ticketIdList]);
   },
 
+  getCommentsWithAttachmentsFromTicketList(ticketIdList) {
+    const query = 'SELECT * FROM core.kommentti ck \
+    INNER JOIN core.liite cl ON ck.id=cl.kommentti \
+    WHERE ck.tiketti=ANY($1)';
+    return connection.queryAll(query, [ticketIdList]);
+  },
+
   getAllCommentCreatedBy: function(userId) {
     const query = 'SELECT id, tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
     return connection.queryAll(query, [userId]);
@@ -373,6 +380,29 @@ module.exports = {
     .then((commentList) => {
       return arrayTools.unionExtractKey(array, commentList, idReferenceKey, 'tiketti', 'viimeisin', 'aika');
     })
+  },
+
+  insertAttachmentInfoToTicketIdReferences: function(array, idReferenceKey) {
+
+    const query = 'SELECT * FROM core.kommentti ck \
+    INNER JOIN core.liite cl ON ck.id=cl.kommentti \
+    WHERE ck.tiketti=ANY($1)';
+
+    var ids = arrayTools.extractAttributes(array, idReferenceKey);
+    return module.exports.getCommentsWithAttachmentsFromTicketList(ids)
+    .then((commentList) => {
+      return arrayTools.unionExtractKey(array, commentList, idReferenceKey, 'tiketti', 'liite', 'tiedosto')
+    })
+    .then((ticketList) => {
+      ticketList.forEach((ticket) => {
+        if (ticket.liite != undefined) {
+          ticket.liite = true;
+        } else {
+          ticket.liite = false;
+        }
+      });
+      return ticketList;
+    });
   },
  
   createComment: function(ticketid, userid, content, state) {

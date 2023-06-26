@@ -326,11 +326,13 @@ Näillä rajapinnoilla saadaan kurssille osoitetut tiketit.
   otsikko: $string
   aikaleima: $string
   aloittaja: $kurssilainen-olio
+  viimeisin: $string (uusimman kommentin aikaleima)
   kentat: [{
     tiketti: $int
     arvo: $string
     otsikko: $string
   }]
+  liite: $bool
 }]
 ```
 
@@ -876,8 +878,8 @@ Poistaa annetun kommentin, jos se on kirjautuneen käyttäjän luoma.
 [{
   id: $int
   lahettaja: $kurssilainen-olio
-  aikaleima: $string 
-  viimeisin: $string (uusimman kommentin aikaleima)
+  aikaleima: $string
+  muokattu: $string
   tila: $int 
   viesti: $string
   liitteet: [

@@ -78,6 +78,9 @@ class CourseReads extends CourseLists {
     })
     .then((ticketData) => {
       return sql.tickets.insertTimestampsToTicketIdReferences(ticketData, 'id');
+    })
+    .then((ticketData) => {
+      return sql.tickets.insertAttachmentInfoToTicketIdReferences(ticketData, 'id');
     });
   }
 
