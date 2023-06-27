@@ -879,7 +879,7 @@ Poistaa annetun kommentin, jos se on kirjautuneen käyttäjän luoma.
   id: $int
   lahettaja: $kurssilainen-olio
   aikaleima: $string
-  muokattu: $string
+  muokattu: $string / $null
   tila: $int 
   viesti: $string
   liitteet: [

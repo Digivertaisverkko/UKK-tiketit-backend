@@ -65,6 +65,7 @@ tiketti INT NOT NULL,
 lahettaja INT NOT NULL,
 viesti TEXT NOT NULL,
 aikaleima TIMESTAMPTZ NOT NULL,
+muokattu TIMESTAMPTZ,
 tila INT NOT NULL,
 FOREIGN KEY (tiketti) REFERENCES core.tiketti(id),
 FOREIGN KEY (lahettaja) REFERENCES core.profiili(id)

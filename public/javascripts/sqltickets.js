@@ -148,7 +148,7 @@ module.exports = {
   },
 
   getComments: function(ticketId) {
-    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
+    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila, muokattu FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
     return connection.queryAll(query, [ticketId]);
   },
 
@@ -417,7 +417,7 @@ module.exports = {
   updateComment: function(commentid, content, state) {
     const query = '\
     UPDATE core.kommentti \
-    SET viesti=$1, tila=COALESCE($2, tila) \
+    SET viesti=$1, tila=COALESCE($2, tila), muokattu=NOW() \
     WHERE id=$3';
     return connection.queryNone(query, [content, state, commentid]);
   },
