@@ -52,6 +52,7 @@ cron.schedule('0 4 * * *', () => {
   timedJobs.deletePendingLtiLogins();
   timedJobs.sendAggregateEmails();
   timedJobs.deleteGdprDumps();
+  timedJobs.deleteUnusedAttachments();
   updateCookieSecret();
 });
 

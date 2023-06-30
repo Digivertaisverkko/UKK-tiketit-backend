@@ -44,6 +44,11 @@ module.exports = {
     .catch(() => Promise.reject(errorcodes.noPermission));
   },
 
+  getAllAttachments: function() {
+    const query = 'SELECT * from core.liite';
+    return connection.queryAll(query, []);
+  },
+
   getAllMyTickets: function(courseId, userId) {
     const query = 'SELECT id, otsikko, aikaleima, aloittaja  \
     FROM core.tiketti \

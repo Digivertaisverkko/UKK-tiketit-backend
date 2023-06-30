@@ -118,7 +118,7 @@ router.post('/luotili/', function(req, res, next) {
 router.post('/testi-cron/', function(req, res, next) {
   //timedJobs.archiveOldTickets();
   //timedJobs.deletePendingLtiLogins();
-  timedJobs.sendAggregateEmails()
+  timedJobs.deleteUnusedAttachments()
   .then(() => {
     res.send({ success: true });
   })
