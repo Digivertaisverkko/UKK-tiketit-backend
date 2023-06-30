@@ -110,6 +110,10 @@ module.exports = {
   createLtiUser: function(name, email, ltiClientId, ltiUserId) {
     const ltiQuery = 'INSERT INTO core.lti_login (clientid, userid, profiili) VALUES ($1, $2, $3)';
     let storedProfileId;
+    if ((name  == null || name  == undefined || name  == '') &&
+        (email == null || email == undefined || email == '')) {
+          name = "Nimetön " + Math.floor((Math.random() * 100000));
+    }
     return module.exports.createEmptyUser(name, email)
     .then((profileId) => {
       storedProfileId = profileId;
