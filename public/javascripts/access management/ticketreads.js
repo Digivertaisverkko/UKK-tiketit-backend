@@ -139,13 +139,14 @@ class TicketReads {
     .then((ticketStateList) => {
       let states = arrayTools.extractAttributes(ticketStateList, 'tila');
       if ((states.includes(TicketState.resolved) ||
-          states.includes(TicketState.commented)) &&
-          states.includes(TicketState.archived) == false) {
+          states.includes(TicketState.commented) || 
+          states.includes(TicketState.infoneeded)) &&
+          states[states.length-1] != TicketState.archived) {
         return Promise.resolve();
       } else {
         return Promise.reject(errorcodes.operationNotPossible);
       }
-    })
+    });
   }
 
 }
