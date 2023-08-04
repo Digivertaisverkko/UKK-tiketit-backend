@@ -116,6 +116,9 @@ class TicketReads {
             return sql.tickets.setTicketStateIfAble(ticketId, TicketState.read);
           }
         })
+        .catch(() => {
+          return results;
+        })
         .then(() => {
           return results;
         })
