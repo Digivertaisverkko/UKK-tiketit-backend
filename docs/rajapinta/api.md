@@ -182,6 +182,7 @@ T채ll채 rajapinnalla voi luoda tilin, jos on saanut kutsun. Liitt채채 k채ytt채j�
 ##### Vastaus: 
 ```
 {
+  id: $int
   nimi: $string
   sposti: $string
 }

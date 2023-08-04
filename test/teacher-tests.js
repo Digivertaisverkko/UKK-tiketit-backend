@@ -28,5 +28,6 @@ describe('Opettajan oikeuksien testaaminen', function() {
   })
 
   allrolesTests.performAllGenericFaqTests(teacherAgent, 'opettaja');
+  allrolesTests.performSettingsTests(teacherAgent, 'opettaja');
 
 });

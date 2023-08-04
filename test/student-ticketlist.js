@@ -119,7 +119,8 @@ describe('Opiskelijan oikeuksien testaamista', function() {
   });
   
   
-  allrolesTests.performAllGenericFaqTests(studentAgent, 'opiskelijat');
+  allrolesTests.performAllGenericFaqTests(studentAgent, 'opiskelija');
+  allrolesTests.performSettingsTests(studentAgent, 'opiskelija');
   
   
   

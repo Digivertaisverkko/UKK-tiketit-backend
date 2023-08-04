@@ -101,6 +101,56 @@ module.exports = {
     describe('UKK-tikettien haku kurssilta, jolle ei osallistuta ('+agentDescription+')', function() {
       testhelpers.performAllGenericFaqTestsToOneCourse(agent, agentDescription, 6, 13);
     });
+  },
+
+
+  performSettingsTests: function(agent, agentDescription) {
+    describe('Tilitietojen käsittely ('+agentDescription+')', function() {
+      it('hakee tilin tiedot', function(done) {
+        agent.get('/api/minun')
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.all.keys(['id', 'nimi', 'sposti']);
+        });
+      });
+    });
+
+    describe('Tilin asetusten käsittely ('+agentDescription+')', function() {
+      it('hakee tilin asetukset', function(done) {
+        agent.get('/api/minun/asetukset')
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.all.keys(['sposti-ilmoitus', 'sposti-kooste', 'sposti-palaute']);
+          done();
+        });
+      });
+
+      it('muuttaa tilin asetuksia', function(done) {
+        agent.post('/api/minun/asetukset')
+        .send({
+          'sposti-ilmoitus': false,
+          'sposti-kooste': false,
+          'sposti-palaute': false
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          agent.get('/api/minun/asetukset')
+          .send({})
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.all.keys(['sposti-ilmoitus', 'sposti-kooste', 'sposti-palaute']);
+            expect(res.body['sposti-ilmoitus']).to.be.false;
+            expect(res.body['sposti-kooste']).to.be.false;
+            expect(res.body['sposti-palaute']).to.be.false;
+            done();
+          });
+
+        })
+      })
+    })
   }
 
 }
