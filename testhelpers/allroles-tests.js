@@ -2,6 +2,7 @@ const chai = require("chai");
 var request = require("request");
 const chaiHttp = require('chai-http');
 const testhelpers = require("./testhelpers");
+const TicketState = require("../public/javascripts/ticketstate");
 
 const expect = chai.expect;
 
@@ -61,6 +62,7 @@ module.exports = {
     });
   },
 
+
   getAllTicketsTest: function(agent, expectedTicketCount) {
     it("Palauttaa kurssin tikettilistan", function(done) {
       agent.get('/api/kurssi/1/tiketti/kaikki')
@@ -83,16 +85,98 @@ module.exports = {
     });
   },
 
-  getAllFaqTicketsFromUnattentedCourseTest: function(agent) {
-    it('hakee väärän kurssin ukk-tiketit', function(done) {
-      agent.get('/api/kurssi/6/ukk/kaikki')
-      .send({})
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.an('array').with.length(1);
+
+  postNewTicketTests: function(agent, agentDescription) {
+
+    let newTicketId
+
+    describe('Uuden tiketin luominen ('+agentDescription+')', function() {
+      it('luo uuden tiketin kurssille', function(done) {
+
+        let message = 'Tämän viestin on lähettänyt ' + agentDescription;
+
+        agent.post('/api/kurssi/1/tiketti')
+        .send({
+          'otsikko': 'automaattitestin onnistunut tiketti (' + agentDescription + ')',
+          'viesti': message,
+          'kentat': [{
+            'id': 1,
+            'arvo': 'arvo1'
+          },
+          {
+            'id': 2,
+            'arvo': 'arvo2'
+          }]
+        })
+        .end((err, res) => {
+          testhelpers.checkSuccessfullTicketPost(agent, res, 1, message, done);
+          newTicketId = res.body.uusi.tiketti;
+        });
       });
+
+      it('luo uuden tiketin ilman kenttätauluja', function(done) {
+        let message = 'Tämän testiviestin ei pitäisi olla mennyt läpi ilman kenttätauluja';
+        agent.post('/api/kurssi/1/tiketti')
+        .send({
+          'otsikko': 'Viallinen viesti ilman kenttätauluja',
+          'viesti': message,
+          'kentat': []
+        })
+        .end((err, res) => {
+          testhelpers.checkSuccessfullTicketPost(agent, res, 1, message, done);
+        })
+      });
+
+      it('luo uuden tiketin tyhjällä kenttätaululla', function(done) {
+        let message = 'Tämän testiviestin ei pitäisi olla mennyt läpi tyhjällä kenttätaululla';
+        agent.post('/api/kurssi/1/tiketti')
+        .send({
+          'otsikko': 'Viallinen viesti tyhjällä kenttätaululla',
+          'viesti': message,
+          'kentat': [{}]
+        })
+        .end((err, res) => {
+          testhelpers.checkErrorResponseWrongParameters(res, done);
+        })
+      });
+
+      it('luo uuden tiketin väärillä kenttätaululla', function(done) {
+        let message = 'Tämän testiviestin ei pitäisi olla mennyt läpi väärillä kenttätauluilla';
+        agent.post('/api/kurssi/1/tiketti')
+        .send({
+          'otsikko': 'Viallinen viesti väärillä kenttätauluilla',
+          'viesti': message,
+          'kentat': [{
+            'id': 3,
+            'arvo': 'asd'
+          },
+          {
+            'id': 4,
+            'arvo': 'dfg'
+
+          }]
+        })
+        .end((err, res) => {
+          testhelpers.checkErrorResponseUnknownError(res, done);
+        })
+      });
+
+      it('muokkaa luomaansa tiketti', function(done) {
+        agent.put('/api/kurssi/1/tiketti/' + newTicketId);
+        done();
+      })
     });
+
   },
+
+
+
+
+
+
+
+
+
 
   performAllGenericFaqTests: function(agent, agentDescription) {
     describe('UKK-tikettien haku luvalliselta kurssilta ('+agentDescription+')', function() {
@@ -112,6 +196,7 @@ module.exports = {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.have.all.keys(['id', 'nimi', 'sposti']);
+          done();
         });
       });
     });

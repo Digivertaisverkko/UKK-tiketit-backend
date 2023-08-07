@@ -9,6 +9,7 @@ const con = connection.getConnection();
 const errorcodes = require('./errorcodes.js');
 
 const TicketState = require('./ticketstate.js');
+const { json } = require('express/lib/response.js');
 
 module.exports = {
 
@@ -197,6 +198,7 @@ module.exports = {
   },
 
   createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
+    let storedTicketId = null;
     const query = '\
     INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
     VALUES ($1, $2, $3, NOW(), $4) \
@@ -204,13 +206,16 @@ module.exports = {
     return connection.queryOne(query, [courseid, userid, title, isFaq])
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
-        const query = '\
-        INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
-        VALUES ($1, 1, NOW())';
-        return connection.queryAll(query, [ticketid])
-        .then((sqldata) => { return ticketid; });
+      console.log("TIIBET 01");
+      storedTicketId = ticketid;
+      const query = '\
+      INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
+      VALUES ($1, 1, NOW())';
+      return connection.queryAll(query, [ticketid])
+      .then((sqldata) => { return ticketid; });
     })
     .then((ticketid) => {
+      console.log("TIIBET 02");
       return new Promise(function(resolve, reject) {
         var promises = [];
         fields.forEach(kvp => {
@@ -218,12 +223,32 @@ module.exports = {
         });
         Promise.all(promises)
         .then(() => resolve(ticketid))
-        .catch(() => reject(errorcodes.somethingWentWrong));
+        .catch(() => {
+          reject(errorcodes.somethingWentWrong);
+        });
       });
     })
     .then((ticketid) => {
+      console.log("TIIBET 03");
       return module.exports.createComment(ticketid, userid, content, 1)
       .then(() => ticketid );
+    })
+    .catch((error) => {
+      console.log("TIIBET 04");
+      if (storedTicketId == null) {
+        console.log("TIIBETIN virhe");
+        return Promise.reject(error);
+      } else {
+        module.exports.deleteTicket(storedTicketId)
+        .then(() => {
+          console.log("TIIBET poistettiin.");
+          return Promise.reject(error);
+        })
+        .catch((error) => {
+          console.log("VITUN VITUN TIIBET: " + JSON.stringify(error));
+          return Promise.reject(error);
+        })
+      }
     });
   },
 

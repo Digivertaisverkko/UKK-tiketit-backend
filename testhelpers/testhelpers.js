@@ -2,7 +2,15 @@ const chai = require("chai");
 var request = require("request");
 const chaiHttp = require('chai-http');
 
+const ERROR = require('./../public/javascripts/errorcodes.js');
+
 const expect = chai.expect;
+
+/* METODIEN NIMEÄMISKÄYTÄNTÄ
+Jos alkaa verbillä:
+- check: Sisältää pelkästään expect-lausekkeita (ja ehkä alikutsuja muihin test-lauseisiin)
+- test: toteuttaa http-pyynnöön, muttei sisällä describe- tai it-kutsuja
+*/
 
 
 module.exports = {
@@ -38,10 +46,7 @@ module.exports = {
   testErrorResponseWithBody: function(url, verb, agent, body, httpStatus, errorCode, done) {
     this.testQuery(url, verb, agent, body)
     .end((err, res) => {
-      expect(res).to.have.status(httpStatus);
-      expect(res.body.error.tunnus).to.equal(errorCode);
-      expect(res.body.error.virheilmoitus).to.exist;
-      done();
+      this.checkErrorResponse(res, httpStatus, errorCode, done);
     });
   },
 
@@ -50,22 +55,60 @@ module.exports = {
     .end((err, res) => {
       expect(res).to.have.status(204);
       expect(res.body).to.be.empty;
-      done();
+      if (done) done();
     })
+  },
+
+  checkErrorResponseWrongParameters: function(res, done) {
+    this.checkErrorResponse(res, 400, 3000, done);
+  },
+
+  checkErrorResponseUnknownError: function(res, done) {
+    this.checkErrorResponse(res, 500, 3004, done);
+  },
+
+  checkErrorResponse: function(res, httpStatus, errorCode, done) {
+    expect(res).to.have.status(httpStatus);
+    expect(res.body).to.have.all.keys(['success', 'error']);
+    if (errorCode == ERROR.somethingWentWrong) {
+      expect(res.body.error).to.have.all.keys(['tunnus', 'virheilmoitus', 'originaali']);
+    } else {
+      expect(res.body.error).to.have.all.keys(['tunnus', 'virheilmoitus']);
+    }
+    expect(res.body.error.tunnus).to.equal(errorCode);
+    expect(res.body.error.virheilmoitus).to.exist;
+    if (done) done();
   },
 
 
 
 
+  checkSuccessfullTicketPost: function(agent, res, courseId, message, done) {
+    expect(res).to.have.status(200);
+    expect(res.body).to.have.all.keys(['success', 'uusi']);
+    expect(res.body.success).to.be.true;
+    expect(res.body.uusi).to.be.an('object').that.has.all.keys(['tiketti', 'kommentti']);
+    module.exports.testIfTicketWentThrough(agent, courseId, res.body.uusi.tiketti, res.body.uusi.kommentti, message, done);
+  },
 
+  testIfTicketWentThrough: function(agent, courseId, ticketId, commentId, message, done) {
+    agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/kaikki`)
+    .send({})
+    .end((err, res) => {
+      expect(res).to.have.status(200);
+      let newComment = res.body.find((element) => element.id == commentId);
+      expect(newComment).to.not.be.undefined;
+      expect(newComment.viesti).to.eql(message);
+      if (done) done();
+    });
+  },
 
-
- testSuccessfullStudentCommenting: function(agent, message, courseId, ticketId, done) {
+ testSuccessfullCommenting: function(agent, message, state, courseId, ticketId, done) {
 
     agent.post(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti`)
     .send({
       'viesti': message,
-      'tila': 1
+      'tila': state
     })
     .end((err, res) => {
       expect(res).to.have.status(200);
@@ -80,7 +123,7 @@ module.exports = {
         let newComment = res.body.find((element) => element.id == commentId);
         expect(newComment).to.not.be.undefined;
         expect(newComment.viesti).to.eql(message);
-        done();
+        if (done) done();
       });
     })
 
@@ -99,7 +142,7 @@ module.exports = {
           expect(element).to.have.keys(['id', 'otsikko', 'aikaleima', 
                                         'tila', 'kentat']);
         });
-        done();
+        if (done) done();
       });
     });
   
@@ -113,7 +156,7 @@ module.exports = {
                                        'arkistoitava']);
         expect(res.body.arkistoitava).to.eql(false);
         expect(res.body.ukk).to.eql(true);
-        done();
+        if (done) done();
       });
     });
   
@@ -128,7 +171,7 @@ module.exports = {
                                           'valinnat']);
         expect(res.body[0].valinnat).to.be.an('array').with.length(1);
         expect(res.body[1].valinnat).to.be.an('array').with.length(3);
-        done();
+        if (done) done();
       });
     });
   
@@ -142,7 +185,7 @@ module.exports = {
           expect(element).to.have.keys(['id', 'viesti', 'lahettaja', 'aikaleima',
                                         'muokattu', 'tila', 'liitteet']);
         });
-        done();
+        if (done) done();
       });
     });
   })

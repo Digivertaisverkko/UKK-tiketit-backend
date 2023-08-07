@@ -12,11 +12,14 @@ const errorcodes = require('./../errorcodes.js');
 class CourseReads extends CourseLists {
 
   createTicket(courseId, creatorId, title, content, fieldList, isFaq=false) {
+    let storedTicketId = null;
+
     return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
-        return sql.tickets.setTicketState(ticketid, TicketState.sent)
-        .then((sqldata) => { return ticketid; });
+      storedTicketId = ticketid;
+      return sql.tickets.setTicketState(ticketid, TicketState.sent)
+      .then((sqldata) => { return ticketid; });
     })
     .then((ticketid) => {
       return new Promise(function(resolve, reject) {
@@ -38,6 +41,18 @@ class CourseReads extends CourseLists {
     .then((results) => {
       mailer.sendMailNotifications(results.tiketti, [creatorId], content)
       return results;
+    }).catch((error) => {
+      if (storedTicketId == null) {
+        return Promise.reject(error);
+      } else {
+        return sql.tickets.deleteTicket(storedTicketId)
+        .then(() => {
+          return Promise.reject(error);
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        })
+      }
     });
   }
 

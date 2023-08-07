@@ -22,12 +22,14 @@ describe('Opettajan oikeuksien testaaminen', function() {
   });
 
   describe('Kurssin tikettilistojen hakeminen', function() {
-    allrolesTests.getAllTicketsTest(teacherAgent, 6);
+    allrolesTests.getAllTicketsTest(teacherAgent, 8);
 
     allrolesTests.getAllTicketsFromUnattentedCourseTest(teacherAgent);
   })
 
   allrolesTests.performAllGenericFaqTests(teacherAgent, 'opettaja');
   allrolesTests.performSettingsTests(teacherAgent, 'opettaja');
+
+  allrolesTests.postNewTicketTests(teacherAgent, 'opettaja');
 
 });

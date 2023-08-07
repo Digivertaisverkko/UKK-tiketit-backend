@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "build:ui": "rm -rf static && cd UKK-tiketit && npm ci && rm -rf dist && ng build && cp -r dist/tikettisysteemi ../static",
-    "test": "sql_reformatdvv.sh && mocha --reporter spec"
+    "test": "./sql_reformatdvv.sh && mocha --reporter spec"
   },
   "dependencies": {
     "chai": "^4.3.7",

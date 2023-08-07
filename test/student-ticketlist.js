@@ -7,6 +7,7 @@ const { forEach } = require("jszip");
 const arrayTools = require("../public/javascripts/arrayTools.js");
 const testhelpers = require("../testhelpers/testhelpers.js");
 const allrolesTests = require("../testhelpers/allroles-tests.js");
+const TicketState = require('./../public/javascripts/ticketstate.js');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -122,11 +123,7 @@ describe('Opiskelijan oikeuksien testaamista', function() {
   allrolesTests.performAllGenericFaqTests(studentAgent, 'opiskelija');
   allrolesTests.performSettingsTests(studentAgent, 'opiskelija');
   
-  
-  
-  
-  
-  
+  allrolesTests.postNewTicketTests(studentAgent, 'opiskelija');
   
   
   
@@ -139,7 +136,7 @@ describe('Opiskelijan oikeuksien testaamista', function() {
 
     it('lisää uuden kommentin aloittamaansa tikettiin', function(done) {
       let message = 'Testirajapinnan kommentti 1';
-      testhelpers.testSuccessfullStudentCommenting(studentAgent, message, 1, 1, done);
+      testhelpers.testSuccessfullCommenting(studentAgent, message, TicketState.sent, 1, 1, done);
     });
   
   
@@ -151,7 +148,7 @@ describe('Opiskelijan oikeuksien testaamista', function() {
         studentAgent,
         {
           'viesti': message,
-          'tila': 1
+          'tila': TicketState.sent
         },
         403,
         1003,
@@ -160,7 +157,7 @@ describe('Opiskelijan oikeuksien testaamista', function() {
   
     it('lisää uuden kommentin arkistoituun tikettiin', function(done) {
       let message = 'Arkistoidun tiketin testikommentti';
-      testhelpers.testSuccessfullStudentCommenting(studentAgent, message, 1, 2, done);
+      testhelpers.testSuccessfullCommenting(studentAgent, message, TicketState.sent, 1, 2, done);
     });
 
 
@@ -189,7 +186,6 @@ describe('Opiskelijan oikeuksien testaamista', function() {
         });
       });
     });
-  
   });
   
   
