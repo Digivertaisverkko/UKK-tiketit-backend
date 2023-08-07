@@ -7,6 +7,7 @@ const chaiHttp = require('chai-http');
 
 const app = require('../app.js');
 const allrolesTests = require("../testhelpers/allroles-tests.js");
+const testhelpers = require("../testhelpers/testhelpers.js");
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -45,5 +46,38 @@ describe('Kirjautumattoman käyttäjän testausta', function() {
   });
 
   allrolesTests.performAllGenericFaqTests(unsignedAgent, 'kirjautumatta');
+
+
+  describe('Laittomat operaatiot kirjautumattomalle käyttäjälle', function() {
+    it('kieltäytyy kirjoittamasta uutta tikettiä', function(done) {
+      unsignedAgent.post('/api/kurssi/1/tiketti')
+      .send({
+        'otsikko': 'Kirjautumattoman käyttäjän tiketti',
+        'viesti': 'Kirjautumattoman käyttäjän kysymä kysymys',
+        'kentat': [{
+          'id': 1,
+          'arvo': 'asd'
+        },
+        {
+          'id': 2,
+          'arvo': 'asdasd'
+        }]
+      })
+      .end((err, res) => {
+        testhelpers.checkNotSignedIn(res, done);
+      });
+    })
+
+    it('kieltäytyy kirjoittamasta uutta kommenttia', function(done) {
+      unsignedAgent.post('/api/kurssi/1/tiketti/1/kommentti')
+      .send({
+        'viesti': 'Tämä kommentti ei mene läpi',
+        'tila': 1
+      })
+      .end((err, res) => {
+        testhelpers.checkNotSignedIn(res, done);
+      })
+    })
+  });
 
 });

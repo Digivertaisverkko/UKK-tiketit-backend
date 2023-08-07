@@ -59,6 +59,10 @@ module.exports = {
     })
   },
 
+  checkNotSignedIn: function(res, done) {
+    this.checkErrorResponse(res, 403, 1000, done);
+  },
+
   checkErrorResponseWrongParameters: function(res, done) {
     this.checkErrorResponse(res, 400, 3000, done);
   },
