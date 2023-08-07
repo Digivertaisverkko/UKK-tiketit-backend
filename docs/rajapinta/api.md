@@ -116,6 +116,16 @@ Lähettää myös http-only sessioevästeen osana vastausta.
 }
 ```
 
+### /api/kirjauduulos/
+#### POST
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssiluku
+
+##### Vastaus: 
+```
+{
+  success: true
+}
+```
 
 ### /api/minun/tili/ 
 #### POST
@@ -241,33 +251,12 @@ Lähetettävissä tiedoissa pitää olla data samassa muodossa kuin tietokannass
 Täältä voi hakea pakatun .zip-tiedoston, jossa on kaikki käyttäjän tallentama data, mukaanlukien liitteet ja json, jossa on kaikki tieto.
 #### Vastaus:
 Ladattava .zip-tiedosto.
- 
-
-## Kurssien rajapinta 
-Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty session-id ei ole oikein, niin silloin näistä tulee vastauksena 
-```
-{
-  success: false
-  error: ”no authorization”
-  login-url: $URL
-}
-```
 
 
-### /api/kirjauduulos/
-#### POST
-[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssiluku
-
-##### Vastaus: 
-```
-{
-  success: true
-}
-```
 <br><br><br>
 
 ## Kurssien rajapinta 
-Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja jos lähetetty session-id ei ole oikein, niin silloin näistä tulee vastauksena 
+Kaikki tämän rajapinnan kutsut vaativat sisäänkirjautumisen, ja ilman sitä näistä tulee vastauksena 
 ```
 {
   success: false
@@ -818,11 +807,6 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 [**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Tikettiluku
 ##### Lähetä:
 ```
-- header -
-{
-  session-id: $UUDI
-}
-- body -
 {
   viesti: $string
   tila: $int
@@ -830,7 +814,6 @@ Kenellä vain, jolla on tiketin lukuoikeus pystyy luomaan uusia kommentteja tike
 ```
 ##### Vastaus:
 ```
-- body -
 {
   success: true
   kommentti: $int (luodun kommentin id)
