@@ -58,6 +58,47 @@ module.exports = {
         expect(res.body.success).to.be.true;
         expect(res.body.uusi).to.be.an('object').that.has.all.keys(['tiketti', 'kommentti']);
         module.exports.testIfTicketWentThrough(agent, courseId, res.body.uusi.tiketti, res.body.uusi.kommentti, message, done);
+      },
+
+      //Ei testaa titleä tai messagea, jos ne on asetettu nulleiksi
+      ticketHasCorrectData: function(agent, courseId, ticketId, title, initialMessage, valuesMustMatch, done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          if (title != null) {
+            expect(res.body.otsikko == title).to.equal(valuesMustMatch);
+            //expect(res.body.otsikko).to.eql(title);
+          }
+
+          if (initialMessage != null) {
+            this.ticketHasCorrectInitialMessage(agent, courseId, ticketId, initialMessage, valuesMustMatch, done);
+          } else {
+            if (done) done();
+          }
+        });
+      },
+
+      ticketHasCorrectInitialMessage: function(agent, courseId, ticketId, initialMessage, valuesMustMatch, done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/kaikki`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('array');
+          
+          res.body.sort((a,b) => {
+            if (a.aikaleima < b.aikaleima) {
+              return -1;
+            } else if (a.aikaleima > b.aikaleima) {
+              return 1;
+            }
+            return 0;
+          });
+          let firstMessage = res.body[0].viesti;
+
+          expect(firstMessage == initialMessage).to.equal(valuesMustMatch);
+          if (done) done();
+        });
       }
     } //END SUCCESS
   },

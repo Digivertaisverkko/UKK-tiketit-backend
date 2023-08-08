@@ -54,6 +54,9 @@ describe('Opiskelijan oikeuksien testaamista', function() {
   allrolesTests.postNewTicketTests(studentAgent, 'opiskelija');
   allrolesTests.fetchTicketSuccesfullyTest(studentAgent, 'opiskelija', 1, 1);
   allrolesTests.fetchTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3);
+
+  allrolesTests.updateTicketSuccessfullyTest(studentAgent, 'opiskelija', 1, 1);
+  allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3);
   
   
   

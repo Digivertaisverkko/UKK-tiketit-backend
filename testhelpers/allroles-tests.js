@@ -263,6 +263,147 @@ module.exports = {
 
 
 
+  updateTicketSuccessfullyTest: function(agent, agentDescription, courseId, ticketId) {
+    describe(`Tiketin päivitys (${agentDescription})`, function() {
+
+      it('päivittää tiketin tiedot', function(done) {
+        let title = 'Päivitetyn tiketin otsikko (' + agentDescription + ')';
+        let message = `Päivitetyn tiketin sisältö (${agentDescription})`;
+
+        agent.put(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({
+          'otsikko': title,
+          'viesti': message,
+          'kentat': 
+          [{
+            'id': 1,
+            'arvo': 'asd 1'
+          },
+          {
+            'id': 2,
+            'arvo': 'asd 2'
+          }
+        ]
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('object').with.keys(['success']);
+          expect(res.body.success).to.be.true;
+          testhelpers.check.success.ticketHasCorrectData(agent, courseId, ticketId, title, message, true, done);
+        });
+      });
+
+      it('päivittää tiketin tiedot ilman viestiä', function(done) {
+        let title = 'Päivitetyn tiketin otsikko 2 (' + agentDescription + ')';
+
+        agent.put(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({
+          'otsikko': title,
+          'kentat': 
+          [{
+            'id': 1,
+            'arvo': 'asd 1'
+          },
+          {
+            'id': 2,
+            'arvo': 'asd 2'
+          }
+        ]
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('object').with.keys(['success']);
+          expect(res.body.success).to.be.true;
+          testhelpers.check.success.ticketHasCorrectData(agent, courseId, ticketId, title, null, true, done);
+        });
+      });
+
+      it('päivittää tiketin tiedot ilman mitään sisältöä', function(done) {
+        agent.put(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({})
+        .end((err, res) => {
+          testhelpers.check.error.wrongParameters(res, () => {
+            testhelpers.check.success.ticketHasCorrectData(agent, courseId, ticketId, "", "", false, done);
+          });
+        })
+      });
+
+      it('päivittää tiketin tiedot ilman mitään otsikkoa', function(done) {
+        let message = `Päivitetyn tiketin sisältö 3 (${agentDescription})`;
+
+        agent.put(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({
+          'viesti': message,
+          'kentat': 
+          [{
+            'id': 1,
+            'arvo': 'asd 1'
+          },
+          {
+            'id': 2,
+            'arvo': 'asd 2'
+          }
+        ]
+        })
+        .end((err, res) => {
+          testhelpers.check.error.wrongParameters(res, () => {
+            testhelpers.check.success.ticketHasCorrectData(agent, courseId, ticketId, null, message, false, done);
+          });
+        })
+      });
+
+      it('päivittää tiketin tiedot ilman kenttiä', function(done) {
+        let title = 'Päivitetyn tiketin otsikko 4 (' + agentDescription + ')';
+        let message = `Päivitetyn tiketin sisältö 4 (${agentDescription})`;
+
+        agent.put(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({
+          'otsikko': title,
+          'viesti': message
+        })
+        .end((err, res) => {
+          testhelpers.check.error.wrongParameters(res, () => {
+            testhelpers.check.success.ticketHasCorrectData(agent, courseId, ticketId, title, message, false, done);
+          });
+        });
+      });
+
+    });
+  },
+
+  updateTicketUnsuccessfullyTest: function(agent, agentDescription, courseId, ticketId) {
+
+    describe(`Tiketin muokkausta, kun tiketti ei ole käyttäjän luoma (${agentDescription})`, function() {
+      it('päivittää tiketin tiedot ilman oikeuksia', function(done) {
+        let title = 'Päivitetyn tiketin virheellinen otsikko (' + agentDescription + ')';
+        let message = `Päivitetyn tiketin virheellinen sisältö (${agentDescription})`;
+
+        agent.put(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({
+          'otsikko': title,
+          'viesti': message,
+          'kentat': 
+          [{
+            'id': 1,
+            'arvo': 'asd 1'
+          },
+          {
+            'id': 2,
+            'arvo': 'asd 2'
+          }
+        ]
+        })
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+          //TODO: Jokin tapa tarkistaa, ettei tiketin tiedot muuttuneet. Ongelmana vain on, että kenellä on lukuoikeudet kaikkiin tiketteihin.
+        });
+      });
+    });
+
+  },
+
+
+
 
 
 
