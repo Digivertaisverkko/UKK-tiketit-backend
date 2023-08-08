@@ -160,11 +160,6 @@ module.exports = {
         })
       });
 
-      it('muokkaa luomaansa tiketti', function(done) {
-        agent.put('/api/kurssi/1/tiketti/' + newTicketId);
-        done();
-      });
-
       it('luo uuden tiketin väärälle kurssille', function(done) {
 
         let message = 'Tämän viestin on lähettänyt ' + agentDescription;
@@ -187,10 +182,83 @@ module.exports = {
         });
       });
 
+      it('luo uuden tiketin ilman http-vartaloa', function(done) {
+        agent.post('/api/kurssi/1/tiketti')
+        .send({})
+        .end((err, res) => {
+          testhelpers.check.error.wrongParameters(res, done);
+        })
+      });
 
 
     });
 
+  },
+
+
+  fetchTicketSuccesfullyTest: function(agent, agentDescription, courseId, ticketId) {
+    describe("Hae tiketti (" + agentDescription + ")", function() {
+      it('Hakee tiketin perustiedot', function(done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.keys(['id', 'tila', 'otsikko', 'aikaleima',
+                                         'aloittaja', 'kurssi', 'ukk', 
+                                         'arkistoitava']);
+          expect(res.body.id).to.equal(ticketId);
+          expect(res.body.aloittaja).to.be.an('object');
+          expect(res.body.ukk).to.equal(false);
+          done();
+        });
+      });
+    
+      it("Hakee tiketin kentät", function(done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kentat`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('array').with.length(2);
+          expect(res.body[0]).to.have.keys(['id', 'arvo', 'otsikko', 'tyyppi',
+                                            'ohje', 'esitaytettava', 'pakollinen',
+                                            'valinnat']);
+          expect(res.body[0].valinnat).to.be.an('array').with.length(1);
+          expect(res.body[1].valinnat).to.be.an('array').with.length(3);
+          done();
+        });
+      });
+    
+      it("Hakee tiketin kommentit", function(done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/kaikki`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('array').lengthOf.at.least(1);
+          res.body.forEach(element => {
+            expect(element).to.have.keys(['id', 'viesti', 'lahettaja', 
+                                          'aikaleima', 'muokattu', 'tila', 
+                                          'liitteet']);
+          });
+          done();
+        });
+      });
+    });
+  },
+
+  fetchTicketUnsuccessfullyTest: function(agent, agentDescription, courseId, ticketId) {
+    describe('Tiketin hakeminen ilman lupaa (' + agentDescription +')', function () {
+      it('hakee tiketin, johon ei ole pääsyä', function(done) {
+        testhelpers.testNoAccess(`/api/kurssi/${courseId}/tiketti/${ticketId}`, 'get', agent, done);
+      });
+  
+      it('hakee tiketin kentät, johon ei ole pääsyä', function(done) {
+        testhelpers.testNoAccess(`/api/kurssi/${courseId}/tiketti/${ticketId}/kentat`, 'get', agent, done);
+      });
+  
+      it('hakee tiketin kommentit, johon ei ole pääsyä', function(done) {
+        testhelpers.testNoAccess(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/kaikki`, 'get', agent, done);
+      });
+    });
   },
 
 

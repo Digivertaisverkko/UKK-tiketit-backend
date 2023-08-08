@@ -80,4 +80,18 @@ describe('Kirjautumattoman käyttäjän testausta', function() {
     })
   });
 
+  describe('Tiketin hakeminen kirjautumatta', function() {
+    it('hakee tiketin (ei ukk) kirjautumatta', function(done) {
+      testhelpers.testNotSignedIn('/api/kurssi/1/tiketti/1/', 'get', unsignedAgent, done);
+    });
+  
+    it('hakee tiketin kentät (ei ukk) kirjautumatta', function(done) {
+      testhelpers.testNotSignedIn('/api/kurssi/1/tiketti/1/kentat', 'get', unsignedAgent, done);
+    });
+
+    it('hakee tiketin kommentit (ei ukk) kirjautumatta', function(done) {
+      testhelpers.testNotSignedIn('/api/kurssi/1/tiketti/1/kommentti/kaikki', 'get', unsignedAgent, done);
+    });
+  });
+
 });

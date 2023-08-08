@@ -30,6 +30,9 @@ describe('Opettajan oikeuksien testaaminen', function() {
   allrolesTests.performAllGenericFaqTests(teacherAgent, 'opettaja');
   allrolesTests.performSettingsTests(teacherAgent, 'opettaja');
 
+  allrolesTests.fetchTicketSuccesfullyTest(teacherAgent, 'opettaja (opiskelijat tiketti)', 1, 1);
+  allrolesTests.fetchTicketSuccesfullyTest(teacherAgent, 'opettaja (oma tiketti)', 1, 3);
+
   allrolesTests.postNewTicketTests(teacherAgent, 'opettaja');
 
 });
