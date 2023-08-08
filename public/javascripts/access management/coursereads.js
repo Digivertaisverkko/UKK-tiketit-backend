@@ -7,13 +7,14 @@ const TicketState = require('../ticketstate.js');
 const sqlsplicer = require('../sqlsplicer.js');
 const mailer = require('../mailer.js');
 const errorcodes = require('./../errorcodes.js');
+const arrayTools = require('../arrayTools.js');
+const { forEach } = require('jszip');
 
 
 class CourseReads extends CourseLists {
 
   createTicket(courseId, creatorId, title, content, fieldList, isFaq=false) {
     let storedTicketId = null;
-
     return sql.tickets.insertTicketMetadata(courseId, creatorId, title, isFaq)
     .then((sqldata) => { return sqldata.id })
     .then((ticketid) => {
@@ -22,14 +23,26 @@ class CourseReads extends CourseLists {
       .then((sqldata) => { return ticketid; });
     })
     .then((ticketid) => {
-      return new Promise(function(resolve, reject) {
-        var promises = [];
-        fieldList.forEach(kvp => {
-          promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+      return sql.courses.getFieldsOfTicketBaseForCourse(courseId)
+      .then((databaseFieldList) => {
+
+        //Tarkista, että kaikki annetut tiketin kentät ovat osa kurssin tikettipohjaa.
+        let databaseFieldIds = arrayTools.extractAttributes(databaseFieldList, 'id');
+        for (let i=0; i<fieldList.length; ++i) {
+          if (databaseFieldIds.includes(fieldList[i].id) == false) {
+            return Promise.reject(errorcodes.wrongParameters);
+          }
+        }
+
+        return new Promise(function(resolve, reject) {
+          var promises = [];
+          fieldList.forEach(kvp => {
+            promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+          });
+          Promise.all(promises)
+          .then(() => resolve(ticketid))
+          .catch(() => reject(errorcodes.somethingWentWrong));
         });
-        Promise.all(promises)
-        .then(() => resolve(ticketid))
-        .catch(() => reject(errorcodes.somethingWentWrong));
       });
     })
     .then((ticketid) => {

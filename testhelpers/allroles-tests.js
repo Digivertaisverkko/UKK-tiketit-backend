@@ -80,8 +80,8 @@ module.exports = {
 
   getAllTicketsFromUnattentedCourseTest: function(agent) {
     it('hakee väärän kurssin tikettilistan', function(done) {
-      testhelpers.testNoContent('/api/kurssi/6/tiketti/kaikki',
-                                'get', agent, {}, done);
+      testhelpers.testNoAccess('/api/kurssi/6/tiketti/kaikki',
+                                'get', agent, done);
     });
   },
 
@@ -109,7 +109,7 @@ module.exports = {
           }]
         })
         .end((err, res) => {
-          testhelpers.checkSuccessfullTicketPost(agent, res, 1, message, done);
+          testhelpers.check.success.ticketPost(agent, res, 1, message, done);
           newTicketId = res.body.uusi.tiketti;
         });
       });
@@ -123,7 +123,7 @@ module.exports = {
           'kentat': []
         })
         .end((err, res) => {
-          testhelpers.checkSuccessfullTicketPost(agent, res, 1, message, done);
+          testhelpers.check.success.ticketPost(agent, res, 1, message, done);
         })
       });
 
@@ -136,11 +136,11 @@ module.exports = {
           'kentat': [{}]
         })
         .end((err, res) => {
-          testhelpers.checkErrorResponseWrongParameters(res, done);
+          testhelpers.check.error.wrongParameters(res, done);
         })
       });
 
-      it('luo uuden tiketin väärillä kenttätaululla', function(done) {
+      it('luo uuden tiketin väärillä kenttätauluilla', function(done) {
         let message = 'Tämän testiviestin ei pitäisi olla mennyt läpi väärillä kenttätauluilla';
         agent.post('/api/kurssi/1/tiketti')
         .send({
@@ -153,18 +153,42 @@ module.exports = {
           {
             'id': 4,
             'arvo': 'dfg'
-
           }]
         })
         .end((err, res) => {
-          testhelpers.checkErrorResponseUnknownError(res, done);
+          testhelpers.check.error.wrongParameters(res, done);
         })
       });
 
       it('muokkaa luomaansa tiketti', function(done) {
         agent.put('/api/kurssi/1/tiketti/' + newTicketId);
         done();
-      })
+      });
+
+      it('luo uuden tiketin väärälle kurssille', function(done) {
+
+        let message = 'Tämän viestin on lähettänyt ' + agentDescription;
+
+        agent.post('/api/kurssi/6/tiketti')
+        .send({
+          'otsikko': 'automaattitestin onnistunut tiketti (' + agentDescription + ')',
+          'viesti': message,
+          'kentat': [{
+            'id': 1,
+            'arvo': 'arvo1'
+          },
+          {
+            'id': 2,
+            'arvo': 'arvo2'
+          }]
+        })
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+        });
+      });
+
+
+
     });
 
   },

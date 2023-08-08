@@ -50,10 +50,13 @@ INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (6, 4, 'op
 -- Tikettipohja
 
 INSERT INTO core.tikettipohja (kurssi, kuvaus) VALUES (1, 'Tällä työkalulla voi käydä kysymässä opettajalta neuvoa, ja antaa opettajalle kaiken tarvittavan. Jotta opettaja voi auttaa sinua parhaiten, muista kertoa viestissä kehitysympäristösi, käyttöjärjestelmäsi ja tarkka kuvaus ongelmasta. Jos ongelma liittyy koodiin, niin laita liitetiedostoksi kaikki kooditiedostosi, tai laita linkki GitHubiin.');
+INSERT INTO core.tikettipohja (kurssi, kuvaus) VALUES (6, 'Tällä työkalulla voi käydä kysymässä opettajalta neuvoa, ja antaa opettajalle kaiken tarvittavan. Jotta opettaja voi auttaa sinua parhaiten, muista kertoa viestissä kehitysympäristösi, käyttöjärjestelmäsi ja tarkka kuvaus ongelmasta. Jos ongelma liittyy koodiin, niin laita liitetiedostoksi kaikki kooditiedostosi, tai laita linkki GitHubiin.');
 
 
 -- Kenttapohja
 
+INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Tehtävä', 1, FALSE, TRUE, '', '');
+INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Ongelman tyyppi', 1, FALSE, TRUE, '', 'Kotitehtävä;Määräajat;Yleinen');
 INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Tehtävä', 1, FALSE, TRUE, '', '');
 INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Ongelman tyyppi', 1, FALSE, TRUE, '', 'Kotitehtävä;Määräajat;Yleinen');
 
@@ -62,6 +65,8 @@ INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, 
 
 INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) VALUES (1, 1);
 INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) VALUES (1, 2);
+INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) VALUES (2, 3);
+INSERT INTO core.tikettipohjankentat (tikettipohja, kentta) VALUES (2, 4);
 
 
 -- Tiketti

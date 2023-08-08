@@ -193,7 +193,14 @@ module.exports = {
     return auth.authenticatedUser(request)
     .then((userid) => {
       storedUserId = userid;
-      return sql.courses.roleInCourse(courseid, userid);
+      return sql.courses.roleInCourse(courseid, userid)
+      .catch((error) => {
+        if (error == errorcodes.noResults) {
+          return Promise.reject(errorcodes.noPermission);
+        } else {
+          return Promise.reject(error);
+        }
+      })
     })
     .then(() => {
       return { userid: storedUserId, methods: coursereads };

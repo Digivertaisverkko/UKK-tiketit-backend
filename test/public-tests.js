@@ -64,7 +64,7 @@ describe('Kirjautumattoman käyttäjän testausta', function() {
         }]
       })
       .end((err, res) => {
-        testhelpers.checkNotSignedIn(res, done);
+        testhelpers.check.error.notSignedIn(res, done);
       });
     })
 
@@ -75,7 +75,7 @@ describe('Kirjautumattoman käyttäjän testausta', function() {
         'tila': 1
       })
       .end((err, res) => {
-        testhelpers.checkNotSignedIn(res, done);
+        testhelpers.check.error.notSignedIn(res, done);
       })
     })
   });
