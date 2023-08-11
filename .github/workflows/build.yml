@@ -20,22 +20,30 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: npm install backend
+      - name: npm ci backend
         run: npm ci
 
       - name: Pull & update frontend submodule
         run: git submodule update --init
-        
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli > /dev/null
 
-      - name: npm install, build, test and lint frontend
+      - name: npm ci frontend
+        working-directory: ./UKK-tiketit
+        run: npm ci
+
+      - name: Test and lint frontend
+        working-directory: ./UKK-tiketit
         run: |
-          npm run build:ui
-          npm run test:ui
-          npm run lint:ui
+          npm run test:prod
+          npm run lint
 
-      - name: delete unnecessary stuff
+      - name: Build frontend
+        working-directory: ./UKK-tiketit
+        run: npm run build
+
+      - name: Move built frontend to static folder
+        run: mv ./UKK-tiketit/dist/tikettisysteemi ./static
+
+      - name: Delete unnecessary stuff
         run: rm -rf UKK-tiketit
 
       - name: Zip artifact for deployment
