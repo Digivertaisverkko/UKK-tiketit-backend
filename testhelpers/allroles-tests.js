@@ -410,8 +410,10 @@ module.exports = {
         .send({})
         .end((err, res) => {
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('array').with.length(2);
-          res.body.forEach(element => {
+          expect(res.body).to.have.all.keys(['kuvaus', 'kentat']);
+          expect(res.body.kuvaus).to.be.a('string');
+          expect(res.body.kentat).to.be.an('array');
+          res.body.kentat.forEach(element => {
             expect(element).to.have.all.keys(['id','otsikko','pakollinen','esitaytettava','ohje','valinnat']);
           });
           if (done) done();
@@ -450,7 +452,7 @@ module.exports = {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.have.keys(['success'])
-          testhelpers.check.success.ticketBaseHasCorrectData(agent, courseId, newFields, true, done);
+          testhelpers.check.success.ticketBaseHasCorrectData(agent, courseId, null, newFields, true, done);
         });
       });
 

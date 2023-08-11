@@ -645,6 +645,24 @@ Tiketit muodostuvat tietokannassa useammasta osasesta. Iso osa rajapinnoista yri
     - Tiketeissä on kommentointimahdollisuus, ja tästä löytyy kaikki tiketin kommentit. Myös tiketin alkuperäinen viesti menee kommentiksi.
 
 
+### /api/kurssi/:kurssi-id/tikettipohja/kuvaus
+Tällä saa muokattua ohjeistusta, joka kulkeutuu kaikille, jotka muokkaavat tikettiä.
+#### PUT
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssikirjoitus
+##### Lähetä:
+```
+{
+  kuvaus: $string
+}
+```
+##### Vastaus:
+```
+{
+  success: true
+}
+```
+
+
 ### /api/kurssi/:kurssi-id/tikettipohja/kentat
 Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä, joita pitää käyttäjältä kysyä, ja jotka pitää lähettää takaisin palvelimelle kun kysymystä luodaan. (Tämä ei sisällä sellaisia kenttiä, kuin otsikko, liitteet tai tiketin teksti.)
 
@@ -653,7 +671,8 @@ Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä
 ##### Vastaus:
 ```
 - body - 
-[{
+kuvaus: $string
+kentat: [{
   id: $int
   otsikko: $string
   pakollinen: $bool
@@ -680,6 +699,7 @@ Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset
     }]
 }
 ```
+*Rajapinta ei lupaa mitään lähetettyjen taulukoiden järjestyksestä.*
 
 ##### Vastaus:
 ```
@@ -688,6 +708,26 @@ Tämä **PUT** komento luo uudet kentät tikettipohjalle, ja poistaa viittaukset
   success: true
 }
 ```
+
+### /api/kurssi/:kurssi-id/tikettipohja/vienti
+Tällä rajapinnalla saa lähetettyä json muotoisen tiedoston, jolla asetetaan kurssin tikettipohja ennalta määrättyyn muotoon. Tarkoituksena on tukea käyttäjän mahdollisuutta ladata json-tiedosto yhdeltä kurssilta, ja lähettää se toiselle kurssille.
+#### POST
+[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssikirjoitus
+```
+- body - 
+kuvaus: $string
+kentat: [{
+  otsikko: $string
+  pakollinen: $bool
+  esitaytettava: $bool
+  ohje: $string
+  valinnat: [$string]
+}]
+```
+#### GET
+Tällä hetkellä GET rajapintaa ei ole toteutettu, mutta rajapinta [/api/kurssi/:kurssi-id/tikettipohja/kentat](#apikurssikurssi-idtikettipohjakentat) palauttaa oikeanmuotoisen jsonin.
+
+
 
 
 ### /api/kurssi/:kurssi-id/tiketti/
@@ -718,10 +758,6 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
   }
 }
 ```
-
-#### GET 
-[**Vaaditut oikeudet:**](/docs/rajapinta/oikeudet.md) Kurssiluku
-Tämä rajapinnan **GET** vastaa täysin samaa toiminnallisuutta kuin **GET** osoitteeseen [*/api/kurssi/:kurssi-id/tiketinkentat/*](#apikurssikurssi-idtiketinkentat). 
 
 
 

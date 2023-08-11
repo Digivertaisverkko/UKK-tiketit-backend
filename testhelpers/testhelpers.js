@@ -101,13 +101,17 @@ module.exports = {
         });
       },
 
-      ticketBaseHasCorrectData: function(agentt, courseId, baseFields, valuesMustMatch, done) {
+      ticketBaseHasCorrectData: function(agentt, courseId, description, baseFields, valuesMustMatch, done) {
         agentt.get(`/api/kurssi/${courseId}/tikettipohja/kentat`)
         .send({})
         .end((err, res) => {
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('array');
-          expect(res.body.length).to.equal(baseFields.length);
+          expect(res.body).to.have.keys(['kuvaus', 'kentat']);
+          if (description != null) {
+            expect(res.body.kuvaus).to.eql(description);
+          }
+          expect(res.body.kentat).to.be.an('array');
+          expect(res.body.kentat.length).to.equal(baseFields.length);
           for (let i=0; i<res.body.length; ++i) {
             expect(res.body[i]).to.include.key('id');
             delete res.body[i].id;

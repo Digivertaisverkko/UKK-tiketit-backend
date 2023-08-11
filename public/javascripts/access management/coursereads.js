@@ -157,6 +157,13 @@ class CourseReads extends CourseLists {
     return sql.courses.getFieldsOfTicketBaseForCourse(courseId);
   }
 
+  getDescriptionOfTicketBase(courseId) {
+    return sql.courses.getTicketBasesOfCourse(courseId)
+    .then((dataList) => {
+      return dataList[0];
+    });
+  }
+
 }
 
 module.exports = CourseReads;

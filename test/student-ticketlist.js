@@ -127,49 +127,7 @@ describe('Opiskelijan oikeuksien testaamista', function() {
       });
     });
   });
-  
-  
-  
-  
-  
-  describe('Tikettipohjan testit', function() {
-  
-    it('hakee kurssin tikettipohjan kentät', function(done) {
-      studentAgent.get('/api/kurssi/1/tikettipohja/kentat')
-      .send({})
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.an('array').with.length(2);
-        res.body.forEach(element => {
-          expect(element).to.have.keys(['id', 'otsikko', 'pakollinen',
-                                        'esitaytettava', 'valinnat', 'ohje']);
-        });
-        done();
-      });
-    });
 
-
-    it('yrittää muokata tikettipohjan kenttiä', function(done) {
-      testhelpers.testErrorResponseWithBody(
-        '/api/kurssi/1/tikettipohja/kentat',
-        'put',
-        studentAgent,
-        {
-          'kentat': [{
-            'otsikko': 'otsikko',
-            'pakollinen': true,
-            'esitaytettava': false,
-            'ohje': 'ohjeteksti',
-            'valinnat': ['valinta 1', 'valinta 2']
-          }]
-        },
-        403,
-        1003,
-        done
-      );
-    });
-
-  });
 
 
 

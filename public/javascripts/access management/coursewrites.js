@@ -138,10 +138,18 @@ class CourseWrites extends CourseReads {
     })
   }
 
+  editDescriptionOfTicketBase(courseId, description) {
+    return sql.courses.updateDescriptionOfTicketBase(courseId, description);
+  }
+
+  addFieldsToTicketBase(courseId, fields) {
+    return sql.courses.insertFieldsToTicketBase(courseId, fields);
+  }
+
   replaceFieldsOfTicketBase(courseId, fields) {
     return sql.courses.removeAllFieldsFromTicketBase(courseId)
     .then(() => {
-       return sql.courses.insertFieldsToTicketBase(courseId, fields)
+       return sql.courses.insertFieldsToTicketBase(courseId, fields);
     });
   }
 
