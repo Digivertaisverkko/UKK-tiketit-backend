@@ -3,11 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "build:ui": "rm -rf ./static && cd ./UKK-tiketit && npm ci && npm run test:prod && npm run lint && rm -rf ./dist && npm run build && mv ./dist/tikettisysteemi ../static",
     "start": "node app.js",
-    "test": "./sql_reformatdvv.sh && mocha --reporter spec --exit",
-    "build:ui": "rm -rf static && cd UKK-tiketit && npm ci && rm -rf dist && ng build && cp -r dist/tikettisysteemi ../static",
-    "lint:ui": "cd UKK-tiketit && ng lint",
-    "test:ui": "cd UKK-tiketit && ng test --browsers=ChromeHeadless --watch=false --code-coverage"
+    "test": "./sql_reformatdvv.sh && mocha --reporter spec --exit"
   },
   "dependencies": {
     "chai": "^4.3.7",
