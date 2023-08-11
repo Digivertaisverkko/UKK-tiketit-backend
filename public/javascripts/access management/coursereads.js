@@ -27,13 +27,14 @@ class CourseReads extends CourseLists {
       .then((databaseFieldList) => {
 
         //Tarkista, että kaikki annetut tiketin kentät ovat osa kurssin tikettipohjaa.
-        let databaseFieldIds = arrayTools.extractAttributes(databaseFieldList, 'id');
-        for (let i=0; i<fieldList.length; ++i) {
-          if (databaseFieldIds.includes(fieldList[i].id) == false) {
-            return Promise.reject(errorcodes.wrongParameters);
+        if (isFaq == false) {
+          let databaseFieldIds = arrayTools.extractAttributes(databaseFieldList, 'id');
+          for (let i=0; i<fieldList.length; ++i) {
+            if (databaseFieldIds.includes(fieldList[i].id) == false) {
+              return Promise.reject(errorcodes.wrongParameters);
+            }
           }
         }
-
         return new Promise(function(resolve, reject) {
           var promises = [];
           fieldList.forEach(kvp => {

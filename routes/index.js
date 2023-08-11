@@ -370,6 +370,7 @@ router.get('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
 
 router.post('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
   sanitizer.test(req.body, [
+    {key: 'id', type: 'number', optional: true},
     {key: 'otsikko', type: 'string', min: 1,  max: 255},
     {key: 'aikaleima', type: 'string'},
     {keyPath: ['kommentit', 'viesti'], type: 'string'},

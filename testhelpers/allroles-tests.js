@@ -414,7 +414,6 @@ module.exports = {
           res.body.forEach(element => {
             expect(element).to.have.all.keys(['id','otsikko','pakollinen','esitaytettava','ohje','valinnat']);
           });
-          console.log("Kutsuttiin " + agentDescription + " done: " + (done != null));
           if (done) done();
         });
       });

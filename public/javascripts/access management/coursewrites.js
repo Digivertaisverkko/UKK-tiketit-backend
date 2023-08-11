@@ -23,10 +23,10 @@ class CourseWrites extends CourseReads {
 
   createFaqTicket(courseid, creatorid, title, body, answer, fields) {
     return this.createTicket(courseid, creatorid, title, body, fields, true)
-    .then((ticketid) => {
-      return sql.tickets.createComment(ticketid, creatorid, answer, 5)
+    .then((ticketResult) => {
+      return sql.tickets.createComment(ticketResult.tiketti, creatorid, answer, 5)
       .then((commentid) => {
-        return { tiketti: ticketid, kommentti: commentid };
+        return { 'tiketti': ticketResult.tiketti, 'kommentti': commentid };
       });
     });
   }
@@ -113,7 +113,7 @@ class CourseWrites extends CourseReads {
       });
     }
     
-    return Promise.resolve();
+    return promiseChain;
   }
 
   inviteUserToCourse(courseId, email, role) {
