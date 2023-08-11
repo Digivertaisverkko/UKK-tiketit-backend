@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
+    "test": "./sql_reformatdvv.sh && mocha --reporter spec --exit",
     "build:ui": "rm -rf static && cd UKK-tiketit && npm ci && rm -rf dist && ng build && cp -r dist/tikettisysteemi ../static",
-    "test": "./sql_reformatdvv.sh && mocha --reporter spec --exit"
+    "lint:ui": "cd UKK-tiketit && ng lint",
+    "test:ui": "cd UKK-tiketit && ng test --browsers=ChromeHeadless --watch=false --code-coverage"
   },
   "dependencies": {
     "chai": "^4.3.7",
