@@ -785,10 +785,6 @@ router.put('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
     {keyPath: ['kentat', 'valinnat'], type: 'object', optional: true}
   ])
   .then(() => {
-    return sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat,
-      ['otsikko', 'pakollinen', 'esitaytettava', 'ohje', 'valinnat']);
-  })
-  .then(() => { 
     return access.writeCourse(req, req.params.courseid);
   })
   .then((handle) => { 

@@ -35,4 +35,11 @@ describe('Opettajan oikeuksien testaaminen', function() {
 
   allrolesTests.postNewTicketTests(teacherAgent, 'opettaja');
 
+  describe('Opettajan tikettipohjan testit', function() {
+    allrolesTests.fetchTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', 1);
+    allrolesTests.updateTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', 1);
+    allrolesTests.fetchTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja', 6);
+    allrolesTests.updateTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja (vääräkurssi)', 6);
+  });
+
 });

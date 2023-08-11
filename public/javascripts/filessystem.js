@@ -68,13 +68,9 @@ module.exports = {
         console.dir(attachmentNames);
         fs.readdir(process.env.ATTACHMENT_DIRECTORY, (err, files) => {
           files.forEach((file) => {
-            console.log(file);
             if (attachmentNames.includes(file) == false && file.charAt(0) != '.') {
-              console.log("Poistetaan liite ajastetusti: " + file);
               fs.unlink(process.env.ATTACHMENT_DIRECTORY + file, (err) => {
-                if (err != null) {
-                  console.error("Liitteen " + file + " poistaminen epäonnistui: " + err);
-                }
+                
               });
             }
           });

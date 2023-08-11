@@ -99,9 +99,33 @@ module.exports = {
           expect(firstMessage == initialMessage).to.equal(valuesMustMatch);
           if (done) done();
         });
+      },
+
+      ticketBaseHasCorrectData: function(agentt, courseId, baseFields, valuesMustMatch, done) {
+        agentt.get(`/api/kurssi/${courseId}/tikettipohja/kentat`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('array');
+          expect(res.body.length).to.equal(baseFields.length);
+          for (let i=0; i<res.body.length; ++i) {
+            expect(res.body[i]).to.include.key('id');
+            delete res.body[i].id;
+            if (valuesMustMatch) {
+              expect(res.body[i]).to.eql(baseFields[i]); 
+            } else {
+              expect(res.body[i]).to.not.eql(baseFields[i]);
+            }
+          }
+          if (done) done();
+        });
       }
     } //END SUCCESS
   },
+
+
+
+
 
 
   testQuery: function(url, verb, agent, body) {

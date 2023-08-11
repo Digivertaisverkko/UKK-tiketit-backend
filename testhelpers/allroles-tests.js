@@ -403,6 +403,110 @@ module.exports = {
   },
 
 
+  fetchTicketBaseSuccessfullyTest: function(agent, agentDescription, courseId) {
+    describe('Tikettipohjan hakeminen (' + agentDescription + ')', function() {
+      it('hakee kurssin tikettipohjan', function(done) {
+        agent.get(`/api/kurssi/${courseId}/tikettipohja/kentat`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('array').with.length(2);
+          res.body.forEach(element => {
+            expect(element).to.have.all.keys(['id','otsikko','pakollinen','esitaytettava','ohje','valinnat']);
+          });
+          console.log("Kutsuttiin " + agentDescription + " done: " + (done != null));
+          if (done) done();
+        });
+      });
+    });
+  },
+
+
+  updateTicketBaseSuccessfullyTest: function(agent, agentDescription, courseId) {
+
+    describe(`Tikettipohjan muokkaminen (${agentDescription})`, function() {
+
+      it('päivittää kurssin tikettipohjan', function(done) {
+        let newFields = [
+          {
+            otsikko: 'Muokattu kenttä 1',
+            pakollinen: true,
+            esitaytettava: true,
+            ohje: 'ohje 1',
+            valinnat: ['Valinta 1', 'Valinta 2']
+          },
+          {
+            otsikko: 'Muokattu kenttä 2',
+            pakollinen: false,
+            esitaytettava: false,
+            ohje: 'ohje 2',
+            valinnat: ['Valinta 3', 'Valinta 4']
+          }
+        ];
+
+        agent.put(`/api/kurssi/${courseId}/tikettipohja/kentat`)
+        .send({
+          kentat: newFields
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.keys(['success'])
+          testhelpers.check.success.ticketBaseHasCorrectData(agent, courseId, newFields, true, done);
+        });
+      });
+
+    });
+
+  },
+
+  fetchTicketBaseUnsuccessfullyTest: function(agent, agentDescription, courseId) {
+    describe('Tikettipohjan haku ilman oikeuksia', function() {
+      it('hakee kurssin tikettipohjan ilman oikeuksia (' + agentDescription + ')', function(done) {
+        agent.get(`/api/kurssi/${courseId}/tikettipohja/kentat`)
+        .send({})
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+        });
+      });
+    });
+  },
+
+  updateTicketBaseUnsuccessfullyTest: function(agentt, agentDescription, courseId) {
+
+    it (`muokkaa kurssiasetuksia ilman oikeuksia (${agentDescription})`, function(done) {
+      let newFields = [
+        {
+          otsikko: 'Ei mene läpi -kenttä 1',
+          pakollinen: true,
+          esitaytettava: true,
+          ohje: 'ohje 1',
+          valinnat: ['Huono', 'Huonompi']
+        },
+        {
+          otsikko: 'Ei mene läpi -kenttä 2',
+          pakollinen: false,
+          esitaytettava: false,
+          ohje: 'ohje 2',
+          valinnat: ['Paha', 'Pahempi', 'Pahin']
+        }
+      ]
+
+      agentt.put(`/api/kurssi/${courseId}/tikettipohja/kentat`)
+      .send({
+        kentat: newFields
+      })
+      .end((err, res) => {
+        testhelpers.check.error.noAccess(res, () => {
+          done();
+          //TODO: Pitää rakentaa jonkinlainen omniteacher, jolla on oikeudet kaikille kursseilla, jotta kirjoitetut tiedot voidaan tarkistaa.
+          //testhelpers.check.success.ticketBaseHasCorrectData(agentt, courseId, newFields, false, done);
+        });
+      });
+    });
+
+  },
+
+
 
 
 

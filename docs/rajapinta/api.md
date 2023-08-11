@@ -658,7 +658,7 @@ Tällä rajapinnalla saa haettua ja muokattua kaikkia tiketin lisätietokenttiä
   otsikko: $string
   pakollinen: $bool
   esitaytettava: $bool
-  esitäyttö: $string
+  ohje: $string
   valinnat: [$string]
 }]
 ```

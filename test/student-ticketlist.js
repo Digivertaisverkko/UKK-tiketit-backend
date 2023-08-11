@@ -39,7 +39,7 @@ describe('Opiskelijan oikeuksien testaamista', function() {
   });
   
   
-  describe("Opiskelijan näkymä tikettilistaan.", function() {
+  describe('Opiskelijan näkymä tikettilistaan.', function() {
     allrolesTests.getAllTicketsTest(studentAgent, 5);
 
     allrolesTests.getAllTicketsFromUnattentedCourseTest(studentAgent);
@@ -57,6 +57,13 @@ describe('Opiskelijan oikeuksien testaamista', function() {
 
   allrolesTests.updateTicketSuccessfullyTest(studentAgent, 'opiskelija', 1, 1);
   allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3);
+
+
+  describe('Opiskelijan tikettipohjan testit', function() {
+    allrolesTests.fetchTicketBaseSuccessfullyTest(studentAgent, 'opiskelija', 1);
+    allrolesTests.updateTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', 1);
+    allrolesTests.fetchTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', 6);
+  });
   
   
   
@@ -125,7 +132,7 @@ describe('Opiskelijan oikeuksien testaamista', function() {
   
   
   
-  describe('Tikettipohjan hakeminen', function() {
+  describe('Tikettipohjan testit', function() {
   
     it('hakee kurssin tikettipohjan kentät', function(done) {
       studentAgent.get('/api/kurssi/1/tikettipohja/kentat')

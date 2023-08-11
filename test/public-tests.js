@@ -94,4 +94,7 @@ describe('Kirjautumattoman käyttäjän testausta', function() {
     });
   });
 
+  //allrolesTests.fetchTicketBaseUnsuccessfullyTest(unsignedAgent, 'kirjautumatta', 1);
+  //allrolesTests.updateTicketBaseUnsuccessfullyTest(unsignedAgent, 'kirjautumatta', 1);
+
 });
