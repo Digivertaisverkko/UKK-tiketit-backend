@@ -21,6 +21,9 @@ jobs:
 
       - name: Pull & update frontend submodule
         run: git submodule update --init
+        
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli > /dev/null
 
       - name: npm install, build, test and lint frontend
         run: |
