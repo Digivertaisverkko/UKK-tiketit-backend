@@ -57,11 +57,14 @@ module.exports = {
 
         content = content == null ? '' : content;
 
-        let subject = 'DVV_tiketit-viesti ' + storedCourseName;
+        let subject = 'TUKKI-viesti - message: ' + storedCourseName;
         let message = '<h1>' + storedCourseName + '</h1> \
-        <p>Kysymykseen <b>' + storedTicketTitle + '</b> on tullut viesti:</p> \
+        <p>Kysymykseen <b>' + storedTicketTitle + '</b> on tullut viesti:<br>\
+        Question <b>' + storedTicketTitle + '</b> has received a comment:</b></p> \
         <p>' + content + '</p> \
-        <p>Voit käydä vastaamassa siihen osoitteessa: ' + url + '</p>';
+        <p>Voit käydä vastaamassa siihen osoitteessa:<br>\
+        You may answer it in the following address:<br>\
+        ' + url + '</p>';
         
         module.exports.sendMailToUserList(receiverIdList, subject, message);
       }
@@ -89,7 +92,7 @@ module.exports = {
       if (data.contentCount > 0) {
         let now = Date.now();
         let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(now);
-        let subject = 'DVV-tiketit kooste ' + dateString;
+        let subject = 'TUKKI kooste - summary ' + dateString;
         module.exports.sendMailToUserList([profileId], subject, data.message);
       }
       return data.message;
@@ -102,11 +105,15 @@ module.exports = {
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
 
-      let title = 'Kutsu kirjautumaan TUKKI-järjestelmään';
+      let title = 'Kutsu kirjautumaan TUKKI-järjestelmään<br>Invitation to TUKKI system';
       let content = '<p>Sinut on kutsuttu TUKKI-järjestelmän kurssille ' + courseData.nimi + '.</p> \
       <p>Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.<br>\
       ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
-      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
+      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p><br>\
+      <p>You have been invited to join the course ' + courseData.nimi + ' in TUKKI.</p>\
+      <p>Click the following link to join the course and to create an account:<br>\
+      ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
+      <p>If you have received this mail in error, no action is needed from you.</p>';
 
       return module.exports.sendMail([email], title, content);
     })
@@ -116,11 +123,14 @@ module.exports = {
 
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
-      let title = 'Kutsu TUKKI-järjestelmän kurssille ' + courseData.nimi;
+      let title = 'TUKKI Kutsu kurssille: - Invitation to course: ' + courseData.nimi;
       let content = '<p>Sinut on kutsuttu kurssille ' + courseData.nimi + '.</p> \
       <p>Paina alla olevaa linkkiä liittyäksesi kurssille.<br>\
       ' + redirect.urlToJoinPage(courseId, invitationId) + '</p>\
-      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p>';
+      <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p><br>\
+      <p>You have been invited to join ' + courseData.nimi + ' course.<p/>\
+      <p>Click the following link to join the course: ' + redirect.urlToJoinPage(courseId, invitationId) + '</p>\
+      <p>If you have received this email in error, no action is needed from you.</p>';
 
       return module.exports.sendMail([email], title, content);
     })
@@ -130,8 +140,9 @@ module.exports = {
     return sql.courses.getAllCoursesWithUser(profileId)
     .then((courseStatus) => {
       let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(Date.now());
-      let content = '<h1>DVV-tiketit-kooste ' + dateString + '</h1> \
-      Tässä on lyhyt kooste siitä, mitä DVV-tiketeissä on tapahtunut eilen:';
+      let content = '<h1>TUKKI-kooste - summary ' + dateString + '</h1> \
+      Tässä on lyhyt kooste siitä, mitä TUKKI-järjestelmässä on tapahtunut eilen:<br>\
+      The following is a summary of what has happened in TUKKI since yesterday.';
 
       let promise = Promise.resolve({ contentCount: 0, rowCount: 0, message: content });
       for (course of courseStatus) {
@@ -143,7 +154,9 @@ module.exports = {
       return promise
       .then((content) => {
         content.message += '<br><br>Jos et halua saada sähköpostia tiketeistä, \
-        voit muuttaa asetuksia DVV-tiketti-järjestelmän profiilisivulta.';
+        voit muuttaa asetuksia TUKKI-järjestelmän profiilisivulta.<br>\
+        If you wish to not receive email notifications from TUKKI, you can change \
+        the settings from the settings page of TUKKI-system.';
         return content;
       });
     })
@@ -196,7 +209,7 @@ module.exports = {
 
   createStudentAggregateForCourse: function(courseId, profileId, oldContent) {
     let title = '<h2>[Kurssi]</h2>';
-    let ingress = '<h3>Seuraavissa kysymyksissä on tapahtunut jotain eilen:</h3>';
+    let ingress = '<h3>Seuraavissa kysymyksissä on tapahtunut jotain eilen:<br>Activity since yesterday:</h3>';
     let row = '<b>[Tiketin otsikko]</b> ([linkki])<br>';
 
     let rowCount = 0;
@@ -228,7 +241,7 @@ module.exports = {
           }
         }
 
-        content += "<h3>Uusia usein kysyttyjä kysymyksiä:</h3>"
+        content += "<h3>Uusia usein kysyttyjä kysymyksiä:<br>Frequently asked questions</h3>"
 
         for (ticket of ticketList) {
           if (ticket.ukk == true) {
@@ -252,9 +265,9 @@ module.exports = {
 
   createTeacherAggregateForCourse: function(courseId, profileId, oldContent) {
     let title = '<h2>[Kurssi]</h2>';
-    let ingress1 = '<h3>Seuraavat kysymykset odottavat vastausta:</h3>';
+    let ingress1 = '<h3>Seuraavat kysymykset odottavat vastausta:<br>Pending questions:</h3>';
     let row = '<b>[Tiketin otsikko]</b> ([linkki])<br>';
-    let ingress2 = '<h3>Uudet kysymykset eiliseltä:</h3>';
+    let ingress2 = '<h3>Uudet kysymykset eiliseltä:<br>New questions since yesterday:</h3>';
 
     let rowCount = 0;
     let content = '';
