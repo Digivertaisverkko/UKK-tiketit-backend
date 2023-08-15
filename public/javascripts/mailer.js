@@ -133,7 +133,7 @@ module.exports = {
 
         let subject = 'TUKKI Uusi UKK - New FAQ: ' + storedNotificationData.course.nimi;
         let message = '<h1>' + storedNotificationData.course.nimi + '</h1> \
-        <p>Uusi usein kysytty kysymys on saanut vastaukset:<br>\
+        <p>Uusi usein kysytty kysymys on saanut vastauksen:<br>\
         A frequently asked question has received an answer:</b></p> \
         <h2>' + storedNotificationData.ticket.otsikko + '</h2>\
         <p>' + commentDataList[0].viesti + '</p> \
