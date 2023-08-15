@@ -180,7 +180,7 @@ module.exports = {
     FROM core.kommentti k \
     INNER JOIN core.tiketti t \
     ON k.tiketti = t.id \
-    WHERE t.kurssi=$1 AND k.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT k.lahettaja=ANY($2)';
+    WHERE t.kurssi=$1 AND k.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT k.lahettaja=ANY($2) AND t.ukk=false';
     return connection.queryAll(query, [courseId, profileBlackList]);
   },
 

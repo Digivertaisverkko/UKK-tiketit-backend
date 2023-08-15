@@ -273,8 +273,7 @@ module.exports = {
     return sql.courses.getAllCoursesWithUser(profileId)
     .then((courseStatus) => {
       let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(Date.now());
-      let content = '<h1>TUKKI kooste - summary ' + dateString + '</h1> \
-      Tässä on lyhyt kooste siitä, mitä Tukki-järjestelmässä on tapahtunut eilen:<br>\
+      let content = 'Tässä on lyhyt kooste siitä, mitä Tukki-järjestelmässä on tapahtunut eilen:<br>\
       The following is a summary of what has happened in Tukki since yesterday.';
 
       let promise = Promise.resolve({ contentCount: 0, rowCount: 0, message: content });
