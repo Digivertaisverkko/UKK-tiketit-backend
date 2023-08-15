@@ -162,6 +162,16 @@ module.exports = {
     return connection.queryAll(query, [courseid, 'opettaja']);
   },
 
+  getAllParticipantsOfCourse(courseid) {
+    const query = '\
+    SELECT p.id, p.nimi, p.sposti, ko.asema FROM core.kurssinosallistujat ko \
+    INNER JOIN core.profiili p \
+    ON p.id = ko.profiili \
+    WHERE ko.kurssi=$1';
+
+    return connection.queryAll(query, [courseid]);
+  },
+
   updateUserPositionInCourse: function(userid, courseid, newPosition) {
     const query = '\
     UPDATE core.kurssinosallistujat \

@@ -53,7 +53,9 @@ class CourseReads extends CourseLists {
       });
     })
     .then((results) => {
-      mailer.sendMailNotifications(results.tiketti, [creatorId], content)
+      if (isFaq == false) { //UKK-tiketit hoitavat ilmoituksensa erikseen eri paikassa.
+        mailer.sendMailNotificationForNewTicket(results.tiketti, [creatorId]);
+      }
       return results;
     }).catch((error) => {
       if (storedTicketId == null) {

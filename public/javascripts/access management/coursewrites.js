@@ -25,6 +25,10 @@ class CourseWrites extends CourseReads {
     return this.createTicket(courseid, creatorid, title, body, fields, true)
     .then((ticketResult) => {
       return sql.tickets.createComment(ticketResult.tiketti, creatorid, answer, 5)
+      .then((commentId) => {
+        mailer.sendMailNotificationForNewTicket(ticketResult.tiketti, [creatorid]);
+        return commentId;
+      })
       .then((commentid) => {
         return { 'tiketti': ticketResult.tiketti, 'kommentti': commentid };
       });
@@ -65,6 +69,9 @@ class CourseWrites extends CourseReads {
       } else {
         return Promise.reject(errorcodes.operationNotPossible);
       }
+    })
+    .then(() => {
+      mailer.sendMailNotificationForUpdatedFaq(ticketid, []);
     })
   }
 

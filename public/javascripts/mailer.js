@@ -23,15 +23,49 @@ const transporter = nodemailer.createTransport({
 
 module.exports = {
 
-  sendMailNotifications: function(ticketId, excludedList, content) {
+  getTicketDataAndRecipients: function(ticketId, excludedList) {
+    var storedTicketData;
+    var storedCourseData;
+    return sql.tickets.getTicket(ticketId)
+    .then((ticketData) => {
+      storedTicketData = ticketData;
+      return sql.courses.getUserInfoForCourse(ticketData.aloittaja, ticketData.kurssi);
+    })
+    .then((creatorData) => {
+      storedCreator = creatorData;
+      return sql.courses.getCourseInfo(storedTicketData.kurssi);
+    })
+    .then((courseData) => {
+      storedCourseData = courseData;
+      if (storedTicketData.ukk) {
+        return sql.courses.getAllParticipantsOfCourse(courseData.id);
+      } else {
+        return sql.courses.getTeachersOfCourse(courseData.id);
+      }
+    })
+    .then((receiverList) => {
+      receiverList.push(storedCreator);
+      receiverList = receiverList.filter(function(value, index, array) {
+        return excludedList.indexOf(value.id) === -1;
+      });
+
+      let receiverIdList = arrayTools.extractAttributes(receiverList, 'id');
+      return { recipients: receiverIdList, ticket: storedTicketData, course: storedCourseData };
+    })
+
+  },
+
+  sendMailNotificationForNewComment: function(ticketId, excludedList, content) {
     var storedCreator;
     var storedCourse;
     var storedCourseName;
+    var storedIsFaq;
     var storedTicketTitle;
     return sql.tickets.getTicket(ticketId)
     .then((ticketData) => {
       storedCourse = ticketData.kurssi;
       storedTicketTitle = ticketData.otsikko;
+      storedIsFaq = ticketData.ukk;
       return sql.courses.getUserInfoForCourse(ticketData.aloittaja, ticketData.kurssi);
     })
     .then((creatorData) => {
@@ -40,7 +74,11 @@ module.exports = {
     })
     .then((courseData) => {
       storedCourseName = courseData.nimi;
-      return sql.courses.getTeachersOfCourse(storedCourse);
+      if (storedIsFaq) {
+        return sql.courses.getAllParticipantsOfCourse(storedCourse);
+      } else {
+        return sql.courses.getTeachersOfCourse(storedCourse);
+      }
     })
     .then((receiverList) => {
       receiverList.push(storedCreator);
@@ -57,11 +95,11 @@ module.exports = {
 
         content = content == null ? '' : content;
 
-        let subject = 'TUKKI-viesti - message: ' + storedCourseName;
+        let subject = 'TUKKI viesti - message: ' + storedCourseName;
         let message = '<h1>' + storedCourseName + '</h1> \
         <p>Kysymykseen <b>' + storedTicketTitle + '</b> on tullut viesti:<br>\
         Question <b>' + storedTicketTitle + '</b> has received a comment:</b></p> \
-        <p>' + content + '</p> \
+        <p>' + content + '</p><hr> \
         <p>Voit käydä vastaamassa siihen osoitteessa:<br>\
         You may answer it in the following address:<br>\
         ' + url + '</p>';
@@ -70,6 +108,101 @@ module.exports = {
       }
 
     });
+  },
+
+  sendMailNotificationForNewTicket: function (ticketId, excludedList) {
+    var storedNotificationData;
+    return module.exports.getTicketDataAndRecipients(ticketId, excludedList)
+    .then((notificationData) => {
+      storedNotificationData = notificationData;
+      return sql.tickets.getCommentsFromTicketList([ticketId]);
+    })
+    .then((commentDataList) => {
+      commentDataList.sort((a,b) => {
+        if (a.aikaleima < b.aikaleima) {
+          return -1;
+        }
+        if (a.aikaleima > b.aikaleima) {
+          return 1;
+        }
+        return 0;
+      });
+
+      if (storedNotificationData.ticket.ukk) {
+        let url = redirect.urlToFaqTicket(storedNotificationData.course.id, ticketId);
+
+        let subject = 'TUKKI Uusi UKK - New FAQ: ' + storedNotificationData.course.nimi;
+        let message = '<h1>' + storedNotificationData.course.nimi + '</h1> \
+        <p>Uusi usein kysytty kysymys on saanut vastaukset:<br>\
+        A frequently asked question has received an answer:</b></p> \
+        <h2>' + storedNotificationData.ticket.otsikko + '</h2>\
+        <p>' + commentDataList[0].viesti + '</p> \
+        <br>- - - <b>Vastaus - Answer</b>- - -<br>\
+        <p>' + commentDataList[1].viesti + '</p><hr> \
+        <p>Voit käydä katsomassa sen osoitteessa:<br>\
+        You may view it at:<br>\
+        ' + url + '</p>';
+        
+        module.exports.sendMailToUserList(storedNotificationData.recipients, subject, message);
+
+      } else {
+        let url = redirect.urlToTicket(storedNotificationData.course.id, ticketId);
+
+        let subject = 'TUKKI Uusi kysymys - New question: ' + storedNotificationData.course.nimi;
+        let message = '<h1>' + storedNotificationData.course.nimi + '</h1> \
+        <p>Tukissa on uusi kysymys:<br>\
+        Tukki has a new question:</p> \
+        <h2>' + storedNotificationData.ticket.otsikko + '</h2>\
+        <p>' + commentDataList[0].viesti + '</p><hr> \
+        <p>Voit käydä vastaamassa siihen osoitteessa:<br>\
+        You may answer it in the following address:<br>\
+        ' + url + '</p>';
+        
+        module.exports.sendMailToUserList(storedNotificationData.recipients, subject, message);
+
+      }
+
+    })
+  },
+
+  sendMailNotificationForUpdatedFaq: function (ticketId, excludedList) {
+    var storedNotificationData;
+    return module.exports.getTicketDataAndRecipients(ticketId, excludedList)
+    .then((notificationData) => {
+      storedNotificationData = notificationData;
+      return sql.tickets.getCommentsFromTicketList([ticketId]);
+    })
+    .then((commentDataList) => {
+      commentDataList.sort((a,b) => {
+        if (a.aikaleima < b.aikaleima) {
+          return -1;
+        }
+        if (a.aikaleima > b.aikaleima) {
+          return 1;
+        }
+        return 0;
+      });
+
+      if (storedNotificationData.ticket.ukk) {
+        let url = redirect.urlToFaqTicket(storedNotificationData.course.id, ticketId);
+
+        let subject = 'TUKKI Päivitetty UKK - Updated FAQ: ' + storedNotificationData.course.nimi;
+        let message = '<h1>' + storedNotificationData.course.nimi + '</h1> \
+        <p>Usein kysytty kysymys on muuttunut:<br>\
+        A frequently asked question has changed:</b></p> \
+        <h2>' + storedNotificationData.ticket.otsikko + '</h2>\
+        <p>' + commentDataList[0].viesti + '</p> \
+        <br>- - - <b>Vastaus - Answer</b>- - -<br>\
+        <p>' + commentDataList[1].viesti + '</p><hr> \
+        <p>Voit käydä katsomassa sen osoitteessa:<br>\
+        You may view it at:<br>\
+        ' + url + '</p>';
+        
+        module.exports.sendMailToUserList(storedNotificationData.recipients, subject, message);
+
+      }
+
+    })
   },
 
   sendAggregateMails: function() {
@@ -105,12 +238,12 @@ module.exports = {
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
 
-      let title = 'Kutsu kirjautumaan TUKKI-järjestelmään<br>Invitation to TUKKI system';
-      let content = '<p>Sinut on kutsuttu TUKKI-järjestelmän kurssille ' + courseData.nimi + '.</p> \
+      let title = 'Kutsu kirjautumaan Tukki-järjestelmään<br>Invitation to Tukki system';
+      let content = '<p>Sinut on kutsuttu Tukki-järjestelmän kurssille ' + courseData.nimi + '.</p> \
       <p>Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.<br>\
       ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
       <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p><br>\
-      <p>You have been invited to join the course ' + courseData.nimi + ' in TUKKI.</p>\
+      <p>You have been invited to join the course ' + courseData.nimi + ' in Tukki.</p>\
       <p>Click the following link to join the course and to create an account:<br>\
       ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
       <p>If you have received this mail in error, no action is needed from you.</p>';
@@ -140,9 +273,9 @@ module.exports = {
     return sql.courses.getAllCoursesWithUser(profileId)
     .then((courseStatus) => {
       let dateString = new Intl.DateTimeFormat('fi-FI', { dateStyle: 'short' }).format(Date.now());
-      let content = '<h1>TUKKI-kooste - summary ' + dateString + '</h1> \
-      Tässä on lyhyt kooste siitä, mitä TUKKI-järjestelmässä on tapahtunut eilen:<br>\
-      The following is a summary of what has happened in TUKKI since yesterday.';
+      let content = '<h1>TUKKI kooste - summary ' + dateString + '</h1> \
+      Tässä on lyhyt kooste siitä, mitä Tukki-järjestelmässä on tapahtunut eilen:<br>\
+      The following is a summary of what has happened in Tukki since yesterday.';
 
       let promise = Promise.resolve({ contentCount: 0, rowCount: 0, message: content });
       for (course of courseStatus) {
@@ -154,9 +287,9 @@ module.exports = {
       return promise
       .then((content) => {
         content.message += '<br><br>Jos et halua saada sähköpostia tiketeistä, \
-        voit muuttaa asetuksia TUKKI-järjestelmän profiilisivulta.<br>\
-        If you wish to not receive email notifications from TUKKI, you can change \
-        the settings from the settings page of TUKKI-system.';
+        voit muuttaa asetuksia Tukki-järjestelmän profiilisivulta.<br>\
+        If you wish to not receive email notifications from Tukki, you can change \
+        the settings from the settings page of Tukki system.';
         return content;
       });
     })

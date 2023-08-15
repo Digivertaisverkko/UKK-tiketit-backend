@@ -16,12 +16,10 @@ const access = require('../public/javascripts/access management/access.js');
 const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
 const fs = require('fs');
-const { sendMailNotifications } = require('../public/javascripts/mailer.js');
 const { profile, timeEnd } = require('console');
 var session = require('express-session');
 const timedJobs = require('../public/javascripts/timedJobs.js');
 const TicketState = require('../public/javascripts/ticketstate.js');
-const mailer = require('../public/javascripts/mailer.js');
 const { errorMonitor } = require('events');
 const filessystem = require('../public/javascripts/filessystem.js');
 
@@ -647,7 +645,7 @@ router.put('/kurssi/:courseid/ukk/:ticketid/', function(req, res, next) {
   .then((handle) => {
     return handle.methods.editFaqTicket(req.params.ticketid, req.body.otsikko, req.body.viesti, req.body.vastaus, req.body.kentat);
   })
-  .then((data) => {
+  .then(() => {
     res.send({ success: true });
   })
   .catch((error) => {
@@ -899,8 +897,8 @@ router.post('/kurssi/:courseid/tiketti', function(req, res, next) {
   ])
   .then(() => access.readCourse(req, req.params.courseid))
   .then((handle) => {
-    return handle.methods.createTicket(req.params.courseid, handle.userid, req.body.otsikko,
-       req.body.viesti, req.body.kentat, false);
+    return handle.methods.createTicket(req.params.courseid, handle.userid,
+       req.body.otsikko, req.body.viesti, req.body.kentat, false);
   })
   .then((newData) => {
     res.send({success: true, uusi: newData});

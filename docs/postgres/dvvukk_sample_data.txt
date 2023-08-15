@@ -8,8 +8,8 @@
 
 INSERT INTO core.profiili (nimi, sposti) VALUES ('Esko Seppä', 'jonimatiasrajala@gmail.com');
 INSERT INTO core.profiili (nimi, sposti) VALUES ('Marianna Laaksonen', 'jonimatiasrajala@gmail.com');
-INSERT INTO core.profiili (nimi, sposti) VALUES ('Piia Rinne', 'piia.rinne@example.com');
-INSERT INTO core.profiili (nimi, sposti) VALUES ('Pentti Lähde', 'pentti.lahde@example.com');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('Piia Rinne', 'joni.rajala@oulu.fi');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('Pentti Lähde', 'joni.rajala@oulu.com');
 
 -- Profiiliasetukset
 INSERT INTO core.profiiliasetukset values (1, true, true, true, true);

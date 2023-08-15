@@ -37,12 +37,12 @@ class TicketReads {
     })
     .then((commentId) => {
       if (creatorId === storedTicketData.aloittaja) {
-        mailer.sendMailNotifications(ticketId, [creatorId], content);
+        mailer.sendMailNotificationForNewComment(ticketId, [creatorId], content);
       } else {
         sql.courses.getTeachersOfCourse(storedTicketData.kurssi)
         .then((teacherIdList) => {
           let ids = arrayTools.extractAttributes(teacherIdList, 'id');
-          mailer.sendMailNotifications(ticketId, ids, content);
+          mailer.sendMailNotificationForNewComment(ticketId, ids, content);
         })
       }
       return commentId;
