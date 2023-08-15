@@ -19,7 +19,7 @@ let unsignedAgent = chai.request.agent(app);
 describe('Opiskelijan oikeuksien testaamista', function() {
 
   this.beforeAll('alustataan tietokanta', function() {
-
+    this.timeout(1000);
   });
 
   describe("Turhaa odottelua", function() {

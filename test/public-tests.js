@@ -31,7 +31,7 @@ describe("Kurssin julkiset tiedot", function() {
 describe('Kirjautumattoman käyttäjän testausta', function() {
 
   this.beforeAll('alustataan tietokanta', function() {
-
+    this.timeout(1000);
   });
 
   describe("Turhaa odottelua", function() {

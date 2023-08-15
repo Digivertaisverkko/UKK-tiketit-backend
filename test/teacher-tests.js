@@ -18,6 +18,10 @@ let unsignedAgent = chai.request.agent(app);
 
 describe('Opettajan oikeuksien testaaminen', function() {
 
+  this.beforeAll('alustataan tietokanta', function() {
+    this.timeout(1000);
+  });
+
   describe('Opettajaksi sisäänkirjautuminen.', function() {
     allrolesTests.loginTest(teacherAgent, 'TestiOpettaja', 'salasana');
   });

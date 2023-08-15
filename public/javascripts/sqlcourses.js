@@ -99,14 +99,14 @@ module.exports = {
 
   getTicketBasesOfCourse: function(courseid) {
     const query = '\
-    SELECT id, kuvaus FROM tikettipohja \
+    SELECT id, kuvaus FROM core.tikettipohja \
     WHERE kurssi=$1';
     return connection.query(query, [courseid]);
   },
 
   getFieldsOfTicketBase: function(ticketbaseid) {
     const query = '\
-    SELECT id, otsikko, pakollinen, esitaytettava, valinnat, ohje FROM tikettipohjankentat tk \
+    SELECT id, otsikko, pakollinen, esitaytettava, valinnat, ohje FROM core.tikettipohjankentat tk \
     INNER JOIN kenttapohja kp \
     ON kp.id=tk.kentta \
     WHERE tk.tikettipohja=$1';
