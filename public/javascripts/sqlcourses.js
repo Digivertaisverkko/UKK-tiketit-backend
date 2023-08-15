@@ -212,8 +212,6 @@ module.exports = {
   },
 
   insertFieldsToTicketBase: function(courseid, fieldArray) {
-    console.log('insert ' + courseid);
-    console.dir(fieldArray);
     let storedTicketId;
     return module.exports.getTicketBasesOfCourse(courseid)
     .then((ticketIdList) => {

@@ -140,7 +140,7 @@ module.exports = {
   },
 
   ltiLoginWithToken: function(httpRequest, token) {
-    console.dir(token);
+    //console.dir(token);
     let userid = token.user;
     let contextid = token.platformContext.contextId;
     let clientid = token.clientId;

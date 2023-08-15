@@ -829,23 +829,18 @@ router.post('/kurssi/:courseid/tikettipohja/vienti', function(req, res, next) {
     {keyPath: ['kentat', 'valinnat'], type: 'object', optional: true}
   ])
   .then(() => {
-    console.log(1);
     return access.writeCourse(req, req.params.courseid);
   })
   .then((handle) => {
-    console.log(2);
     return handle.methods.editDescriptionOfTicketBase(req.params.courseid, req.body.kuvaus)
     .then(() => {
-      console.log(3);
       return handle.methods.addFieldsToTicketBase(req.params.courseid, req.body.kentat);
     });
   })
   .then(() => {
-    console.log(4);
     res.send({success: true});
   })
   .catch((error) => {
-    console.log(5);
     errorFactory.createError(req, res, error);
   })
 });

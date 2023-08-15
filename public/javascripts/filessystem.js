@@ -65,7 +65,6 @@ module.exports = {
       sql.tickets.getAllAttachments()
       .then((attachmentList) => {
         let attachmentNames = arrayTools.extractAttributes(attachmentList, 'tiedosto');
-        console.dir(attachmentNames);
         fs.readdir(process.env.ATTACHMENT_DIRECTORY, (err, files) => {
           files.forEach((file) => {
             if (attachmentNames.includes(file) == false && file.charAt(0) != '.') {
