@@ -38,4 +38,5 @@ jobs:
           PGDATABASE: database
           PGUSER: user
           PGPASSWORD: password
+          COOKIE_SECRET: secret
         run: npm run test
