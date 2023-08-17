@@ -6,7 +6,7 @@ var request = require("request");
 const chaiHttp = require('chai-http');
 const fs = require('fs');
 
-const app = require('../app.js');
+
 const connection = require('../public/javascripts/connection.js');
 const db = require('../migrations/migrations.js');
 
@@ -15,11 +15,6 @@ const studentTicketlist = require("../testhelpers/roletests/student-ticketlist.j
 const teacherTests = require("../testhelpers/roletests/teacher-tests.js");
 
 chai.use(chaiHttp);
-
-
-let unsignedAgent = chai.request.agent(app);
-let studentAgent = chai.request.agent(app);
-let teacherAgent = chai.request.agent(app);
 
 
 describe('Kaikki testit', function() {
@@ -32,6 +27,11 @@ describe('Kaikki testit', function() {
     await client.query(sampleData);
     await client.release();
   });
+
+  const app = require('../app.js');
+  let unsignedAgent = chai.request.agent(app);
+  let studentAgent = chai.request.agent(app);
+  let teacherAgent = chai.request.agent(app);
 
   publicTests.runTests(unsignedAgent);
   studentTicketlist.runTests(studentAgent);
