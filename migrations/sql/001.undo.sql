@@ -1,0 +1,25 @@
+DROP TABLE core.profiiliasetukset;
+DROP TABLE core.kurssikutsu;
+DROP TABLE core.lti_client;
+DROP TABLE core.keksisalaisuus;
+DROP TABLE core.liite;
+DROP TABLE core.lti_tilipyynto;
+DROP TABLE core.kurssinosallistujat;
+DROP TABLE core.tikettipohjankentat;
+DROP TABLE core.tiketinkentat;
+DROP TABLE core.esitaytetytvastaukset;
+DROP TABLE core.kommentti;
+DROP TABLE core.tiketintila;
+DROP TABLE core.tikettipohja;
+DROP TABLE core.tiketti;
+DROP TABLE core.kenttapohja;
+DROP TABLE core.sessio;
+DROP TABLE core.login;
+DROP TABLE core.loginyritys;
+DROP TABLE core.lti_login;
+DROP TABLE core.lti_kurssi;
+DROP TABLE core.kurssi;
+DROP TABLE core.session;
+DROP TABLE core.profiili;
+
+DROP SCHEMA core CASCADE;

@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build:ui": "rm -rf ./static && cd ./UKK-tiketit && npm ci && npm run test:prod && npm run lint && rm -rf ./dist && npm run build && mv ./dist/tikettisysteemi ../static",
-    "start": "node app.js",
-    "test": "./sql_reformatdvv.sh && mocha --reporter spec --exit"
+    "start": "node index.js",
+    "test": "mocha --reporter spec --exit"
   },
   "dependencies": {
     "chai": "^4.3.7",
@@ -27,6 +27,7 @@
     "node-cron": "^3.0.2",
     "nodemailer": "^6.9.1",
     "pg": "^8.8.0",
+    "postgrator": "^7.2.0",
     "request": "^2.88.2"
   }
 }
