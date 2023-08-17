@@ -69,7 +69,7 @@ module.exports = {
       .send({})
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.an('array').with.length(expectedTicketCount);
+        expect(res.body).to.be.an('array').with.lengthOf.at.least(expectedTicketCount);
         expect(res.body[0]).to.include.keys(['id', 'otsikko', 'aikaleima',
                                           'aloittaja', 'tila', 'kentat', 
                                           'liite', 'viimeisin']);

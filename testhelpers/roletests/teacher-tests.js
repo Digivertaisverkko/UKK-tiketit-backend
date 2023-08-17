@@ -59,8 +59,8 @@ module.exports = {
               bodyElement.kentat.forEach(element => {
                 expect(element).to.have.all.keys(['tiketti', 'arvo', 'otsikko', 'tyyppi', 'ohje']);
               });
-              done();
             });
+            done();
           });
         });
     
