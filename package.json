@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build:ui": "rm -rf ./static && cd ./UKK-tiketit && npm ci && npm run test:prod && npm run lint && rm -rf ./dist && npm run build && mv ./dist/tikettisysteemi ../static",
+    "build:uidev": "rm -rf ./static && cd ./UKK-tiketit && npm ci && npm run test:prod && npm run lint && rm -rf ./dist && npm run build:dev && mv ./dist/tikettisysteemi ../static",
     "start": "node app.js",
     "test": "./sql_reformatdvv.sh && mocha --reporter spec --exit"
   },
