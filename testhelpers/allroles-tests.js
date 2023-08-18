@@ -513,6 +513,41 @@ module.exports = {
 
 
 
+  performAllCoursePrivilegesTests: function(agent, agentDescription, expectedPrivilege) {
+    describe('Käyttäjän tilitietojen hakeminen', function() {
+      it('hakee käyttäjän tiedot ('+agentDescription+')', function(done) {
+        agent.get('/api/minun')
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.keys(['nimi', 'sposti', 'id']);
+          done();
+        });
+      });
+
+      it('hakee käyttäjän kurssioikeudet ('+agentDescription+')', function(done) {
+        agent.get('/api/kurssi/1/oikeudet')
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.keys(['oikeudet', 'login']);
+          expect(res.body.login).to.have.keys(['lti_login', 'perus']);
+          expect(res.body.oikeudet).to.have.keys(['id', 'nimi', 'sposti', 'asema']);
+          expect(res.body.oikeudet.asema).to.equal(expectedPrivilege);
+          done();
+        });
+      });
+
+      it('hakee käyttäjän kurssioikeudet väärältä kurssilta ('+agentDescription+')', function(done) {
+        agent.get('/api/kurssi/6/oikeudet')
+        .send({})
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+        });
+      });
+    });
+  },
+
 
 
 

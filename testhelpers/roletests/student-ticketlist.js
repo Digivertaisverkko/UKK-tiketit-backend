@@ -32,6 +32,8 @@ module.exports = {
       describe('Opiskelijaksi sisäänkirjautuminen.', function() {
         allrolesTests.loginTest(studentAgent, 'TestiOpiskelija', 'salasana');
       });
+
+      allrolesTests.performAllCoursePrivilegesTests(studentAgent, 'opiskelija', 'opiskelija');
       
       
       describe('Opiskelijan näkymä tikettilistaan.', function() {

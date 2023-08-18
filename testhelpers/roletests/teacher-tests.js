@@ -18,6 +18,8 @@ module.exports = {
       describe('Opettajaksi sisäänkirjautuminen.', function() {
         allrolesTests.loginTest(teacherAgent, 'TestiOpettaja', 'salasana');
       });
+
+      allrolesTests.performAllCoursePrivilegesTests(teacherAgent, 'opettaja', 'opettaja');
     
       describe('Kurssin tikettilistojen hakeminen', function() {
         allrolesTests.getAllTicketsTest(teacherAgent, 8);
