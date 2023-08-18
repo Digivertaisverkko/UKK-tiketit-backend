@@ -236,14 +236,12 @@ module.exports = {
   },
 
   updateDescriptionOfTicketBase: function(courseid, description) {
+    console.log('updateDescrption: ' + courseid + ' : ' + description);
     const query = '\
     UPDATE core.tikettipohja \
     SET kuvaus=$1 \
     WHERE kurssi=$2';
-    return module.exports.getTicketBasesOfCourse(courseid)
-    .then((idList) => {
-      return connection.queryNone(query, [description, idList[0].id])
-    })
+    return connection.queryNone(query, [description, courseid]);
   },
 
   connectTicketBaseToField: function(ticketbaseid, fieldid) {
