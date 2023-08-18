@@ -6,6 +6,21 @@ on:
 
 jobs:
   test:
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: database
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     runs-on: ubuntu-latest
 
     steps:
@@ -19,3 +34,12 @@ jobs:
 
       - name: npm ci
         run: npm ci
+
+      - name: npm run test
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGDATABASE: database
+          PGUSER: user
+          PGPASSWORD: password
+        run: npm run test
