@@ -13,8 +13,8 @@ async function setupLti() {
   // DB connection for LTI
   const db = new Database(
       process.env.PGDATABASE,
-      process.env.LTIUSER,
-      process.env.LTIPASSWORD, 
+      process.env.PGUSER,
+      process.env.PGPASSWORD, 
       { 
         host: process.env.PGHOST,
         dialect: 'postgres',
