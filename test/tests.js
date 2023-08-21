@@ -13,6 +13,8 @@ const db = require('../migrations/migrations.js');
 const publicTests = require("../testhelpers/roletests/public-tests.js");
 const studentTicketlist = require("../testhelpers/roletests/student-ticketlist.js");
 const teacherTests = require("../testhelpers/roletests/teacher-tests.js");
+const testhelpers = require('../testhelpers/testhelpers.js');
+const allrolesTests = require('../testhelpers/allroles-tests.js');
 
 chai.use(chaiHttp);
 
@@ -33,9 +35,17 @@ describe('Kaikki testit', function() {
   let studentAgent = chai.request.agent(app);
   let teacherAgent = chai.request.agent(app);
 
+  let superTeacherAgent = chai.request.agent(app);
+  let superStudentAgent = chai.request.agent(app);
+
+  describe('Superkäyttäjien sisäänkirjautuminen', function() {
+    allrolesTests.loginTest(superTeacherAgent, 'SuperOpettaja', 'salasana');
+    allrolesTests.loginTest(superStudentAgent, 'SuperOpiskelija', 'salasana');
+  });
+
   publicTests.runTests(unsignedAgent);
-  studentTicketlist.runTests(studentAgent);
-  teacherTests.runTests(teacherAgent);
+  studentTicketlist.runTests(studentAgent, superTeacherAgent, superStudentAgent);
+  teacherTests.runTests(teacherAgent, superTeacherAgent, superStudentAgent);
 
   after(async function () {
     await db.doMigration("000"); // tyhjennetään kanta

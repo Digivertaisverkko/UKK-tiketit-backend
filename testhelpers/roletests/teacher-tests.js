@@ -7,7 +7,7 @@ const expect = chai.expect;
 
 module.exports = {
 
-  runTests: function(teacherAgent) {
+  runTests: function(teacherAgent, superTeacher, superStudent) {
 
     describe('Opettajan oikeuksien testaaminen', function() {
 
@@ -39,7 +39,7 @@ module.exports = {
         allrolesTests.fetchTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', 1);
         allrolesTests.updateTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', 1);
         allrolesTests.fetchTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja', 6);
-        allrolesTests.updateTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja (vääräkurssi)', 6);
+        allrolesTests.updateTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja (vääräkurssi)', 6, superStudent);
       });
     
     

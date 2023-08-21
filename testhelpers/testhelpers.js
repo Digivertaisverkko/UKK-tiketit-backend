@@ -123,7 +123,11 @@ module.exports = {
           expect(res).to.have.status(200);
           expect(res.body).to.have.keys(['kuvaus', 'kentat']);
           if (description != null) {
-            expect(res.body.kuvaus).to.eql(description);
+            if (valuesMustMatch) {
+              expect(res.body.kuvaus).to.eql(description);
+            } else {
+              expect(res.body.kuvaus).to.not.eql(description);
+            }
           }
           if (baseFields != null) {
             expect(res.body.kentat).to.be.an('array');

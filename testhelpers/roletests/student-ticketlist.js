@@ -9,7 +9,7 @@ const expect = chai.expect;
 
 module.exports = {
 
-  runTests: function(studentAgent) {
+  runTests: function(studentAgent, superTeacher, superStudent) {
 
     describe('Opiskelijan oikeuksien testaamista', function() {
 
@@ -58,7 +58,7 @@ module.exports = {
     
       describe('Opiskelijan tikettipohjan testit', function() {
         allrolesTests.fetchTicketBaseSuccessfullyTest(studentAgent, 'opiskelija', 1);
-        allrolesTests.updateTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', 1);
+        allrolesTests.updateTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', 1, superStudent);
         allrolesTests.fetchTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', 6);
       });
       

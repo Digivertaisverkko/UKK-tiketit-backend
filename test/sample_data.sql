@@ -10,18 +10,24 @@ INSERT INTO core.profiili (nimi, sposti) VALUES ('Esko Seppä', 'esko.seppa@exam
 INSERT INTO core.profiili (nimi, sposti) VALUES ('Marianna Laaksonen', 'marianna.laaksonen@example.com');
 INSERT INTO core.profiili (nimi, sposti) VALUES ('Piia Rinne', 'piia.rinne@example.com');
 INSERT INTO core.profiili (nimi, sposti) VALUES ('Pentti Lähde', 'pentti.lahde@example.com');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('SUPER-opiskelija', 'superopiskelija@example.com');
+INSERT INTO core.profiili (nimi, sposti) VALUES ('SUPER-opettaja', 'superopettaja@example.com');
 
 -- Profiiliasetukset
 INSERT INTO core.profiiliasetukset values (1, true, true, true, true);
 INSERT INTO core.profiiliasetukset values (2, true, true, true, true);
 INSERT INTO core.profiiliasetukset values (3, true, true, true, true);
 INSERT INTO core.profiiliasetukset values (4, true, true, true, true);
+INSERT INTO core.profiiliasetukset values (5, true, true, true, true);
+INSERT INTO core.profiiliasetukset values (6, true, true, true, true);
 
 -- Loginit
 INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ('TestiOpiskelija', '7b954fb52eefbbe94dcf9eb54ddea92627b9664193786d4940b3b26392b0dc7a', '800c986867e4342d', 1);
 INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ('TestiOpettaja', '43fe8b6b04441a5fdeeffaf5093f787fe47f5920fcbba9485725bc7767c36384', '8e55389264b6f702', 2);
 INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ('TestiRinne', '895bcac2115d55129ed91bfd397a2baf24e07eaf81165f590b680b1265505805', 'f8b54814eaedfa05', 3);
 INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ('TestiLähde', '1293ed7ab03173099b156329ca424c3e54abd110d386fcf9437a90780549a9f9', '7054a0ecce8c247e', 4);
+INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ('SuperOpiskelija', '1293ed7ab03173099b156329ca424c3e54abd110d386fcf9437a90780549a9f9', '7054a0ecce8c247e', 5);
+INSERT INTO core.login (ktunnus, salasana, salt, profiili) VALUES ('SuperOpettaja', '1293ed7ab03173099b156329ca424c3e54abd110d386fcf9437a90780549a9f9', '7054a0ecce8c247e', 6);
 
 
 -- Kurssit
@@ -45,6 +51,20 @@ INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (3, 2, 'op
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (4, 2, 'opettaja');
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (5, 2, 'opettaja');
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (6, 4, 'opettaja');
+-- Super opiskelija
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (1, 5, 'opiskelija');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (2, 5, 'opiskelija');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (3, 5, 'opiskelija');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (4, 5, 'opiskelija');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (5, 5, 'opiskelija');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (6, 5, 'opiskelija');
+-- Super opettaja
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (1, 6, 'opettaja');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (2, 6, 'opettaja');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (3, 6, 'opettaja');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (4, 6, 'opettaja');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (5, 6, 'opettaja');
+INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (6, 6, 'opettaja');
 
 
 -- Tikettipohja
