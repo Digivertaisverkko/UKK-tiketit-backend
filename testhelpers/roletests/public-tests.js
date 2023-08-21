@@ -28,6 +28,16 @@ module.exports = {
           });
         });
       });
+
+      describe('Käyttäjän tilitietojen hakeminen', function() {
+        it('hakee käyttäjän tiedot (kirjautumatta)', function(done) {
+          unsignedAgent.get('/api/minun')
+          .send({})
+          .end((err, res) => {
+            testhelpers.check.error.notSignedIn(res, done);
+          });
+        });
+      });
     
       allrolesTests.performAllGenericFaqTests(unsignedAgent, 'kirjautumatta');
     
@@ -77,6 +87,7 @@ module.exports = {
           testhelpers.testNotSignedIn('/api/kurssi/1/tiketti/1/kommentti/kaikki', 'get', unsignedAgent, done);
         });
       });
+
     
       //allrolesTests.fetchTicketBaseUnsuccessfullyTest(unsignedAgent, 'kirjautumatta', 1);
       //allrolesTests.updateTicketBaseUnsuccessfullyTest(unsignedAgent, 'kirjautumatta', 1);

@@ -1,6 +1,4 @@
--- Kirjaudutaan sisään superuserina suoraan dvvukk -tietokantaan.
--- HUOM: Muokkaa käyttäjänimeä ja tietokannan nimeä tarvittaessa!
--- $ sudo -u postgres psql -d "dvvukk"
+CREATE SCHEMA core;
 
 CREATE TABLE core.kurssi (
 id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

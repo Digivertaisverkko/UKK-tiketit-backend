@@ -6,9 +6,12 @@ on:
 
 jobs:
   test:
+    runs-on: ubuntu-latest
+    container: node:latest
+    
     services:
       postgres:
-        image: postgres:14
+        image: postgres:latest
         env:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
@@ -21,25 +24,19 @@ jobs:
         ports:
           - 5432:5432
 
-    runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Set up Node.js version
-        uses: actions/setup-node@v1
-        with:
-          node-version: '18.x'
 
       - name: npm ci
         run: npm ci
 
       - name: npm run test
         env:
-          PGHOST: localhost
+          PGHOST: postgres
           PGPORT: 5432
           PGDATABASE: database
           PGUSER: user
           PGPASSWORD: password
+          COOKIE_SECRET: secret
         run: npm run test

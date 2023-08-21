@@ -18,6 +18,8 @@ module.exports = {
       describe('Opettajaksi sisäänkirjautuminen.', function() {
         allrolesTests.loginTest(teacherAgent, 'TestiOpettaja', 'salasana');
       });
+
+      allrolesTests.performAllCoursePrivilegesTests(teacherAgent, 'opettaja', 'opettaja');
     
       describe('Kurssin tikettilistojen hakeminen', function() {
         allrolesTests.getAllTicketsTest(teacherAgent, 8);
@@ -59,8 +61,8 @@ module.exports = {
               bodyElement.kentat.forEach(element => {
                 expect(element).to.have.all.keys(['tiketti', 'arvo', 'otsikko', 'tyyppi', 'ohje']);
               });
-              done();
             });
+            done();
           });
         });
     
