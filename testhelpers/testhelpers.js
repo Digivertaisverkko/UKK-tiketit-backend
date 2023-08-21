@@ -52,6 +52,13 @@ module.exports = {
 
 
     success: {
+      normalSuccess: function(err, res, done) {
+        expect(res).to.have.status(200);
+        expect(res.body).to.include.keys(['success']);
+        expect(res.body.success).to.be.true;
+        done();
+      },
+
       ticketPost: function(agent, res, courseId, message, done) {
         expect(res).to.have.status(200);
         expect(res.body).to.have.all.keys(['success', 'uusi']);
@@ -101,8 +108,16 @@ module.exports = {
         });
       },
 
-      ticketBaseHasCorrectData: function(agentt, courseId, description, baseFields, valuesMustMatch, done) {
-        agentt.get(`/api/kurssi/${courseId}/tikettipohja/kentat`)
+      /*
+      Jos description tai baseFields == null, niin niitä ei tarkisteta.
+      valuesMustMatch ->
+        true: tarkistetaanko että vastaavatko annetut description ja baseFields 
+          tietokannassa olevia
+        false: tarkistetaanko, ettei kumpaakaan annettua arvoa ole sellaisenaan tietokannassa.
+      vai o
+      */
+      ticketBaseHasCorrectData: function(agent, courseId, description, baseFields, valuesMustMatch, done) {
+        agent.get(`/api/kurssi/${courseId}/tikettipohja/kentat`)
         .send({})
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -110,15 +125,17 @@ module.exports = {
           if (description != null) {
             expect(res.body.kuvaus).to.eql(description);
           }
-          expect(res.body.kentat).to.be.an('array');
-          expect(res.body.kentat.length).to.equal(baseFields.length);
-          for (let i=0; i<res.body.length; ++i) {
-            expect(res.body[i]).to.include.key('id');
-            delete res.body[i].id;
-            if (valuesMustMatch) {
-              expect(res.body[i]).to.eql(baseFields[i]); 
-            } else {
-              expect(res.body[i]).to.not.eql(baseFields[i]);
+          if (baseFields != null) {
+            expect(res.body.kentat).to.be.an('array');
+            expect(res.body.kentat.length).to.equal(baseFields.length);
+            for (let i=0; i<res.body.length; ++i) {
+              expect(res.body[i]).to.include.key('id');
+              delete res.body[i].id;
+              if (valuesMustMatch) {
+                expect(res.body[i]).to.eql(baseFields[i]); 
+              } else {
+                expect(res.body[i]).to.not.eql(baseFields[i]);
+              }
             }
           }
           if (done) done();

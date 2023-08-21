@@ -456,6 +456,20 @@ module.exports = {
         });
       });
 
+      it('päivittää kurssin tikettipohjan kuvauksen', function(done) {
+        let description = "Automaattitestin luoma kuvaus";
+
+        agent.put(`/api/kurssi/${courseId}/tikettipohja/kuvaus`)
+        .send({
+          "kuvaus": description
+        })
+        .end((err, res) => {
+          testhelpers.check.success.normalSuccess(err, res, () => {
+            testhelpers.check.success.ticketBaseHasCorrectData(agent, courseId, description, null, true, done);
+          });
+        });
+      });
+
     });
 
   },
@@ -472,38 +486,55 @@ module.exports = {
     });
   },
 
-  updateTicketBaseUnsuccessfullyTest: function(agentt, agentDescription, courseId) {
+  updateTicketBaseUnsuccessfullyTest: function(agent, agentDescription, courseId) {
 
-    it (`muokkaa kurssiasetuksia ilman oikeuksia (${agentDescription})`, function(done) {
-      let newFields = [
-        {
-          otsikko: 'Ei mene läpi -kenttä 1',
-          pakollinen: true,
-          esitaytettava: true,
-          ohje: 'ohje 1',
-          valinnat: ['Huono', 'Huonompi']
-        },
-        {
-          otsikko: 'Ei mene läpi -kenttä 2',
-          pakollinen: false,
-          esitaytettava: false,
-          ohje: 'ohje 2',
-          valinnat: ['Paha', 'Pahempi', 'Pahin']
-        }
-      ]
-
-      agentt.put(`/api/kurssi/${courseId}/tikettipohja/kentat`)
-      .send({
-        kentat: newFields
-      })
-      .end((err, res) => {
-        testhelpers.check.error.noAccess(res, () => {
-          done();
-          //TODO: Pitää rakentaa jonkinlainen omniteacher, jolla on oikeudet kaikille kursseilla, jotta kirjoitetut tiedot voidaan tarkistaa.
-          //testhelpers.check.success.ticketBaseHasCorrectData(agentt, courseId, newFields, false, done);
+    describe(`Tikettipohjan päivitys ilman oikeuksia (${agentDescription})`, function() {
+      
+      it (`muokkaa tikettipohjan kenttiä ilman oikeuksia (${agentDescription})`, function(done) {
+        let newFields = [
+          {
+            otsikko: 'Ei mene läpi -kenttä 1',
+            pakollinen: true,
+            esitaytettava: true,
+            ohje: 'ohje 1',
+            valinnat: ['Huono', 'Huonompi']
+          },
+          {
+            otsikko: 'Ei mene läpi -kenttä 2',
+            pakollinen: false,
+            esitaytettava: false,
+            ohje: 'ohje 2',
+            valinnat: ['Paha', 'Pahempi', 'Pahin']
+          }
+        ]
+  
+        agent.put(`/api/kurssi/${courseId}/tikettipohja/kentat`)
+        .send({
+          kentat: newFields
+        })
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, () => {
+            done();
+            //TODO: Pitää rakentaa jonkinlainen omniteacher, jolla on oikeudet kaikille kursseilla, jotta kirjoitetut tiedot voidaan tarkistaa.
+            //testhelpers.check.success.ticketBaseHasCorrectData(agentt, courseId, newFields, false, done);
+          });
         });
       });
-    });
+
+      it('päivittää kurssin tikettipohjan kuvauksen ilman oikeuksia', function(done) {
+        let description = "Automaattitestin luoma epäonnistuva kuvaus";
+
+        agent.put(`/api/kurssi/${courseId}/tikettipohja/kuvaus`)
+        .send({
+          "kuvaus": description
+        })
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+            //TODO: Pitää rakentaa jonkinlainen omniteacher, jolla on oikeudet kaikille kursseilla, jotta kirjoitetut tiedot voidaan tarkistaa.
+            //testhelpers.check.success.ticketBaseHasCorrectData(agentt, courseId, newFields, false, done);
+        });
+      });
+    })
 
   },
 
