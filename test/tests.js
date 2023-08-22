@@ -21,6 +21,9 @@ chai.use(chaiHttp);
 
 describe('Kaikki testit', function() {
   before(async function () {
+    if (process.env.TEST_KEEP_TABLES === 'true') {
+      await db.doMigration("000"); // tyhjennetään kanta
+    }
     await db.doMigration("001");
 
     const pool = connection.getConnection();
@@ -31,10 +34,13 @@ describe('Kaikki testit', function() {
   });
 
   const app = require('../app.js');
+  
+  //Käyttäjät, joiden kautta ohjelmaa ja sen oikeuksien hallintaa testataan.
   let unsignedAgent = chai.request.agent(app);
   let studentAgent = chai.request.agent(app);
   let teacherAgent = chai.request.agent(app);
 
+  //Superkäyttäjät, jotka ovat osallistujina kaikilla testidatassa olevilla kursseilla. 
   let superTeacherAgent = chai.request.agent(app);
   let superStudentAgent = chai.request.agent(app);
 
@@ -48,7 +54,9 @@ describe('Kaikki testit', function() {
   teacherTests.runTests(teacherAgent, superTeacherAgent, superStudentAgent);
 
   after(async function () {
-    await db.doMigration("000"); // tyhjennetään kanta
+    if (process.env.TEST_KEEP_TABLES == true) {
+      await db.doMigration("000"); // tyhjennetään kanta
+    }
   });
 });
 
