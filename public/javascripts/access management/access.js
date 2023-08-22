@@ -107,7 +107,17 @@ module.exports = {
     return auth.authenticatedUser(request)
     .then((userid) => {
       storedUserId = userid;
-      return sql.tickets.getPlainTicket(ticketId);
+      return sql.courses.getUserInfoForCourse(userid, courseId)
+      .then((userData) => {
+        return sql.tickets.getPlainTicket(ticketId);
+      })
+      .catch((error) => {
+        if (error == errorcodes.noResults) {
+          return Promise.reject(errorcodes.noPermission);
+        } else {
+          return Promise.reject(error);
+        }
+      })
     })
     .then((ticketData) => {
       if (ticketData.kurssi != courseId) {
