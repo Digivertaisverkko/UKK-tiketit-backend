@@ -53,7 +53,18 @@ module.exports = {
       allrolesTests.fetchTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3);
     
       allrolesTests.updateTicketSuccessfullyTest(studentAgent, 'opiskelija', 1, 1);
-      allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3);
+
+      describe('Tiketin muokkausta, kun tiketti ei ole opiskelijan oma', function () {
+        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3, superTeacher);
+      });
+
+      describe('Tiketin muokkausta kurssilla, jolla opiskelija ei ole osallistujana', function() {
+        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 6, 12, superTeacher);
+      });
+
+      describe('Tiketin muokkausta kurssilla, jolla opiskelija on luonut tiketin, muttei ole enää osallistujana', function() {
+        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 2, 14, superTeacher);
+      });
     
     
       describe('Opiskelijan tikettipohjan testit', function() {

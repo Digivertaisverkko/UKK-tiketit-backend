@@ -117,10 +117,10 @@ module.exports = {
       });
 
       it('luo uuden tiketin ilman kenttätauluja', function(done) {
-        let message = 'Tämän testiviestin ei pitäisi olla mennyt läpi ilman kenttätauluja';
+        let message = 'Tämän testiviestin pitäisi mennä läpi ilman kenttätauluja';
         agent.post('/api/kurssi/1/tiketti')
         .send({
-          'otsikko': 'Viallinen viesti ilman kenttätauluja',
+          'otsikko': 'Viesti ilman kenttätauluja',
           'viesti': message,
           'kentat': []
         })
@@ -373,9 +373,9 @@ module.exports = {
     });
   },
 
-  updateTicketUnsuccessfullyTest: function(agent, agentDescription, courseId, ticketId) {
+  updateTicketUnsuccessfullyTest: function(agent, agentDescription, courseId, ticketId, checkerAgent) {
 
-    describe(`Tiketin muokkausta, kun tiketti ei ole käyttäjän luoma (${agentDescription})`, function() {
+    describe(`Tiketin muokkausta, oikeuksitta (${agentDescription})`, function() {
       it('päivittää tiketin tiedot ilman oikeuksia', function(done) {
         let title = 'Päivitetyn tiketin virheellinen otsikko (' + agentDescription + ')';
         let message = `Päivitetyn tiketin virheellinen sisältö (${agentDescription})`;
@@ -396,8 +396,9 @@ module.exports = {
         ]
         })
         .end((err, res) => {
-          testhelpers.check.error.noAccess(res, done);
-          //TODO: Jokin tapa tarkistaa, ettei tiketin tiedot muuttuneet. Ongelmana vain on, että kenellä on lukuoikeudet kaikkiin tiketteihin.
+          testhelpers.check.error.noAccess(res, () => {
+            testhelpers.check.success.ticketHasCorrectData(checkerAgent, courseId, ticketId, title, message, false, done);
+          });
         });
       });
     });

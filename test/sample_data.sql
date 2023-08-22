@@ -122,8 +122,12 @@ INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (2,
 INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (1, 'Arkistoitu tikettikysymys', NOW() - interval '2 days', 1, FALSE);
 INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (1, 'UKK 1', NOW() - interval '2 days', 1, TRUE);
 INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (1, 'Usein kysytty kysymys 2', NOW() - interval '2 days', 1, TRUE);
-INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (6, 'Kysymys kurssilla, jolla ei ole osallistujia', NOW() - interval '2 days', 1, FALSE);
+-- Tyhjien kurssien kysymykset
+INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (6, 'Kysymys kurssilla, jolla ei ole osallistujia', NOW() - interval '2 days', 4, FALSE);
 INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (6, 'UKK-kysymys kurssilla, jolla ei ole osallistujia', NOW() - interval '2 days', 1, TRUE);
+-- Tiketti kurssilla, jolla sen luoja ei "enää" osallistu
+INSERT INTO core.tiketti (kurssi, otsikko, aikaleima, aloittaja, ukk) VALUES (2, 'Potkitun opiskelijan kysymys', NOW() - interval '2 days', 1, FALSE);
+
 
 
 -- Tiketin kentat
@@ -147,6 +151,9 @@ INSERT INTO core.tiketinkentat (kentta, tiketti, arvo) VALUES (1, 12, 'Vastaus 1
 INSERT INTO core.tiketinkentat (kentta, tiketti, arvo) VALUES (2, 12, 'Vastaus 2');
 INSERT INTO core.tiketinkentat (kentta, tiketti, arvo) VALUES (1, 13, 'UKK-vastaus 1');
 INSERT INTO core.tiketinkentat (kentta, tiketti, arvo) VALUES (2, 13, 'UKK-vastaus 2');
+
+INSERT INTO core.tiketinkentat (kentta, tiketti, arvo) VALUES (3, 14, 'O1-T3');
+INSERT INTO core.tiketinkentat (kentta, tiketti, arvo) VALUES (4, 14, 'Epäreiluus');
 
 
 
@@ -192,6 +199,7 @@ INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (11, 4, NOW() - i
 INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (11, 6, NOW() - interval '1 days');
 INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (12, 1, NOW() - interval '1 days');
 INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (13, 1, NOW() - interval '1 days');
+INSERT INTO core.tiketintila (tiketti, tila, aikaleima) VALUES (14, 1, NOW() - interval '5 days');
 
 
 -- Kommentit
@@ -224,3 +232,4 @@ INSERT INTO core.kommentti (tila, tiketti, lahettaja, viesti, aikaleima) VALUES 
 
 INSERT INTO core.kommentti (tila, tiketti, lahettaja, viesti, aikaleima) VALUES (1, 13, 4, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sodales convallis purus. Etiam dui eros, vestibulum tincidunt lacus sed, pharetra luctus Leo. Sed nisl mauris, sodales cursus nisi a, mollis varius metus. Pellentesque enim mi, rhoncus eu tellus vitae, gravida porttitor ligula. Pellentesque efficitur vitae lectus pellentesque convallis. Sed et ultricies libero, in vulputate ipsum. Etiam aliquam dignissim sollicitudin. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis aliquet molestie est, a blandit mauris. Phasellus cursus libero molestie tincidunt mattis. Curabitur eu fermentum metus, suscipit commodo urna. Nulla facilisi. Nam nec efficitur odio, in consectetur felis.<br>Praesent eu ultricies nisl. Phasellus quis nisi eu orci facilisis fermentum et ut ipsum. Integer vitae posuere dolor. Vivamus nec mauris non neque pharetra eleifend. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur ac consequat est, ut aliquet massa. Morbi rutrum mi sit amet nibh suscipit, ut vulputate quam sollicitudin. Aenean a nibh at sapien porttitor eleifend. Maecenas id justo nec arcu lobortis pretium ut id diam. Mauris maximus auctor mauris. In varius dictum arcu, non eleifend arcu fermentum vel. Proin malesuada elit eros, nec laoreet nisl bibendum at.', NOW() - interval '3 days');
 INSERT INTO core.kommentti (tila, tiketti, lahettaja, viesti, aikaleima) VALUES (1, 13, 4, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sodales convallis purus. Etiam dui eros, vestibulum tincidunt lacus sed, pharetra luctus Leo. Sed nisl mauris, sodales cursus nisi a, mollis varius metus. Pellentesque enim mi, rhoncus eu tellus vitae, gravida porttitor ligula. Pellentesque efficitur vitae lectus pellentesque convallis. Sed et ultricies libero, in vulputate ipsum. Etiam aliquam dignissim sollicitudin. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis aliquet molestie est, a blandit mauris. Phasellus cursus libero molestie tincidunt mattis. Curabitur eu fermentum metus, suscipit commodo urna. Nulla facilisi. Nam nec efficitur odio, in consectetur felis.<br>Praesent eu ultricies nisl. Phasellus quis nisi eu orci facilisis fermentum et ut ipsum. Integer vitae posuere dolor. Vivamus nec mauris non neque pharetra eleifend. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur ac consequat est, ut aliquet massa. Morbi rutrum mi sit amet nibh suscipit, ut vulputate quam sollicitudin. Aenean a nibh at sapien porttitor eleifend. Maecenas id justo nec arcu lobortis pretium ut id diam. Mauris maximus auctor mauris. In varius dictum arcu, non eleifend arcu fermentum vel. Proin malesuada elit eros, nec laoreet nisl bibendum at.', NOW() - interval '3 days');
+INSERT INTO core.kommentti (tila, tiketti, lahettaja, viesti, aikaleima) VALUES (1, 14, 1, 'Pellentesque efficitur vitae lectus pellentesque convallis. Sed et ultricies libero, in vulputate ipsum. Etiam aliquam dignissim sollicitudin.', NOW() - interval '5 days');
