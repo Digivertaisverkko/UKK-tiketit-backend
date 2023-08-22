@@ -46,10 +46,6 @@ INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (1, 1, 'op
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (1, 2, 'opettaja');
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (1, 3, 'opiskelija');
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (1, 4, 'opettaja');
-INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (2, 2, 'opettaja');
-INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (3, 2, 'opettaja');
-INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (4, 2, 'opettaja');
-INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (5, 2, 'opettaja');
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (6, 4, 'opettaja');
 -- Super opiskelija
 INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) VALUES (1, 5, 'opiskelija');
