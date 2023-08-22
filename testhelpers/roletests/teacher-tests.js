@@ -35,15 +35,15 @@ module.exports = {
     
       allrolesTests.postNewTicketTests(teacherAgent, 'opettaja');
 
-      describe('Tiketin muokkausta, kun tiketti ei ole opiskelijan oma', function () {
+      describe('Tiketin muokkausta, kun tiketti ei ole opettajan oma', function () {
         allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', 1, 1, superTeacher);
       });
 
-      describe('Tiketin muokkausta kurssilla, jolla opiskelija ei ole osallistujana', function() {
+      describe('Tiketin muokkausta kurssilla, jolla opettaja ei ole osallistujana', function() {
         allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', 6, 12, superTeacher);
       });
 
-      describe('Tiketin muokkausta kurssilla, jolla opiskelija on luonut tiketin, muttei ole enää osallistujana', function() {
+      describe('Tiketin muokkausta kurssilla, jolla opettaja on luonut tiketin, muttei ole enää osallistujana', function() {
         allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', 2, 14, superTeacher);
       });
     
