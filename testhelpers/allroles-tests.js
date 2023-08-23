@@ -643,6 +643,154 @@ module.exports = {
         })
       })
     })
+  },
+
+
+  performInvitationTests: function(teacherAgent, studentAgent, unsignedAgent) {
+
+    describe('Kurssille kutsuminen', function() {
+
+      it('opiskelija kutsuu kurssille opiskelijan', function(done) {
+        studentAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        .send({
+          'sposti': 'testi@example.com',
+          'rooli': 'opiskelija'
+        })
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+        })
+      });
+
+      it('opiskelija kutsuu kurssille opettajan', function(done) {
+        studentAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        .send({
+          'sposti': 'testi@example.com',
+          'rooli': 'opettaja'
+        })
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+        })
+      });
+
+      it('opiskelija kutsuu kurssille roskaa', function(done) {
+        studentAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        .send({
+          'sposti': 'testi@example.com',
+          'rooli': 'sdflkjl'
+        })
+        .end((err, res) => {
+          testhelpers.check.error.wrongParameters(res, done);
+        })
+      });
+
+      it('opettaja kutsuu kurssille opiskelijan', function(done) {
+        teacherAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        .send({
+          'sposti': 'testi@example.com',
+          'rooli': 'opiskelija'
+        })
+        .end((err, res) => {
+          testhelpers.check.success.normalSuccess(err, res, done);
+        })
+      });
+
+      it('opettaja kutsuu kurssille opettajan', function(done) {
+        teacherAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        .send({
+          'sposti': 'testi@example.com',
+          'rooli': 'opettaja'
+        })
+        .end((err, res) => {
+          testhelpers.check.success.normalSuccess(err, res, done);
+        })
+      });
+
+      it('opettaja kutsuu kurssille ilman roolia', function(done) {
+        teacherAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        .send({
+          'sposti': 'testi@example.com'
+        })
+        .end((err, res) => {
+          testhelpers.check.error.wrongParameters(res, done);
+        })
+      });
+
+      let invitationId = '';
+
+      it('opettaja kutsuu kurssille opiskelijan, joka on jo luonut tilin', function(done) {
+        teacherAgent.post('/api/kurssi/3/osallistujat/kutsu')
+        .send({
+          'sposti': 'esko.seppa@example.com',
+          'rooli': 'opiskelija'
+        })
+        .end((err, res) => {
+          invitationId = res.body.kutsu;
+          testhelpers.check.success.normalSuccess(err, res, done);
+        })
+      });
+
+      it('opettaja kutsuu kurssille opettajan, joka on jo luonut tilin', function(done) {
+        teacherAgent.post('/api/kurssi/3/osallistujat/kutsu')
+        .send({
+          'sposti': 'marianna.laaksonen@example.com',
+          'rooli': 'opettaja'
+        })
+        .end((err, res) => {
+          testhelpers.check.success.normalSuccess(err, res, done);
+        })
+      });
+
+      it('kirjautumaton käyttäjä hakee kutsun tiedot', function(done) {
+        unsignedAgent.get('/api/kurssi/3/osallistujat/kutsu/'+invitationId)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.all.keys(['id', 'kurssi', 'sposti', 'vanhenee', 'rooli']);
+          done();
+        });
+      });
+
+      it('opiskelija hakee kutsun tiedot', function(done) {
+        studentAgent.get('/api/kurssi/3/osallistujat/kutsu/'+invitationId)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.all.keys(['id', 'kurssi', 'sposti', 'vanhenee', 'rooli']);
+          done();
+        });
+      });
+
+      it('hakee kutsun tiedot väärältä kurssilta', function(done) {
+        studentAgent.get('/api/kurssi/2/osallistujat/kutsu/' + invitationId)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+          expect(res.body).to.be.empty;
+          done();
+        });
+      });
+
+      it('opiskelija hyväksyy kutsun', function(done) {
+        studentAgent.post('/api/kurssi/3/osallistujat')
+        .send({
+          'kutsu': invitationId
+        })
+        .end((err, res) => {
+          testhelpers.check.success.normalSuccess(err, res, () => {
+            studentAgent.get('/api/kurssi/3/oikeudet')
+            .send({})
+            .end((err, res) => {
+              expect(res).to.have.status(200);
+              expect(res.body).to.have.keys(['login', 'oikeudet']);
+              expect(res.body.login).to.have.keys(['lti_login', 'perus']);
+              done();
+            });
+          });
+        });
+      });
+
+    });
+
   }
 
 }

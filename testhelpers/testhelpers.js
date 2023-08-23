@@ -30,6 +30,10 @@ module.exports = {
         if (done) done();
       },
 
+      noContent: function(res, done) {
+        this.response(res, 204, 2000, done);
+      },
+
       notSignedIn: function(res, done) {
         this.response(res, 403, 1000, done);
       },

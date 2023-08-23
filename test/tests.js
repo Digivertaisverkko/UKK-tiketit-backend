@@ -53,6 +53,8 @@ describe('Kaikki testit', function() {
   studentTicketlist.runTests(studentAgent, superTeacherAgent, superStudentAgent);
   teacherTests.runTests(teacherAgent, superTeacherAgent, superStudentAgent);
 
+  allrolesTests.performInvitationTests(superTeacherAgent, studentAgent, unsignedAgent);
+
   after(async function () {
     if (process.env.TEST_KEEP_TABLES == true) {
       await db.doMigration("000"); // tyhjennetään kanta
