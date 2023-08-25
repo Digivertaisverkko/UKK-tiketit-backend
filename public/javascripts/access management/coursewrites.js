@@ -22,11 +22,15 @@ class CourseWrites extends CourseReads {
   }
 
   createFaqTicket(courseid, creatorid, title, body, answer, fields) {
-    return sql.tickets.createTicket(courseid, creatorid, title, fields, body, true)
-    .then((ticketid) => {
-      return sql.tickets.createComment(ticketid, creatorid, answer, 5)
+    return this.createTicket(courseid, creatorid, title, body, fields, true)
+    .then((ticketResult) => {
+      return sql.tickets.createComment(ticketResult.tiketti, creatorid, answer, 5)
+      .then((commentId) => {
+        mailer.sendMailNotificationForNewTicket(ticketResult.tiketti, [creatorid]);
+        return commentId;
+      })
       .then((commentid) => {
-        return { tiketti: ticketid, kommentti: commentid };
+        return { 'tiketti': ticketResult.tiketti, 'kommentti': commentid };
       });
     });
   }
@@ -65,6 +69,9 @@ class CourseWrites extends CourseReads {
       } else {
         return Promise.reject(errorcodes.operationNotPossible);
       }
+    })
+    .then(() => {
+      mailer.sendMailNotificationForUpdatedFaq(ticketid, []);
     })
   }
 
@@ -113,7 +120,7 @@ class CourseWrites extends CourseReads {
       });
     }
     
-    return Promise.resolve();
+    return promiseChain;
   }
 
   inviteUserToCourse(courseId, email, role) {
@@ -138,10 +145,18 @@ class CourseWrites extends CourseReads {
     })
   }
 
+  editDescriptionOfTicketBase(courseId, description) {
+    return sql.courses.updateDescriptionOfTicketBase(courseId, description);
+  }
+
+  addFieldsToTicketBase(courseId, fields) {
+    return sql.courses.insertFieldsToTicketBase(courseId, fields);
+  }
+
   replaceFieldsOfTicketBase(courseId, fields) {
     return sql.courses.removeAllFieldsFromTicketBase(courseId)
     .then(() => {
-       return sql.courses.insertFieldsToTicketBase(courseId, fields)
+       return sql.courses.insertFieldsToTicketBase(courseId, fields);
     });
   }
 

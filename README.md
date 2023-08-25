@@ -26,8 +26,6 @@ PGPORT=[PostgreSQL instanssin portti]
 PGDATABASE=[PostgreSQL tietokannan nimi]
 PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
 PGPASSWORD=[PostgreSQL käyttäjän salasana]
-LTIUSER=[PostgreSQL LTI käyttäjän käyttäjänimi]
-LTIPASSWORD=[PostgreSQL LTI käyttäjän salasana]
 LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
 LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen on onnistunut]
 TEMP_CLIENT_KEY=[LTI:n käyttämä oauth_consumer_key: tilapäinen, siirretään tulevaisuudessa kantaan]
@@ -69,4 +67,12 @@ Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen omin
 - Paina ```Add LTI Advantage``` nappia ja odota, että palaat hetken päästä takaisin samaan näkymään.
 - Työkalu ei aktivoidu automaattisesti Moodlessa. Eli paina ```Activate``` nappia alempana ```UKK-Tiketit``` työkalun laatikossa.
 - Lisää ulkoinen työkalu haluamallesi paikalle kurssialueella ja testaa toimivuus.
+
+## Testien ajaminen
+
+Testit ajetaan käyttäen Mocha testiympäristöä. Testit on määritelty ```test``` kansiossa.
+
+Testien ajamista varten luo uusi ```.env.test``` -tiedosto, johon syötetään yllä mainitut parametrit. Tämä mahdollistaa esimerkiksi erin tietokannan käyttämisen testien ajamiseen. Testien alussa tietokanta alustetaan ja sinne syötetään testidata. Tämän jälkeen testit ajetaan ja lopuksi kyseinen tietokanta tyhjennetään. Tämä testaa samalla myös migrations -skriptien toiminnan.
+
+Testit ajetaan ajamalla komento ```npm run test```
 

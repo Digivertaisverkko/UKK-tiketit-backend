@@ -37,12 +37,12 @@ class TicketReads {
     })
     .then((commentId) => {
       if (creatorId === storedTicketData.aloittaja) {
-        mailer.sendMailNotifications(ticketId, [creatorId], content);
+        mailer.sendMailNotificationForNewComment(ticketId, [creatorId], content);
       } else {
         sql.courses.getTeachersOfCourse(storedTicketData.kurssi)
         .then((teacherIdList) => {
           let ids = arrayTools.extractAttributes(teacherIdList, 'id');
-          mailer.sendMailNotifications(ticketId, ids, content);
+          mailer.sendMailNotificationForNewComment(ticketId, ids, content);
         })
       }
       return commentId;
@@ -116,6 +116,9 @@ class TicketReads {
             return sql.tickets.setTicketStateIfAble(ticketId, TicketState.read);
           }
         })
+        .catch(() => {
+          return results;
+        })
         .then(() => {
           return results;
         })
@@ -139,13 +142,14 @@ class TicketReads {
     .then((ticketStateList) => {
       let states = arrayTools.extractAttributes(ticketStateList, 'tila');
       if ((states.includes(TicketState.resolved) ||
-          states.includes(TicketState.commented)) &&
-          states.includes(TicketState.archived) == false) {
+          states.includes(TicketState.commented) || 
+          states.includes(TicketState.infoneeded)) &&
+          states[states.length-1] != TicketState.archived) {
         return Promise.resolve();
       } else {
         return Promise.reject(errorcodes.operationNotPossible);
       }
-    })
+    });
   }
 
 }

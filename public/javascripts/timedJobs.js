@@ -38,8 +38,16 @@ module.exports = {
     });
   },
 
+  deleteGdprDumps: function() {
+    return filessystem.removeAllGdprDumps();
+  },
+
   deletePendingLtiLogins: function() {
     return sql.users.deleteAllStoredLtiTokens();
+  },
+
+  deleteUnusedAttachments: function() {
+    return filessystem.removeAllUnusedAttachments();
   },
 
   refreshCookieSecrets: function() {
@@ -54,10 +62,6 @@ module.exports = {
 
   sendAggregateEmails: function() {
     return mailer.sendAggregateMails();
-  },
-
-  deleteGdprDumps: function() {
-    return filessystem.removeAllGdprDumps();
   }
 
 }

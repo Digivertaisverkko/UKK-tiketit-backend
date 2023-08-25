@@ -8,14 +8,7 @@ const errorcodes = require('./../errorcodes.js');
 class TicketWrites extends TicketReads {
 
   canDeleteTicket(ticketId) {
-    return sql.tickets.getComments(ticketId)
-    .then((commentList) => {
-      if (commentList.length > 1) {
-        return Promise.reject(errorcodes.operationNotPossible);
-      } else {
-        return Promise.resolve(true);
-      }
-    });
+    return Promise.resolve(true);
   }
 
   deleteTicket(ticketId) {

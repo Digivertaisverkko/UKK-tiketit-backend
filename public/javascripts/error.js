@@ -85,6 +85,8 @@ module.exports = {
                 e.error.tunnus = CODE.somethingWentWrong;
                 e.error.virheilmoitus = "Joku meni vikaan."
                 e.error.originaali = errorid;
+                console.error('Tunnistamaton virhe 500:');
+                console.dir(errorid);
                 status = 500
                 break;
         }

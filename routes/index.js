@@ -16,12 +16,10 @@ const access = require('../public/javascripts/access management/access.js');
 const { hasRequiredParameters } = require('../public/javascripts/sanitizer.js');
 const path = require('path');
 const fs = require('fs');
-const { sendMailNotifications } = require('../public/javascripts/mailer.js');
 const { profile, timeEnd } = require('console');
 var session = require('express-session');
 const timedJobs = require('../public/javascripts/timedJobs.js');
 const TicketState = require('../public/javascripts/ticketstate.js');
-const mailer = require('../public/javascripts/mailer.js');
 const { errorMonitor } = require('events');
 const filessystem = require('../public/javascripts/filessystem.js');
 
@@ -370,6 +368,7 @@ router.get('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
 
 router.post('/kurssi/:courseid/ukk/vienti', function(req, res, next) {
   sanitizer.test(req.body, [
+    {key: 'id', type: 'number', optional: true},
     {key: 'otsikko', type: 'string', min: 1,  max: 255},
     {key: 'aikaleima', type: 'string'},
     {keyPath: ['kommentit', 'viesti'], type: 'string'},
@@ -436,7 +435,6 @@ router.get('/kurssit/', function(req, res, next) {
 });
 
 
-// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
 router.get('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
   //ACCESS
   access.readTicket(req, req.params.courseid, req.params.ticketid)
@@ -456,7 +454,6 @@ router.get('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
 });
 
 
-// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
 router.put('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', min: 1, max: 255},
@@ -483,7 +480,6 @@ router.put('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
 });
 
 
-// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
 router.delete('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
   access.writeTicket(req, req.params.courseid, req.params.ticketid)
   .then((handle) => {
@@ -498,7 +494,6 @@ router.delete('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
 });
 
 
-// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
 router.get('/kurssi/:courseid/tiketti/:ticketid/kooste', function(req, res, next) {
   access.readTicket(req, req.params.courseid, ticketid)
   .then((handle) => {
@@ -507,7 +502,6 @@ router.get('/kurssi/:courseid/tiketti/:ticketid/kooste', function(req, res, next
 });
 
 
-// TODO: Tarkista, että tiketti on pyydetyllä kurssilla!
 router.get('/kurssi/:courseid/tiketti/:ticketid/kentat', function(req, res, next) {
   access.readTicket(req, req.params.courseid, req.params.ticketid)
   .then((handle) => {
@@ -651,7 +645,7 @@ router.put('/kurssi/:courseid/ukk/:ticketid/', function(req, res, next) {
   .then((handle) => {
     return handle.methods.editFaqTicket(req.params.ticketid, req.body.otsikko, req.body.viesti, req.body.vastaus, req.body.kentat);
   })
-  .then((data) => {
+  .then(() => {
     res.send({ success: true });
   })
   .catch((error) => {
@@ -760,10 +754,17 @@ router.get('/kurssi/:courseid/oikeudet', function(req, res, next) {
 });
 
 
+
 router.get('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
-    return handle.methods.getFieldsOfTicketBase(req.params.courseid);
+    return handle.methods.getFieldsOfTicketBase(req.params.courseid)
+    .then((fieldList) => {
+      return handle.methods.getDescriptionOfTicketBase(req.params.courseid)
+      .then((baseData) => {
+        return { kuvaus: baseData.kuvaus, kentat: fieldList };
+      });
+    })
   })
   .then((data) => {
     res.send(data);
@@ -771,6 +772,24 @@ router.get('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
   .catch((error) => {
     errorFactory.createError(req, res, error);
   });
+});
+
+router.put('/kurssi/:courseid/tikettipohja/kuvaus', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'kuvaus', type: 'string'}
+  ])
+  .then(() => {
+    return access.writeCourse(req, req.params.courseid);
+  })
+  .then((handle) => {
+    return handle.methods.editDescriptionOfTicketBase(req.params.courseid, req.body.kuvaus);
+  })
+  .then(() => {
+    res.send({success: true});
+  })
+  .catch((error) => {
+    errorFactory.createError(req, res, error);
+  })
 });
 
 
@@ -785,10 +804,6 @@ router.put('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
     {keyPath: ['kentat', 'valinnat'], type: 'object', optional: true}
   ])
   .then(() => {
-    return sanitizer.arrayObjectsHaveRequiredParameters(req.body.kentat,
-      ['otsikko', 'pakollinen', 'esitaytettava', 'ohje', 'valinnat']);
-  })
-  .then(() => { 
     return access.writeCourse(req, req.params.courseid);
   })
   .then((handle) => { 
@@ -796,6 +811,34 @@ router.put('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
   })
   .then(() => {
     res.send({ success: true });
+  })
+  .catch((error) => {
+    errorFactory.createError(req, res, error);
+  })
+});
+
+
+router.post('/kurssi/:courseid/tikettipohja/vienti', function(req, res, next) {
+  sanitizer.test(req.body, [
+    {key: 'kuvaus', type: 'string'},
+    {key: 'kentat', type: 'object'},
+    {keyPath: ['kentat', 'otsikko'], type: 'string', min: 1, max: 255},
+    {keyPath: ['kentat', 'pakollinen'], type: 'boolean'},
+    {keyPath: ['kentat', 'esitaytettava'], type: 'boolean'},
+    {keyPath: ['kentat', 'ohje'], type: 'string', max: 255},
+    {keyPath: ['kentat', 'valinnat'], type: 'object', optional: true}
+  ])
+  .then(() => {
+    return access.writeCourse(req, req.params.courseid);
+  })
+  .then((handle) => {
+    return handle.methods.editDescriptionOfTicketBase(req.params.courseid, req.body.kuvaus)
+    .then(() => {
+      return handle.methods.addFieldsToTicketBase(req.params.courseid, req.body.kentat);
+    });
+  })
+  .then(() => {
+    res.send({success: true});
   })
   .catch((error) => {
     errorFactory.createError(req, res, error);
@@ -849,8 +892,8 @@ router.post('/kurssi/:courseid/tiketti', function(req, res, next) {
   ])
   .then(() => access.readCourse(req, req.params.courseid))
   .then((handle) => {
-    return handle.methods.createTicket(req.params.courseid, handle.userid, req.body.otsikko,
-       req.body.viesti, req.body.kentat, false);
+    return handle.methods.createTicket(req.params.courseid, handle.userid,
+       req.body.otsikko, req.body.viesti, req.body.kentat, false);
   })
   .then((newData) => {
     res.send({success: true, uusi: newData});

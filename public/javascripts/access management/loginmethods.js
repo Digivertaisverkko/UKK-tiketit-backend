@@ -128,7 +128,6 @@ class LoginMethods {
   handleGdprRejection(httpRequest, storageId) {
     return sql.users.getStoredLtiToken(storageId)
     .then((tokenData) => {
-      console.dir(tokenData);
       if (tokenData.olemassa_oleva_profiili != null) {
         return sqlfuncs.removeAllDataRelatedToUser(tokenData.olemassa_oleva_profiili)
         .then(() => {

@@ -29,8 +29,6 @@ router.post('/1p1/start/', function(req, res, next) {
   })
   .then((results) => {
     if (results.hasPermission) {
-      console.dir(req.body);
-      console.dir(results);
       let locale = req.body.launch_presentation_locale;
       return redirect.redirectToCoursePage(res, locale, results.courseId);
     } else {

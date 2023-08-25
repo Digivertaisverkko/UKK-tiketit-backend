@@ -1,7 +1,3 @@
--- Kirjaudutaan sisään superuserina suoraan dvvukk -tietokantaan.
--- HUOM: Muokkaa käyttäjänimeä ja tietokannan nimeä tarvittaessa!
--- $ sudo -u postgres psql -d "dvvukk"
-
 DROP TABLE core.profiiliasetukset;
 DROP TABLE core.kurssikutsu;
 DROP TABLE core.lti_client;
@@ -26,4 +22,4 @@ DROP TABLE core.kurssi;
 DROP TABLE core.session;
 DROP TABLE core.profiili;
 
-\q
+DROP SCHEMA core CASCADE;
