@@ -401,7 +401,7 @@ module.exports = {
     const query1 = 'SELECT esitaytettava FROM core.kenttapohja WHERE id=$1';
     return connection.queryAll(query1, [fieldId])
     .then((fieldData) => {
-      if (fieldData.esitaytettava == true) {
+      if (fieldData[0].esitaytettava == true) {
         const query2 = '\
         INSERT INTO core.esitaytetytvastaukset (kentta, profiili, arvo) \
         VALUES ($1, $2, $3) \

@@ -75,7 +75,7 @@ INSERT INTO core.tikettipohja (kurssi, kuvaus) VALUES (6, 'Tällä työkalulla v
 
 -- Kenttapohja
 
-INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Tehtävä', 1, FALSE, TRUE, '', '');
+INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Tehtävä', 1, TRUE, TRUE, '', '');
 INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Ongelman tyyppi', 1, FALSE, TRUE, '', 'Kotitehtävä;Määräajat;Yleinen');
 INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Tehtävä', 1, FALSE, TRUE, '', '');
 INSERT INTO core.kenttapohja (otsikko, tyyppi, esitaytettava, pakollinen, ohje, valinnat) VALUES ('Ongelman tyyppi', 1, FALSE, TRUE, '', 'Kotitehtävä;Määräajat;Yleinen');
