@@ -417,7 +417,9 @@ module.exports = {
           expect(res.body.kuvaus).to.be.a('string');
           expect(res.body.kentat).to.be.an('array');
           res.body.kentat.forEach(element => {
-            expect(element).to.have.all.keys(['id','otsikko','pakollinen','esitaytettava','ohje','valinnat']);
+            expect(element).to.have.all.keys(['id','otsikko','pakollinen',
+                                              'esitaytettava','esitaytto','ohje',
+                                              'valinnat']);
           });
           if (done) done();
         });
@@ -483,8 +485,7 @@ module.exports = {
         agent.get(`/api/kurssi/${courseId}/tikettipohja/kentat`)
         .send({})
         .end((err, res) => {
-          doned();
-          //testhelpers.check.error.noAccess(res, doned);
+          testhelpers.check.error.noAccess(res, doned);
         });
       });
     });

@@ -665,6 +665,7 @@ kentat: [{
   otsikko: $string
   pakollinen: $bool
   esitaytettava: $bool
+  esitaytto: $string
   ohje: $string
   valinnat: [$string]
 }]

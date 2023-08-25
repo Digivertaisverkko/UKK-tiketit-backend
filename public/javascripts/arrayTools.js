@@ -141,6 +141,7 @@ module.exports = {
      * @param {*} matchingKey Ensimmäisen taulukon olion avain, jolle etsitään yhteensopivaa paria toisesta taulukosta.
      * @param {*} comparedKey Toisen taulukon olion avain, jota verrataan ensimmäisen taulun olioiden avaimiin.
      * @param {*} newKey Uusi avain, johon toisen taulukon olio liitetään.
+     * @param {*} extractedKey Toisen taulukon olion avain, jonka arvo siirretään uuteen tauluun avaimella newKey
      * @returns 
      */
     unionExtractKey: function(firstArray, secondArray, matchingKey, comparedKey, newKey, extractedKey) {

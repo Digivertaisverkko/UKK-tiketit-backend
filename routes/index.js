@@ -467,6 +467,7 @@ router.put('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
   })
   .then((handle) => {
     return handle.methods.updateTicket(req.params.ticketid, 
+                                       handle.userid,
                                        req.body.otsikko, 
                                        req.body.viesti, 
                                        req.body.kentat);
@@ -758,7 +759,7 @@ router.get('/kurssi/:courseid/oikeudet', function(req, res, next) {
 router.get('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
-    return handle.methods.getFieldsOfTicketBase(req.params.courseid)
+    return handle.methods.getFieldsOfTicketBase(req.params.courseid, handle.userid)
     .then((fieldList) => {
       return handle.methods.getDescriptionOfTicketBase(req.params.courseid)
       .then((baseData) => {

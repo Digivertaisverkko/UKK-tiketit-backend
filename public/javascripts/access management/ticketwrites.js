@@ -18,7 +18,7 @@ class TicketWrites extends TicketReads {
     });
   }
 
-  updateTicket(ticketId, title, content, fieldList) {
+  updateTicket(ticketId, userId, title, content, fieldList) {
     return sql.tickets.updateTicket(ticketId, title, fieldList)
     .then(() => {
       if (content) {
@@ -29,6 +29,9 @@ class TicketWrites extends TicketReads {
           return sql.tickets.updateComment(firstComment.id, content);
         });
       }
+    })
+    .then(() => {
+      return sql.tickets.updatePrefilledAnswersFromList(userId, fieldList);
     });
   }
 
