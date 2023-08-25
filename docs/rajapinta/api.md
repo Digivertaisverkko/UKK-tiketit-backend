@@ -519,18 +519,6 @@ Tällä hetkellä arkistoi osoitetun tiketin, ja luo uuden UKK-tiketin annetuill
   ohjeteksti: $string
 }
 ```
-Tulevaisuudessa lisäksi pitää lähettää:
-```
-{
-  harjoitukset: [$string]
-  lisakentat:
-  [{
-    nimi: $string
-    esitaytetty: $bool
-    pakollinen: $bool
-  }]
-}
-```
 ##### Vastaus:
 ```
 - body - 
