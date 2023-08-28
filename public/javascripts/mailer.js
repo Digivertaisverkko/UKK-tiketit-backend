@@ -410,7 +410,7 @@ module.exports = {
       return sql.tickets.getAllTickets(courseId);
     })
     .then((ticketList) => {
-      ticketList.filter((value, index, array) => {
+      ticketList = ticketList.filter((value, index, array) => {
         return value.tila == TicketState.sent || value.tila == TicketState.read;
       })
       if (ticketList.length > 0) {
