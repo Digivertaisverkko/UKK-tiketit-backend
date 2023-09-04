@@ -467,6 +467,7 @@ router.put('/kurssi/:courseid/tiketti/:ticketid', function(req, res, next) {
   })
   .then((handle) => {
     return handle.methods.updateTicket(req.params.ticketid, 
+                                       handle.userid,
                                        req.body.otsikko, 
                                        req.body.viesti, 
                                        req.body.kentat);
@@ -758,7 +759,7 @@ router.get('/kurssi/:courseid/oikeudet', function(req, res, next) {
 router.get('/kurssi/:courseid/tikettipohja/kentat', function(req, res, next) {
   access.readCourse(req, req.params.courseid)
   .then((handle) => {
-    return handle.methods.getFieldsOfTicketBase(req.params.courseid)
+    return handle.methods.getFieldsOfTicketBase(req.params.courseid, handle.userid)
     .then((fieldList) => {
       return handle.methods.getDescriptionOfTicketBase(req.params.courseid)
       .then((baseData) => {
@@ -846,43 +847,7 @@ router.post('/kurssi/:courseid/tikettipohja/vienti', function(req, res, next) {
 });
 
 
-/*
-// POISTA UUDESTA MUOTOILUSTA
-router.get('/kurssi/:courseid/uusitiketti/kentat', function(req, res, next) {
-  //ACCESS
-  access.readCourse(req, req.params.courseid)
-  .then((handle) => {
-    return handle.methods.getFieldsOfTicketBase(req.params.courseid);
-  })
-  .then((data) => {
-    res.send(data);
-  })
-  .catch((error) => {
-    errorFactory.createError(req, res, error);
-  });
-});
-*/
-
-
-/*
-// POISTA UUDESTA MUOTOILUSTA
-router.get('/kurssi/:courseid/uusitiketti', function(req, res, next) {
-  //ACCESS
-  access.readCourse(req, req.params.courseid)
-  .then((handle) => {
-    return handle.methods.getFieldsOfTicketBase(req.params.courseid);
-  })
-  .then((data) => {
-    res.send(data);
-  })
-  .catch((error) => {
-    errorFactory.createError(req, res, error);
-  });
-});
-*/
-
 router.post('/kurssi/:courseid/tiketti', function(req, res, next) {
-  //ACCESS
   sanitizer.test(req.body, [
     {key: 'otsikko', type: 'string', min: 1, max: 255},
     {key: 'viesti', type: 'string'},

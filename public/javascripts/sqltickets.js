@@ -10,6 +10,7 @@ const errorcodes = require('./errorcodes.js');
 
 const TicketState = require('./ticketstate.js');
 const { json } = require('express/lib/response.js');
+const { forEach } = require('jszip');
 
 module.exports = {
 
@@ -102,13 +103,13 @@ module.exports = {
     })
   },
 
-  getTicket: function(messageId) {
+  getTicket: function(ticketId) {
     const query = '\
     SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi, ukk FROM core.tiketti t \
     INNER JOIN (SELECT tiketti, tila FROM core.tiketintila WHERE tiketti=$1 ORDER BY aikaleima DESC LIMIT 1) tt \
     ON t.id = tt.tiketti \
     WHERE t.id=$1';
-    return connection.queryOne(query, [messageId]);
+    return connection.queryOne(query, [ticketId]);
   },
 
   archiveTicket: function(ticketId) {
@@ -120,7 +121,6 @@ module.exports = {
   },
 
   getFieldsOfTicket: function(ticketId) {
-    //TODO: muuta messageId:t ticketId:iksi.
     const query = '\
     SELECT pohja.id, kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje, pohja.esitaytettava, pohja.pakollinen, pohja.valinnat FROM core.tiketinkentat kk \
     INNER JOIN core.kenttapohja pohja \
@@ -197,55 +197,7 @@ module.exports = {
     return connection.queryOne(query, [courseid, userid, title, isFaq]);
   },
 
-  createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
-    let storedTicketId = null;
-    const query = '\
-    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
-    VALUES ($1, $2, $3, NOW(), $4) \
-    RETURNING id';
-    return connection.queryOne(query, [courseid, userid, title, isFaq])
-    .then((sqldata) => { return sqldata.id })
-    .then((ticketid) => {
-      storedTicketId = ticketid;
-      const query = '\
-      INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
-      VALUES ($1, 1, NOW())';
-      return connection.queryAll(query, [ticketid])
-      .then((sqldata) => { return ticketid; });
-    })
-    .then((ticketid) => {
-      return new Promise(function(resolve, reject) {
-        var promises = [];
-        fields.forEach(kvp => {
-          promises.push(module.exports.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
-        });
-        Promise.all(promises)
-        .then(() => resolve(ticketid))
-        .catch(() => {
-          reject(errorcodes.somethingWentWrong);
-        });
-      });
-    })
-    .then((ticketid) => {
-      return module.exports.createComment(ticketid, userid, content, 1)
-      .then(() => ticketid );
-    })
-    .catch((error) => {
-      if (storedTicketId == null) {
-        return Promise.reject(error);
-      } else {
-        module.exports.deleteTicket(storedTicketId)
-        .then(() => {
-          return Promise.reject(error);
-        })
-        .catch((error) => {
-          return Promise.reject(error);
-        })
-      }
-    });
-  },
-
-  addFieldToTicket: function(ticketid, fieldid, value) {
+  addFieldToTicket: function(ticketid, userid, fieldid, value) {
     return new Promise(function(resolve, reject) {
       if (ticketid != undefined && fieldid != undefined && value != undefined) {
         const query = '\
@@ -316,7 +268,7 @@ module.exports = {
         promises.push(connection.queryNone(fieldsQuery, [field.arvo, field.id, ticketid]));
       }
       return Promise.all(promises);
-    })
+    });
   },
 
   deleteComment(commentId) {
@@ -446,12 +398,47 @@ module.exports = {
   },
 
   updatePrefilledAnswer: function(userid, fieldId, value) {
-    const query = '\
-    INSERT INTO core.esitaytetytvastaukset (kentta, profiili, arvo) \
-    VALUES ($1, $2, $3) \
-    ON CONFLICT (kentta, profiili) DO \
-    UPDATE SET arvo = excluded.arvo';
-    return connection.queryNone(query, [fieldId, userid, value]);
+    const query1 = 'SELECT esitaytettava FROM core.kenttapohja WHERE id=$1';
+    return connection.queryAll(query1, [fieldId])
+    .then((fieldData) => {
+      if (fieldData[0].esitaytettava == true) {
+        const query2 = '\
+        INSERT INTO core.esitaytetytvastaukset (kentta, profiili, arvo) \
+        VALUES ($1, $2, $3) \
+        ON CONFLICT (kentta, profiili) DO \
+        UPDATE SET arvo = excluded.arvo';
+        return connection.queryNone(query2, [fieldId, userid, value]);
+      }
+    })
+  },
+
+  updatePrefilledAnswersFromList: function(userid, fieldList) {
+    let promises = [];
+    fieldList.forEach(field => {
+      promises.push(this.updatePrefilledAnswer(userid, field.id, field.arvo));
+    });
+    return Promise.all(promises);
+  },
+
+  getPrefilledAnswer: function(userid, fieldId) {
+    const query = 'SELECT kentta, arvo FROM core.esitaytetytvastaukset \
+    WHERE kentta=$1 AND profiili=$2';
+    return connection.queryOne(query, [fieldId, userid])
+    .catch((error) => {
+      if (error == errorcodes.noResults) {
+        return { kentta: fieldId, arvo: "" };
+      } else {
+        return Promise.reject(error);
+      }
+    });
+  },
+
+  getPrefilledAnswersFromFieldIdList: function(userid, fieldIdList) {
+    let promises = [];
+    fieldIdList.forEach(fieldId => {
+      promises.push(this.getPrefilledAnswer(userid, fieldId));
+    });
+    return Promise.all(promises);
   },
 
   removeAttachmentFromComment: function(attachmentId, commentId) {

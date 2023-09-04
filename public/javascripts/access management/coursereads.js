@@ -26,7 +26,7 @@ class CourseReads extends CourseLists {
       return sql.courses.getFieldsOfTicketBaseForCourse(courseId)
       .then((databaseFieldList) => {
 
-        //Tarkista, että kaikki annetut tiketin kentät ovat osa kurssin tikettipohjaa.
+        //Tarkistaa, että kaikki annetut tiketin kentät ovat osa kurssin tikettipohjaa.
         if (isFaq == false) {
           let databaseFieldIds = arrayTools.extractAttributes(databaseFieldList, 'id');
           for (let i=0; i<fieldList.length; ++i) {
@@ -38,13 +38,23 @@ class CourseReads extends CourseLists {
         return new Promise(function(resolve, reject) {
           var promises = [];
           fieldList.forEach(kvp => {
-            promises.push(sql.tickets.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
+            promises.push(sql.tickets.addFieldToTicket(ticketid, creatorId, kvp.id, kvp.arvo));
           });
           Promise.all(promises)
           .then(() => resolve(ticketid))
           .catch(() => reject(errorcodes.somethingWentWrong));
         });
       });
+    })
+    .then((ticketid) => {
+      if (isFaq == false) {
+        return sql.tickets.updatePrefilledAnswersFromList(creatorId, fieldList)
+        .then(() => {
+          return ticketid;
+        });
+      } else {
+        return ticketid;
+      }
     })
     .then((ticketid) => {
       return sql.tickets.createComment(ticketid, creatorId, content, 1)
@@ -155,8 +165,15 @@ class CourseReads extends CourseLists {
     })
   }
 
-  getFieldsOfTicketBase(courseId) {
-    return sql.courses.getFieldsOfTicketBaseForCourse(courseId);
+  getFieldsOfTicketBase(courseId, userId) {
+    return sql.courses.getFieldsOfTicketBaseForCourse(courseId)
+    .then((ticketFields) => {
+      let fieldIdList = arrayTools.extractAttributes(ticketFields, 'id');
+      return sql.tickets.getPrefilledAnswersFromFieldIdList(userId, fieldIdList)
+      .then((prefilledList) => {
+        return arrayTools.unionExtractKey(ticketFields, prefilledList, 'id', 'kentta', 'esitaytto', 'arvo');
+      });
+    })
   }
 
   getDescriptionOfTicketBase(courseId) {

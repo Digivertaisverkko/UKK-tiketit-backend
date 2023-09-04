@@ -106,9 +106,10 @@ module.exports = {
 
   getFieldsOfTicketBase: function(ticketbaseid) {
     const query = '\
-    SELECT id, otsikko, pakollinen, esitaytettava, valinnat, ohje FROM core.tikettipohjankentat tk \
+    SELECT id, otsikko, pakollinen, esitaytettava, valinnat, ohje \
+    FROM core.tikettipohjankentat tk \
     INNER JOIN core.kenttapohja kp \
-    ON kp.id=tk.kentta \
+      ON kp.id=tk.kentta \
     WHERE tk.tikettipohja=$1';
     return connection.queryAll(query, [ticketbaseid])
     .then((ticketBaseList) => {
