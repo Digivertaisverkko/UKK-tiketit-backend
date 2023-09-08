@@ -237,7 +237,6 @@ module.exports = {
   },
 
   updateDescriptionOfTicketBase: function(courseid, description) {
-    console.log('updateDescrption: ' + courseid + ' : ' + description);
     const query = '\
     UPDATE core.tikettipohja \
     SET kuvaus=$1 \

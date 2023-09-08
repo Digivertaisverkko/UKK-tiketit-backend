@@ -238,12 +238,12 @@ module.exports = {
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
 
-      let title = 'Kutsu kirjautumaan Tukki-järjestelmään<br>Invitation to Tukki system';
-      let content = '<p>Sinut on kutsuttu Tukki-järjestelmän kurssille ' + courseData.nimi + '.</p> \
+      let title = 'Kutsu kirjautumaan Tukki-järjestelmään - Invitation to Tukki system';
+      let content = '<p>Sinut on kutsuttu Tukki-tikettijärjestelmän kurssille ' + courseData.nimi + '.</p> \
       <p>Paina alla olevaa linkkiä liittyäksesi kurssille, ja luodaksesi tili järjestelmään.<br>\
       ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
       <p>Jos olet saanut tämän sähköpostin turhaan, sinun ei tarvitse tehdä mitään.</p><br>\
-      <p>You have been invited to join the course ' + courseData.nimi + ' in Tukki.</p>\
+      <p>You have been invited to join the course ' + courseData.nimi + ' in Tukki ticketing system.</p>\
       <p>Click the following link to join the course and to create an account:<br>\
       ' + redirect.urlToRegisterationPage(courseId, invitationId) + '</p>\
       <p>If you have received this mail in error, no action is needed from you.</p>';
