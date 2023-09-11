@@ -56,7 +56,7 @@ describe('Kaikki testit', function() {
   allrolesTests.performInvitationTests(superTeacherAgent, studentAgent, unsignedAgent);
 
   after(async function () {
-    if (process.env.TEST_KEEP_TABLES == true) {
+    if (process.env.TEST_KEEP_TABLES !== 'true') {
       await db.doMigration("000"); // tyhjennetään kanta
     }
   });
