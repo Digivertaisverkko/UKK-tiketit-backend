@@ -24,9 +24,8 @@ module.exports = {
 
   COMMENT: {
     INITIAL_BY_STUDENT: 1,
-    INITIAL_BY_TEACHER: 3, //?
-    RESPONSE_BY_TEACHER: 2,
-    NO_ACCESS: 22 //?
+    INITIAL_BY_TEACHER: 3, // En ole varma?
+    RESPONSE_BY_TEACHER: 2
   }
 
 }
