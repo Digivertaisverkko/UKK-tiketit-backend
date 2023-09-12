@@ -3,6 +3,7 @@ var request = require("request");
 const chaiHttp = require('chai-http');
 const testhelpers = require("./testhelpers");
 const TicketState = require("../public/javascripts/ticketstate");
+const CONSTS = require("./test-const.js");
 
 const expect = chai.expect;
 
@@ -15,7 +16,7 @@ module.exports = {
       agent.post('/api/login')
       .set('login-type', 'own')
       .set('code-challenge', 'ei ole')
-      .set('kurssi', 1)
+      .set('kurssi', CONSTS.COURSE.DEFAULT)
       .send({})
       .end((err, res) => {
         if (err != null) {
@@ -67,7 +68,7 @@ module.exports = {
 
   getAllTicketsTest: function(agent, expectedTicketCount) {
     it("Palauttaa kurssin tikettilistan", function(done) {
-      agent.get('/api/kurssi/1/tiketti/kaikki')
+      agent.get(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/kaikki`)
       .send({})
       .end((err, res) => {
         expect(res).to.have.status(200);
@@ -82,7 +83,7 @@ module.exports = {
 
   getAllTicketsFromUnattentedCourseTest: function(agent) {
     it('hakee väärän kurssin tikettilistan', function(done) {
-      testhelpers.testNoAccess('/api/kurssi/6/tiketti/kaikki',
+      testhelpers.testNoAccess(`/api/kurssi/${CONSTS.COURSE.NO_ACCESS}/tiketti/kaikki`,
                                 'get', agent, done);
     });
   },
@@ -97,7 +98,7 @@ module.exports = {
 
         let message = 'Tämän viestin on lähettänyt ' + agentDescription;
 
-        agent.post('/api/kurssi/1/tiketti')
+        agent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti`)
         .send({
           'otsikko': 'automaattitestin onnistunut tiketti (' + agentDescription + ')',
           'viesti': message,
@@ -111,21 +112,21 @@ module.exports = {
           }]
         })
         .end((err, res) => {
-          testhelpers.check.success.ticketPost(agent, res, 1, message, done);
+          testhelpers.check.success.ticketPost(agent, res, CONSTS.COURSE.DEFAULT, message, done);
           newTicketId = res.body.uusi.tiketti;
         });
       });
 
       it('luo uuden tiketin ilman kenttätauluja', function(done) {
         let message = 'Tämän testiviestin pitäisi mennä läpi ilman kenttätauluja';
-        agent.post('/api/kurssi/1/tiketti')
+        agent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti`)
         .send({
           'otsikko': 'Viesti ilman kenttätauluja',
           'viesti': message,
           'kentat': []
         })
         .end((err, res) => {
-          testhelpers.check.success.ticketPost(agent, res, 1, message, done);
+          testhelpers.check.success.ticketPost(agent, res, CONSTS.COURSE.DEFAULT, message, done);
         })
       });
 
@@ -144,7 +145,7 @@ module.exports = {
 
       it('luo uuden tiketin väärillä kenttätauluilla', function(done) {
         let message = 'Tämän testiviestin ei pitäisi olla mennyt läpi väärillä kenttätauluilla';
-        agent.post('/api/kurssi/1/tiketti')
+        agent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti`)
         .send({
           'otsikko': 'Viallinen viesti väärillä kenttätauluilla',
           'viesti': message,
@@ -166,7 +167,7 @@ module.exports = {
 
         let message = 'Tämän viestin on lähettänyt ' + agentDescription;
 
-        agent.post('/api/kurssi/6/tiketti')
+        agent.post(`/api/kurssi/${CONSTS.COURSE.NO_ACCESS}/tiketti`)
         .send({
           'otsikko': 'automaattitestin onnistunut tiketti (' + agentDescription + ')',
           'viesti': message,
@@ -185,7 +186,7 @@ module.exports = {
       });
 
       it('luo uuden tiketin ilman http-vartaloa', function(done) {
-        agent.post('/api/kurssi/1/tiketti')
+        agent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti`)
         .send({})
         .end((err, res) => {
           testhelpers.check.error.wrongParameters(res, done);
@@ -561,7 +562,7 @@ module.exports = {
       });
 
       it('hakee käyttäjän kurssioikeudet ('+agentDescription+')', function(done) {
-        agent.get('/api/kurssi/1/oikeudet')
+        agent.get(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/oikeudet`)
         .send({})
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -574,7 +575,7 @@ module.exports = {
       });
 
       it('hakee käyttäjän kurssioikeudet väärältä kurssilta ('+agentDescription+')', function(done) {
-        agent.get('/api/kurssi/6/oikeudet')
+        agent.get(`/api/kurssi/${CONSTS.COURSE.NO_ACCESS}/oikeudet`)
         .send({})
         .end((err, res) => {
           testhelpers.check.error.noAccess(res, done);
@@ -588,10 +589,10 @@ module.exports = {
 
   performAllGenericFaqTests: function(agent, agentDescription) {
     describe('UKK-tikettien haku luvalliselta kurssilta ('+agentDescription+')', function() {
-      testhelpers.performAllGenericFaqTestsToOneCourse(agent, agentDescription, 1, 7);
+      testhelpers.performAllGenericFaqTestsToOneCourse(agent, agentDescription, CONSTS.COURSE.DEFAULT, CONSTS.FAQ.BY_TEACHER);
     });
     describe('UKK-tikettien haku kurssilta, jolle ei osallistuta ('+agentDescription+')', function() {
-      testhelpers.performAllGenericFaqTestsToOneCourse(agent, agentDescription, 6, 13);
+      testhelpers.performAllGenericFaqTestsToOneCourse(agent, agentDescription, CONSTS.COURSE.NO_ACCESS, CONSTS.FAQ.IN_NO_ACCESS_COURSE);
     });
   },
 
@@ -652,7 +653,7 @@ module.exports = {
     describe('Kurssille kutsuminen', function() {
 
       it('opiskelija kutsuu kurssille opiskelijan', function(done) {
-        studentAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        studentAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/osallistujat/kutsu`)
         .send({
           'sposti': 'testi@example.com',
           'rooli': 'opiskelija'
@@ -663,7 +664,7 @@ module.exports = {
       });
 
       it('opiskelija kutsuu kurssille opettajan', function(done) {
-        studentAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        studentAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/osallistujat/kutsu`)
         .send({
           'sposti': 'testi@example.com',
           'rooli': 'opettaja'
@@ -674,7 +675,7 @@ module.exports = {
       });
 
       it('opiskelija kutsuu kurssille roskaa', function(done) {
-        studentAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        studentAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/osallistujat/kutsu`)
         .send({
           'sposti': 'testi@example.com',
           'rooli': 'sdflkjl'
@@ -685,7 +686,7 @@ module.exports = {
       });
 
       it('opettaja kutsuu kurssille opiskelijan', function(done) {
-        teacherAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        teacherAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/osallistujat/kutsu`)
         .send({
           'sposti': 'testi@example.com',
           'rooli': 'opiskelija'
@@ -696,7 +697,7 @@ module.exports = {
       });
 
       it('opettaja kutsuu kurssille opettajan', function(done) {
-        teacherAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        teacherAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/osallistujat/kutsu`)
         .send({
           'sposti': 'testi@example.com',
           'rooli': 'opettaja'
@@ -707,7 +708,7 @@ module.exports = {
       });
 
       it('opettaja kutsuu kurssille ilman roolia', function(done) {
-        teacherAgent.post('/api/kurssi/1/osallistujat/kutsu')
+        teacherAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/osallistujat/kutsu`)
         .send({
           'sposti': 'testi@example.com'
         })
@@ -719,7 +720,7 @@ module.exports = {
       let invitationId = '';
 
       it('opettaja kutsuu kurssille opiskelijan, joka on jo luonut tilin', function(done) {
-        teacherAgent.post('/api/kurssi/3/osallistujat/kutsu')
+        teacherAgent.post(`/api/kurssi/${CONSTS.COURSE.TEACHER_ACCESS}/osallistujat/kutsu`)
         .send({
           'sposti': 'esko.seppa@example.com',
           'rooli': 'opiskelija'
@@ -731,7 +732,7 @@ module.exports = {
       });
 
       it('opettaja kutsuu kurssille opettajan, joka on jo luonut tilin', function(done) {
-        teacherAgent.post('/api/kurssi/3/osallistujat/kutsu')
+        teacherAgent.post(`/api/kurssi/${CONSTS.COURSE.TEACHER_ACCESS}/osallistujat/kutsu`)
         .send({
           'sposti': 'marianna.laaksonen@example.com',
           'rooli': 'opettaja'
@@ -742,7 +743,7 @@ module.exports = {
       });
 
       it('kirjautumaton käyttäjä hakee kutsun tiedot', function(done) {
-        unsignedAgent.get('/api/kurssi/3/osallistujat/kutsu/'+invitationId)
+        unsignedAgent.get(`/api/kurssi/${CONSTS.COURSE.TEACHER_ACCESS}/osallistujat/kutsu/${invitationId}`)
         .send({})
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -752,7 +753,7 @@ module.exports = {
       });
 
       it('opiskelija hakee kutsun tiedot', function(done) {
-        studentAgent.get('/api/kurssi/3/osallistujat/kutsu/'+invitationId)
+        studentAgent.get(`/api/kurssi/${CONSTS.COURSE.TEACHER_ACCESS}/osallistujat/kutsu/${invitationId}`)
         .send({})
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -762,7 +763,7 @@ module.exports = {
       });
 
       it('hakee kutsun tiedot väärältä kurssilta', function(done) {
-        studentAgent.get('/api/kurssi/2/osallistujat/kutsu/' + invitationId)
+        studentAgent.get(`/api/kurssi/${CONSTS.COURSE.NO_ACCESS}/osallistujat/kutsu/${invitationId}`)
         .send({})
         .end((err, res) => {
           expect(res).to.have.status(204);
@@ -772,7 +773,7 @@ module.exports = {
       });
 
       it('opiskelija hyväksyy kutsun', function(done) {
-        studentAgent.post('/api/kurssi/3/osallistujat')
+        studentAgent.post(`/api/kurssi/${CONSTS.COURSE.TEACHER_ACCESS}/osallistujat`)
         .send({
           'kutsu': invitationId
         })
@@ -792,6 +793,53 @@ module.exports = {
 
     });
 
+  },
+
+  performAllSuccesfullAttachmentTests: function(agent, agentDescription, courseId, ticketId, commentId) {
+    describe('Liitteiden käsittely (' + agentDescription + ')', function() {
+
+      let attachmentId = '';
+
+      it('lisää liitteen omaan kommenttiin', function(done) {
+        agent.post(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite`)
+        .attach()
+        .attach('tiedosto', './test/Testiliite.png', 'Testiliite.png')
+        .end((err, res) => {
+          testhelpers.check.success.normalSuccess(err, res, () => {
+            expect(res.body).to.include.key('liite');
+            attachmentId = res.body.liite;
+            done();
+          });
+        })
+      });
+
+      it('hakee kommentin liitetiedot', function(done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/kaikki`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('array');
+          res.body.forEach(element => {
+            if (element.id == commentId) {
+              expect(element).to.include.key(['liitteet']);
+              expect(element.liitteet).to.be.an('array').with.lengthOf(1);
+              expect(element.liitteet[0].tiedosto).to.equal(attachmentId);
+            }
+          });
+          done();
+        });
+      });
+
+      it('hakee liitteen kommentista', function(done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite/${attachmentId}`)
+        .send({})
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          done();
+        });
+      });
+
+    });
   }
 
 }

@@ -2,6 +2,8 @@ const testhelpers = require("../testhelpers.js");
 const allrolesTests = require("../allroles-tests.js");
 const TicketState = require('./../../public/javascripts/ticketstate.js');
 
+const CONSTS = require("../test-const.js");
+
 const chai = require("chai");
 const expect = chai.expect;
 
@@ -20,7 +22,7 @@ module.exports = {
       describe("Turhaa odottelua", function() {
         it("Hakee kurssitietoa ilman testausta.", function(done) {
       
-          studentAgent.get('/api/kurssi/1')
+          studentAgent.get(`/api/kurssi/${CONSTS.COURSE.DEFAULT}`)
           .send({})
           .end((err, res) => {
             done();
@@ -49,28 +51,28 @@ module.exports = {
       allrolesTests.performSettingsTests(studentAgent, 'opiskelija');
       
       allrolesTests.postNewTicketTests(studentAgent, 'opiskelija');
-      allrolesTests.fetchTicketSuccesfullyTest(studentAgent, 'opiskelija', 1, 1);
-      allrolesTests.fetchTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3);
+      allrolesTests.fetchTicketSuccesfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT);
+      allrolesTests.fetchTicketUnsuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_TEACHER);
     
-      allrolesTests.updateTicketSuccessfullyTest(studentAgent, 'opiskelija', 1, 1);
+      allrolesTests.updateTicketSuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT);
 
       describe('Tiketin muokkausta, kun tiketti ei ole opiskelijan oma', function () {
-        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 1, 3, superTeacher);
+        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_TEACHER, superTeacher);
       });
 
       describe('Tiketin muokkausta kurssilla, jolla opiskelija ei ole osallistujana', function() {
-        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 6, 12, superTeacher);
+        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, superTeacher);
       });
 
       describe('Tiketin muokkausta kurssilla, jolla opiskelija on luonut tiketin, muttei ole enää osallistujana', function() {
-        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', 2, 14, superTeacher);
+        allrolesTests.updateTicketUnsuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.OLD_ACCESS, CONSTS.TICKET.OLD_ACCESS_BY_TEACHER, superTeacher);
       });
     
     
       describe('Opiskelijan tikettipohjan testit', function() {
-        allrolesTests.fetchTicketBaseSuccessfullyTest(studentAgent, 'opiskelija', 1);
-        allrolesTests.updateTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', 1, superStudent);
-        allrolesTests.fetchTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', 6);
+        allrolesTests.fetchTicketBaseSuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.DEFAULT);
+        allrolesTests.updateTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.DEFAULT, superStudent);
+        allrolesTests.fetchTicketBaseUnsuccessfullyTest(studentAgent, 'opiskelija', CONSTS.COURSE.NO_ACCESS);
       });
       
       
@@ -84,14 +86,14 @@ module.exports = {
     
         it('lisää uuden kommentin aloittamaansa tikettiin', function(done) {
           let message = 'Testirajapinnan kommentti 1';
-          testhelpers.testSuccessfullCommenting(studentAgent, message, TicketState.sent, 1, 1, done);
+          testhelpers.testSuccessfullCommenting(studentAgent, message, TicketState.sent, CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT, done);
         });
       
       
         it('lisää uuden kommentin toisen aloittamaan tikettiin', function(done) {
           let message = 'Tämä viesti ei mene läpi, koska käyttäjällä ei ole oikeuksia tikettiin.';
           testhelpers.testErrorResponseWithBody(
-            '/api/kurssi/1/tiketti/3/kommentti',
+            `/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/${CONSTS.TICKET.BY_TEACHER}/kommentti`,
             'post',
             studentAgent,
             {
@@ -105,7 +107,7 @@ module.exports = {
       
         it('lisää uuden kommentin arkistoituun tikettiin', function(done) {
           let message = 'Arkistoidun tiketin testikommentti';
-          testhelpers.testSuccessfullCommenting(studentAgent, message, TicketState.sent, 1, 2, done);
+          testhelpers.testSuccessfullCommenting(studentAgent, message, TicketState.sent, CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT_2, done);
         });
     
     
@@ -113,7 +115,7 @@ module.exports = {
         it('päivittää oman kommentin', function(done) {
           let message = 'Automaattitestin päivittämä kommentti.';
     
-          studentAgent.put('/api/kurssi/1/tiketti/1/kommentti/1')
+          studentAgent.put(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/${CONSTS.TICKET.BY_STUDENT}/kommentti/${CONSTS.COMMENT.INITIAL_BY_STUDENT}`)
           .send({
             'viesti': message
           })
@@ -122,12 +124,12 @@ module.exports = {
             expect(res.body).to.have.keys(['success']);
             expect(res.body.success).to.equal(true);
     
-            studentAgent.get('/api/kurssi/1/tiketti/1/kommentti/kaikki')
+            studentAgent.get(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/${CONSTS.TICKET.BY_STUDENT}/kommentti/kaikki`)
             .send({})
             .end((err, res) => {
               expect(res).to.have.status(200);
               expect(res.body).to.be.an('array');
-              let editedComment = res.body.find((element) => element.id == 1);
+              let editedComment = res.body.find((element) => element.id == CONSTS.COMMENT.INITIAL_BY_STUDENT);
               expect(editedComment).to.exist;
               expect(editedComment.viesti).to.eql(message);
               done();

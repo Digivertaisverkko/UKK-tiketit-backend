@@ -6,6 +6,8 @@ const chai = require("chai");
 const allrolesTests = require("../allroles-tests.js");
 const testhelpers = require("../testhelpers.js");
 
+const CONSTS = require("../test-const.js");
+
 const expect = chai.expect;
 
 module.exports = {
@@ -21,7 +23,7 @@ module.exports = {
       describe("Turhaa odottelua", function() {
         it("Hakee kurssitietoa ilman testausta.", function(done) {
       
-          unsignedAgent.get('/api/kurssi/1')
+          unsignedAgent.get(`/api/kurssi/${CONSTS.COURSE.DEFAULT}`)
           .send({})
           .end((err, res) => {
             done();
@@ -44,7 +46,7 @@ module.exports = {
     
       describe('Laittomat operaatiot kirjautumattomalle käyttäjälle', function() {
         it('kieltäytyy kirjoittamasta uutta tikettiä', function(done) {
-          unsignedAgent.post('/api/kurssi/1/tiketti')
+          unsignedAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti`)
           .send({
             'otsikko': 'Kirjautumattoman käyttäjän tiketti',
             'viesti': 'Kirjautumattoman käyttäjän kysymä kysymys',
@@ -63,7 +65,7 @@ module.exports = {
         })
     
         it('kieltäytyy kirjoittamasta uutta kommenttia', function(done) {
-          unsignedAgent.post('/api/kurssi/1/tiketti/1/kommentti')
+          unsignedAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/${CONSTS.TICKET.BY_STUDENT}/kommentti`)
           .send({
             'viesti': 'Tämä kommentti ei mene läpi',
             'tila': 1
@@ -76,15 +78,15 @@ module.exports = {
     
       describe('Tiketin hakeminen kirjautumatta', function() {
         it('hakee tiketin (ei ukk) kirjautumatta', function(done) {
-          testhelpers.testNotSignedIn('/api/kurssi/1/tiketti/1/', 'get', unsignedAgent, done);
+          testhelpers.testNotSignedIn(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/${CONSTS.TICKET.BY_STUDENT}/`, 'get', unsignedAgent, done);
         });
       
         it('hakee tiketin kentät (ei ukk) kirjautumatta', function(done) {
-          testhelpers.testNotSignedIn('/api/kurssi/1/tiketti/1/kentat', 'get', unsignedAgent, done);
+          testhelpers.testNotSignedIn(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/${CONSTS.TICKET.BY_STUDENT}/kentat`, 'get', unsignedAgent, done);
         });
     
         it('hakee tiketin kommentit (ei ukk) kirjautumatta', function(done) {
-          testhelpers.testNotSignedIn('/api/kurssi/1/tiketti/1/kommentti/kaikki', 'get', unsignedAgent, done);
+          testhelpers.testNotSignedIn(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/tiketti/${CONSTS.TICKET.BY_STUDENT}/kommentti/kaikki`, 'get', unsignedAgent, done);
         });
       });
 

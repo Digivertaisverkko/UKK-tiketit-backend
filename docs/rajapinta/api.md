@@ -761,10 +761,6 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
   aloittaja: $kurssilainen-olio
   tila: $string
   kurssi: $int
-  liitteet: 
-  [{
-    id: $UUID
-  }]
 }
 ```
 [Kurssilainen-olio](#kurssilainen-olio)<br>
