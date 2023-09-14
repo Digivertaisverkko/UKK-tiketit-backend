@@ -6,6 +6,8 @@ var request = require("request");
 const chaiHttp = require('chai-http');
 const fs = require('fs');
 
+const CONSTS = require('../testhelpers/test-const.js');
+
 
 const connection = require('../public/javascripts/connection.js');
 const db = require('../migrations/migrations.js');
@@ -31,6 +33,8 @@ describe('Kaikki testit', function() {
     const sampleData = fs.readFileSync(__dirname + "/sample_data.sql", "utf8");
     await client.query(sampleData);
     await client.release();
+
+    fs.copyFileSync('./test/Testiliite.png', process.env.ATTACHMENT_DIRECTORY + CONSTS.ATTACHMENT.NO_ACCESS);
   });
 
   const app = require('../app.js');

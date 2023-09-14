@@ -27,6 +27,10 @@ module.exports = {
     INITIAL_BY_TEACHER: 3, // En ole varma?
     RESPONSE_BY_TEACHER: 2,
     NO_ACCESS: 20
+  },
+
+  ATTACHMENT: {
+    NO_ACCESS: '000bbce1-d377-4e46-868f-17a51f60f23a'
   }
 
 }

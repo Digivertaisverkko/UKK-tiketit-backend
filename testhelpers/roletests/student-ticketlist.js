@@ -77,7 +77,11 @@ module.exports = {
       
       
       
-      
+      describe('Opiskelijat liitetestit', function() {
+        allrolesTests.performAllSuccesfullAttachmentTests(studentAgent, 'opettaja', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT, CONSTS.COMMENT.INITIAL_BY_STUDENT);
+        allrolesTests.postAttachmentUnsuccesfully(studentAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, CONSTS.COMMENT.NO_ACCESS);
+        allrolesTests.fetchAttachmentUnsuccesfully(studentAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, CONSTS.COMMENT.NO_ACCESS, CONSTS.ATTACHMENT.NO_ACCESS);
+      });
       
       
       

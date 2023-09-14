@@ -873,7 +873,7 @@ module.exports = {
   fetchAttachmentUnsuccesfully: function(agent, agentDescription, courseId, ticketId, commentId, attachmentId) {
     describe('Liitteiden epäonnistunut haku (' + agentDescription + ')', function() {
       it('hakee liitteen epäonnistuneesti', function(done) {
-        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite/${attachmentId}`)
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite/${attachmentId}/tiedosto`)
         .send({})
         .end((err, res) => {
           testhelpers.check.error.noAccess(res, done);
