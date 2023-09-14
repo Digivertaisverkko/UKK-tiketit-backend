@@ -490,7 +490,6 @@ module.exports = {
         });
       });
     });
-    console.log('qweqweqwe');
   },
 
   updateTicketBaseUnsuccessfullyTest: function(agent, agentDescription, courseId, checkerAgent) {
@@ -800,6 +799,17 @@ module.exports = {
 
       let attachmentId = '';
 
+      const binaryParser = function (res, cb) {
+        res.setEncoding("binary");
+        res.data = "";
+        res.on("data", function (chunk) {
+          res.data += chunk;
+        });
+        res.on("end", function () {
+          cb(null, new Buffer(res.data, "binary"));
+        });
+      };
+
       it('lisää liitteen omaan kommenttiin', function(done) {
         agent.post(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite`)
         .attach()
@@ -831,11 +841,42 @@ module.exports = {
       });
 
       it('hakee liitteen kommentista', function(done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite/${attachmentId}/tiedosto`)
+        .buffer()
+        .parse(binaryParser)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.exist;
+          expect(res.body).to.not.eql({});
+          done();
+        });
+      });
+
+    });
+  },
+
+  postAttachmentUnsuccesfully: function(agent, agentDescription, courseId, ticketId, commentId) {
+    describe('Liitteiden epäonnistunut lisäys (' + agentDescription + ')', function() {
+
+      let attachmentId = '';
+
+      it('lisää liitteen epäonnistuneesti kommenttiin', function(done) {
+        agent.post(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite`)
+        .attach('tiedosto', './test/Testiliite.png', 'Testiliite.png')
+        .end((err, res) => {
+          testhelpers.check.error.noAccess(res, done);
+        });
+      });
+    });
+  },
+
+  fetchAttachmentUnsuccesfully: function(agent, agentDescription, courseId, ticketId, commentId, attachmentId) {
+    describe('Liitteiden epäonnistunut haku (' + agentDescription + ')', function() {
+      it('hakee liitteen epäonnistuneesti', function(done) {
         agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite/${attachmentId}`)
         .send({})
         .end((err, res) => {
-          expect(res).to.have.status(200);
-          done();
+          testhelpers.check.error.noAccess(res, done);
         });
       });
 

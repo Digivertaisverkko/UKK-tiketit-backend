@@ -59,6 +59,8 @@ module.exports = {
 
       describe('Opettajan liitetestit', function() {
         allrolesTests.performAllSuccesfullAttachmentTests(teacherAgent, 'opettaja', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT, CONSTS.COMMENT.RESPONSE_BY_TEACHER);
+        allrolesTests.postAttachmentUnsuccesfully(teacherAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, CONSTS.COMMENT.NO_ACCESS);
+        allrolesTests.fetchAttachmentUnsuccesfully(teacherAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, CONSTS.COMMENT.NO_ACCESS, '3');
       });
     
     

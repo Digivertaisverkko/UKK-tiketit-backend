@@ -148,7 +148,25 @@ module.exports = {
           }
           if (done) done();
         });
+      },
+
+      commentHasAttachment: function(agent, courseId, ticketId, commentId, attachmentId, attachmentName, valuesMustMatch, done) {
+        agent.get(`/api/kurssi/${courseId}/tiketti/${ticketId}/kommentti/${commentId}/liite/${attachmentId}`)
+        .send({})
+        .end((err, res) => {
+          if (valuesMustMatch) {
+            expect(res).to.have.status(200);
+            expect(res.file).to.exist;
+            done();            
+          } else {
+            expect(res).to.have.status(204);
+            expect(res.file).to.not.exist;
+            done();
+          }
+        });
       }
+
+
     } //END SUCCESS
   },
 

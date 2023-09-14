@@ -76,7 +76,12 @@ module.exports = {
             return Promise.reject(errorcodes.operationNotPossible);
           }
           storedTicketData = ticketData;
-          return sql.courses.roleInCourse(ticketData.kurssi, storedUserId);
+          return sql.courses.roleInCourse(ticketData.kurssi, storedUserId)
+          .catch((error) => {
+            return error == errorcodes.noResults ? 
+              Promise.reject(errorcodes.noPermission) :
+              Promise.reject(error); 
+          });
         })  
         .then((courseStatus) => {
           if (courseStatus.asema == 'opettaja' || storedTicketData.aloittaja == storedUserId) {
@@ -152,7 +157,7 @@ module.exports = {
       storedUserId = handle.userid;
       return sql.tickets.getComment(commentId)
       .then((dataList) => {
-        return dataList.length === 0 ? Promise.reject(errorcodes.noResults) : dataList;
+        return dataList.length === 0 ? Promise.reject(errorcodes.noPermission) : dataList;
       });
     })
     .then((commentDataList) => {
