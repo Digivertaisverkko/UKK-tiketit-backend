@@ -29,7 +29,6 @@ module.exports = {
     WHERE id=$1';
     return connection.queryOne(query, [ticketid])
     .then((data) => {
-      //TODO: UKK:ihin pitäisi päästä käsiksi kirjautumatta.
       storedData = data;
       const query2 = '\
       SELECT profiili, asema FROM core.kurssinosallistujat \
