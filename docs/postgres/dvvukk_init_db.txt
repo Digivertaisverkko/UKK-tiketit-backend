@@ -2,7 +2,7 @@
 -- HUOM: Muokaa käyttäjänimiä ja tietokannan nimeä tarvittaessa!
 -- $ sudo -u postgres psql
 
-CREATE USER "[käyttäjätunnus]" WITH PASSWORD 'salasana';
-CREATE DATABASE "dvvukk" WITH OWNER "[käyttäjätunnus]";
+CREATE USER "[käyttäjätunnus]" WITH PASSWORD '[salasana]';
+CREATE DATABASE "[tietokanta]" WITH OWNER "[käyttäjätunnus]";
 
 \q
