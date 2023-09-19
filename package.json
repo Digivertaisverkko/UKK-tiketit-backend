@@ -1,6 +1,6 @@
 {
-  "name": "ukk-backend",
-  "version": "0.0.0",
+  "name": "tukki",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "build:ui": "cd ./UKK-tiketit && npm ci && npm run test:prod && npm run lint && rm -rf ./dist && npm run build && rm -rf ../static && mv ./dist/tikettisysteemi ../static",
