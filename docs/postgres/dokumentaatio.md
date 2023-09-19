@@ -1,7 +1,7 @@
 # Postgres asetukset
 
 ## Mikä tämä kansio on?
-Tästä kansiosta löytyy dokumentaatio backendin käyttämästä tietokannasta ja sen asetuksista. Tiedostosta löytyy myös listattuna komennot, jotka ajamalla tietokannan saa backendin vaatimaan toimintakuntoon.\
+Tästä kansiosta löytyy dokumentaatio palvelimen käyttämästä tietokannasta ja sen asetuksista. Tiedostosta löytyy myös listattuna komennot, jotka ajamalla tietokannan saa palvelimen vaatimaan toimintakuntoon.\
 Kaikissa tässä kansiossa olevissa tiedostoissa ei ole listattu tietokannassa käytettyjä käyttäjätunnuksia ja salasanoja, vaan ne on korvattu hakasulkeilla rajattuja käyttäjärooleja (esim. [peruskäyttäjä], [admin] tai [salasana])
 ## Kansion tiedostot
 ### [dokumentaatio.md](dokumentaatio.md)
@@ -12,21 +12,21 @@ Sisältää komennot tietokannan ja käyttäjien alustamiseksi.
 
 # Tietokantapalvelimen asetukset
 
-Tämä backend tarvitsee kaverikseen postgres-tietokannan, jossa tallennettua tietoa säilytetään. Tässä dokumentaatiossa ei ole merkitty Oulun yliopistossa ja OAMKissa käytössä olevan tietokannan osoitteita, käyttäjätunnuksia tai salasanoja. Tässä dokumentaatiossa mainitaan vain kaikki elementit, jotka löytyvät tietokannasta ja joita tarvitaan tietokantaan, jotta tämä toimisi.
+Tämä palvelin tarvitsee kaverikseen postgres-tietokannan, jossa tallennettua tietoa säilytetään. Tässä dokumentaatiossa ei ole merkitty Oulun yliopistossa ja OAMKissa käytössä olevan tietokannan osoitteita, käyttäjätunnuksia tai salasanoja. Tässä dokumentaatiossa mainitaan vain kaikki elementit, jotka löytyvät tietokannasta ja joita tarvitaan tietokantaan, jotta tämä toimisi. Postgres-tietokannan pystyttäminen ja ajaminen on siis käyttäjän tehtävä erikseen.
 
 ## Tietokannassa olevat skeemat
 ### **public**
-Tänne menee kaikki LTI-integraation vaatimat taulut. Sen vuoksi oikeudet tähän skeemaan on rajattu siten, että ainoastaan superuserilla ja LTI-käyttäjällä on oikeudet kyseiseen skeemaan. **PARAS TAPA** tehdä kyseinen skeema-jako olisi luoda erillinen *'lti'-skeema*, mutta ongelmana on se, että käytössä oleva "ltijs-sequelize" -plugin olettaa käyttävänsä 'public' skeemaa.
+Tänne menee kaikki LTI-integraation vaatimat taulut. Sen vuoksi oikeudet tähän skeemaan on rajattu siten, että ainoastaan superuserilla ja LTI-käyttäjällä on oikeudet kyseiseen skeemaan. **Huom!** Vaikka oikeaoppisesti paras tapa tehdä kyseinen skeema-jako olisi luoda erillinen *'lti'-skeema*, ongelmana on se, että käytössä oleva "ltijs-sequelize" -plugin olettaa käyttävänsä 'public' skeemaa.
 ### **core**
-Tähän schemaan kirjataan kaikki backendin tarvitsemat tiedot. Tämä dokumentaatio käsittelee lähinnä core-schemassa olevia tauluja. Ainoastaan Backend-käyttäjällä on rajatut oikeudet tähän tauluun.
+Tähän schemaan kirjataan kaikki palvelimen tarvitsemat tiedot. Tämä dokumentaatio käsittelee lähinnä core-schemassa olevia tauluja. Ainoastaan Backend-käyttäjällä on rajatut oikeudet tähän tauluun.
 
 
 ## Tietokannan käyttäjäroolit
 Tietokannan käyttäjät. Näiden käyttäjien nimet voivat olla mitä vain, kunhan ne kirjataan ympäristömuuttujiin.
 ### **Admin**
-Admin käyttäjä, jolla on admin oikeudet kaikkialle. Tämä ei ole tärkeä backendin kannalta, mutta sellainen kannattaa olla olemassa. Käytännössä tämä rooli voidaan jakaa myös pienempiin rooleihin tarvittaessa. Tiedostoissa esitetään muodossa [admin].
+Admin käyttäjä, jolla on admin oikeudet kaikkialle. Tämä ei ole tärkeä palvelimen kannalta, mutta sellainen kannattaa olla olemassa. Käytännössä tämä rooli voidaan jakaa myös pienempiin rooleihin tarvittaessa. Tiedostoissa esitetään muodossa [admin].
 ### **Backend-käyttäjä**
-Peruskäyttäjä, jona backend kirjautuu sisälle. Tämä käyttäjä omistaa backendin tietokannan. Tiedostoissa esitetään muodossta [peruskäyttäjä].
+Peruskäyttäjä, jona palvelin kirjautuu sisälle. Tämä käyttäjä omistaa palvelimen tietokannan. Tiedostoissa esitetään muodossa [peruskäyttäjä].
 
 
 ## Esimerkkikomento Azuren tietokantapalvelimeen yhdistämiseen:
@@ -62,7 +62,7 @@ TAI\
 
 Eli kun syötät komentoja tästä ohjeesta, niin seuraa tarkasti tuota, jotta olet varmasti yhdistynyt oikeaan tietokantaan!
 
-Aluksi lisätään uusi käyttäjä tietokantajärjestelmään. UKK-tiketit-backend käyttää peruskäyttäjää tietokantaoperaatioiden suorittamisessa. Muuta salasana joksikin muuksi ja paremmanksi!
+Aluksi lisätään uusi käyttäjä tietokantajärjestelmään. Tämä Tukki-palvelin käyttää peruskäyttäjää tietokantaoperaatioiden suorittamisessa. Muuta salasana joksikin muuksi ja paremmanksi!
 
 ```postgres=# CREATE USER "[peruskäyttäjä]" WITH PASSWORD '[salasana]';```
 
@@ -72,7 +72,7 @@ Seuraavaksi luodaan uusi tietokanta:
 
 ```postgres=# CREATE DATABASE "dvvukk" WITH OWNER "[peruskäyttäjä]";```
 
-Nyt tietokanta on valmis käytettäväksi backendin kanssa. Backend ajaa automaattisesti projektin juuressa olevassa ```migrations/sql``` kansiossa olevat sql skriptit Postgrator -palikalla backendin käynnistämisen ja testien ajon yhteydessä. Tietokannan skeeman päivittäminen tapahtuu näiden skriptien avulla, joten tietokannan pääkäyttäjän ei tarvitse manuaalisesti päivittää tietokantaa.
+Nyt tietokanta on valmis käytettäväksi palvelimen kanssa. Pavelin ajaa automaattisesti projektin juuressa olevassa ```migrations/sql``` kansiossa olevat sql skriptit Postgrator -palikalla palvelimen käynnistämisen ja testien ajon yhteydessä. Tietokannan skeeman päivittäminen tapahtuu näiden skriptien avulla, joten tietokannan pääkäyttäjän ei tarvitse manuaalisesti päivittää tietokantaa.
 
 HUOM! Jos yhdistät tietokantaan peruskäyttäjänä, niin sinun täytyy yhdistää tietokantaan verkon yli! PostgreSQL:ään voi yhdistää paikallisesti AINOASTAAN käyttämällä paikallista käyttäjätunnusta. Eli esimerkiksi näin voit yhdistää paikalliseen PostgreSQL tietokantapalvelimeen verkon yli:\
 ```$ psql -U "[peruskäyttäjä]" -h "127.0.0.1" -d "dvvukk"```
