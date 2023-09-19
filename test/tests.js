@@ -35,6 +35,7 @@ describe('Kaikki testit', function() {
     await client.release();
 
     fs.copyFileSync('./test/Testiliite.png', process.env.ATTACHMENT_DIRECTORY + CONSTS.ATTACHMENT.NO_ACCESS);
+    fs.copyFileSync('./test/Testiliite.png', process.env.ATTACHMENT_DIRECTORY + CONSTS.ATTACHMENT.IN_FAQ)
   });
 
   const app = require('../app.js');

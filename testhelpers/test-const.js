@@ -30,7 +30,8 @@ module.exports = {
   },
 
   ATTACHMENT: {
-    NO_ACCESS: '000bbce1-d377-4e46-868f-17a51f60f23a'
+    NO_ACCESS: '000bbce1-d377-4e46-868f-17a51f60f23a',
+    IN_FAQ: '111ccdf2-d377-4e46-868f-17a51f60f23a'
   }
 
 }

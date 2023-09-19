@@ -240,3 +240,4 @@ INSERT INTO core.kommentti (tila, tiketti, lahettaja, viesti, aikaleima) VALUES 
 -- Liitteet
 
 INSERT INTO core.liite (kommentti, tiedosto, nimi, koko) VALUES (20, '000bbce1-d377-4e46-868f-17a51f60f23a', 'Testiliite.png', 19000);
+INSERT INTO core.liite (kommentti, tiedosto, nimi, koko) VALUES (12, '111ccdf2-d377-4e46-868f-17a51f60f23a', 'Testiliite.png', 19000);

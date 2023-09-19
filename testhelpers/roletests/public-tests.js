@@ -90,6 +90,16 @@ module.exports = {
         });
       });
 
+      describe('Liitteiden hakeminen kirjautumatta', function() {
+        it('hakee liitteen epäonnistuneesti', function(done) {
+          unsignedAgent.get(`/api/kurssi/${CONSTS.COURSE.NO_ACCESS}/tiketti/${CONSTS.TICKET.NO_ACCESS}/kommentti/${CONSTS.COMMENT.NO_ACCESS}/liite/${CONSTS.ATTACHMENT.NO_ACCESS}/tiedosto`)
+          .send({})
+          .end((err, res) => {
+            testhelpers.check.error.notSignedIn(res, done);
+          });
+        });
+      });
+
     
       //allrolesTests.fetchTicketBaseUnsuccessfullyTest(unsignedAgent, 'kirjautumatta', 1);
       //allrolesTests.updateTicketBaseUnsuccessfullyTest(unsignedAgent, 'kirjautumatta', 1);
