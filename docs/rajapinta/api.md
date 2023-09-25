@@ -1,7 +1,7 @@
 
 # REST-rajapinnan määritelmä
 
-Alla on listattu kaikki backendin tukemat REST-rajapinnan osoitteet, sekä niihin lähetettävä HTTP-komento, lähetettävät parametrit ja palautetun vastauksen muoto. Osoitteet on pyritty lajittelemaan loogisesti ja samanlaiset komennot vieretysten.
+Alla on listattu kaikki palvelimen tukemat REST-rajapinnan osoitteet, sekä niihin lähetettävä HTTP-komento, lähetettävät parametrit ja palautetun vastauksen muoto. Osoitteet on pyritty lajittelemaan loogisesti ja samanlaiset komennot vieretysten.
 
 Virhetilojen sattuessa rajapinta palauttaa [virhetaulukon](/docs/rajapinta/virhe.md) mukaisen virheen.
 
@@ -15,7 +15,7 @@ Virhetilojen sattuessa rajapinta palauttaa [virhetaulukon](/docs/rajapinta/virhe
 
 
 ## LTI-rajapinta
-DVVUKK-backend on LTI-työkalu (tool), tai vanhaa terminologiaa käyttäen tarjoaja (provider). Työkalu tukee sekä 1.1, että 1.3 LTI-standardia. Kumpaakin standardia varten on omat rajapintansa, joihin pitää tarvittaessa ottaa yhteyttä. Näihin rajapintoihin ei ole tarkoitus ottaa yhteyttä muussa tapauksessa kuin LTI:n kautta, ja olettavan kommunikoinnin olevan LTI-standardin mukaista.
+Tukki-palvelin on LTI-työkalu (tool), tai vanhaa terminologiaa käyttäen tarjoaja (provider). Työkalu tukee sekä 1.1, että 1.3 LTI-standardia. Kumpaakin standardia varten on omat rajapintansa, joihin pitää tarvittaessa ottaa yhteyttä. Näihin rajapintoihin ei ole tarkoitus ottaa yhteyttä muussa tapauksessa kuin LTI:n kautta, ja olettavan kommunikoinnin olevan LTI-standardin mukaista.
 
 LTI:n kautta kulkevasta datasta tallennetaan palvelimelle seuraavat tiedot:
 - Käyttäjän tunnus
@@ -31,7 +31,7 @@ Lisäksi LTI-versiosta riippuen toinen seuraavista:
 LTI 1.3:n rekisteröimisrajapinta. Ohjaa automaattisesti joko kurssisivulle, tai gdpr-luovutussivulle, riippuen siitä, onko käyttäjä jo hyväksynyt tietojen luovutuksen.
 
 ### /lti/1p1/start
-LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäjän sisään backendiin ja ohjaa frontendissä oikealle kurssisivulle tai gdpr-tietojen luovutussivulle, riippuen siitä, onko käyttäjä jo hyväksynyt tietojen luovutuksen.
+LTI 1.1:n rajapinta, johon ohjataan käyttäjän kutsut. Kirjaa LTI:n käyttäjän sisään ja ohjaa frontendissä oikealle kurssisivulle tai gdpr-tietojen luovutussivulle, riippuen siitä, onko käyttäjä jo hyväksynyt tietojen luovutuksen.
 
 
 Lisäksi, jos lti:n kautta kirjautuu käyttäjä, jolla ei ole jo tiliä valmiiksi, tiliä ei voida luoda ennen kuin käyttäjä antaa luvan tietojen luovutukseen. Tämä tietojen luovutus tapahtuu siten, että yllä olevat rajapinnat ohjaavat käyttäjän sivulle, jossa on url-parametrinä annettu tunnus, joka pitää palauttaa seuraavalle rajapinnalle:
@@ -761,10 +761,6 @@ Tällä rajapinnalla luodaan uusi tiketti lähettämällä tiketin tiedot palvel
   aloittaja: $kurssilainen-olio
   tila: $string
   kurssi: $int
-  liitteet: 
-  [{
-    id: $UUID
-  }]
 }
 ```
 [Kurssilainen-olio](#kurssilainen-olio)<br>

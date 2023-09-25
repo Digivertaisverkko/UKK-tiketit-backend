@@ -1,16 +1,16 @@
-# UKK-tiketit-backend
+# Tukki-palvelin
 
-Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän rajapinta. Rajapinta mahdollistaa LTI-integraation, kirjautumisen PostgreSQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
+Tämä on Digivertaisverkkohanketta varten toteutetun opetuskäyttöön tarkoitetun tikettijärjestelmän palvelimen toteutus. Palvelin toteuttaa sekä loppukäyttäjän verkkosivujen jakamisen, että rajapinnan, joka verkkosivut käyttävät tiedon hakemiseen. Rajapinta mahdollistaa LTI-integraation, kirjautumisen PostgreSQL-tietokantaan ja käsittelemään käyttöliittymän lähettämät pyynnöt.
 
 ## Sisällysluettelo
-- [Backendin ajaminen](#backendin-ajaminen)
+- [Palvelimen alustaminen](#palvelimen-ajaminen)
 - [Rajapinnan määritelmä](/docs/rajapinta/api.md)
     - [Lähetetyt erikoisarvot](/docs/rajapinta/api.md#erikoisarvot)
 - [Virhetilat](/docs/rajapinta/virhe.md)
 - [Oikeuksienhallinta](/docs/rajapinta/oikeudet.md)
 
 
-# Backendin ajaminen
+# Palvelimen alustaminen
 
 - Lataa tai kloonaa tämä repo
 
@@ -28,16 +28,17 @@ PGUSER=[PostgreSQL käyttäjän käyttäjänimi]
 PGPASSWORD=[PostgreSQL käyttäjän salasana]
 LTI_TOOL_URL=[Backendin URL ilman viimeistä kauttaviivaa]
 LTI_REDIRECT=[Frontendin URL, johon käyttäjä ohjataan, kun LTI-kirjautuminen on onnistunut]
-TEMP_CLIENT_KEY=[LTI:n käyttämä oauth_consumer_key: tilapäinen, siirretään tulevaisuudessa kantaan]
-TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus: tilapäinen, siirretään tulevaisuudessa kantaan]
+TEMP_CLIENT_KEY=[LTI:n käyttämä oauth_consumer_key]
+TEMP_CLIENT_SECRET=[LTI:n käyttämä oauth jaettu salaisuus]
 LTI_CHECK_SIGNATURE=[Tarkistetaanko LTI-yhteyksissä signaturea, vai hyväksytäänkö yhteys pelkällä kuluttaja-avaimella]
-COOKIE_SECRET=[Kryptografinen salaisuus, jolla allekirjoitetaan sivuston lähettämät evästeet]
+COOKIE_SECRET=[Kryptografinen salaisuus, jolla allekirjoitetaan sivuston lähettämät evästeet, tarvitaan vain tietokannan alustuksessa]
 ATTACHMENT_DIRECTORY=[Polku siihen kansioon, jossa liitteet säilytetään. Polku suhteessa aktiiviseen kansioon.]
 GDPR_DUMP_DIRECTORY=[Polku siihen kansioon, jossa tilapäisesti säilytetään gdpr-pyynnöistä luodut .zip-tiedostot. Polku suhteessa aktiiviseen kansioon.]
 FRONTEND_DIRECTORY=[Polku kansioon, jossa on käännetyt frontin tiedostot (oletuksena ./static/)]
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 SMTP_USERNAME=[käytetyn SMTP palvelun käyttäjänimi]
 SMTP_PASSWORD=[käytetyn SMTP palvelun salasana]
+TEST_KEEP_TABLES=[kehityskäyttöön tarkoitettu lippu. Määrittää nollaako automaattitestit testitietokannan testien jälkeen vai ei.]
 ```
 
 - Aja komento ```npm ci```
@@ -72,7 +73,7 @@ Tämä työkalu tukee LTI 1.3:n dynaamista rekisteröintipalvelua. Kyseinen omin
 
 Testit ajetaan käyttäen Mocha testiympäristöä. Testit on määritelty ```test``` kansiossa.
 
-Testien ajamista varten luo uusi ```.env.test``` -tiedosto, johon syötetään yllä mainitut parametrit. Tämä mahdollistaa esimerkiksi erin tietokannan käyttämisen testien ajamiseen. Testien alussa tietokanta alustetaan ja sinne syötetään testidata. Tämän jälkeen testit ajetaan ja lopuksi kyseinen tietokanta tyhjennetään. Tämä testaa samalla myös migrations -skriptien toiminnan.
+Testien ajamista varten luo uusi ```.env.test``` -tiedosto, johon syötetään yllä mainitut ympäristömuuttujat. Tämä mahdollistaa esimerkiksi eri tietokannan käyttämisen testien ajamiseen. Testien alussa tietokanta alustetaan ja sinne syötetään testidata. Tämän jälkeen testit ajetaan ja lopuksi kyseinen tietokanta tyhjennetään. Tämä testaa samalla myös migrations -skriptien toiminnan.
 
 Testit ajetaan ajamalla komento ```npm run test```
 

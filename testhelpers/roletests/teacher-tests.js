@@ -2,7 +2,10 @@ const testhelpers = require("../testhelpers.js");
 const allrolesTests = require("../allroles-tests.js");
 const testobjects = require('../test-objects.js');
 
+const CONSTS = require("../test-const.js");
+
 const chai = require("chai");
+const { all } = require("express/lib/application.js");
 const expect = chai.expect;
 
 module.exports = {
@@ -30,35 +33,41 @@ module.exports = {
       allrolesTests.performAllGenericFaqTests(teacherAgent, 'opettaja');
       allrolesTests.performSettingsTests(teacherAgent, 'opettaja');
     
-      allrolesTests.fetchTicketSuccesfullyTest(teacherAgent, 'opettaja (opiskelijat tiketti)', 1, 1);
-      allrolesTests.fetchTicketSuccesfullyTest(teacherAgent, 'opettaja (oma tiketti)', 1, 3);
+      allrolesTests.fetchTicketSuccesfullyTest(teacherAgent, 'opettaja (opiskelijat tiketti)', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT);
+      allrolesTests.fetchTicketSuccesfullyTest(teacherAgent, 'opettaja (oma tiketti)', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_TEACHER);
     
       allrolesTests.postNewTicketTests(teacherAgent, 'opettaja');
 
       describe('Tiketin muokkausta, kun tiketti ei ole opettajan oma', function () {
-        allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', 1, 1, superTeacher);
+        allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT, superTeacher);
       });
 
       describe('Tiketin muokkausta kurssilla, jolla opettaja ei ole osallistujana', function() {
-        allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', 6, 12, superTeacher);
+        allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, superTeacher);
       });
 
       describe('Tiketin muokkausta kurssilla, jolla opettaja on luonut tiketin, muttei ole enää osallistujana', function() {
-        allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', 2, 14, superTeacher);
+        allrolesTests.updateTicketUnsuccessfullyTest(teacherAgent, 'opettaja', CONSTS.COURSE.OLD_ACCESS, CONSTS.TICKET.OLD_ACCESS_BY_TEACHER, superTeacher);
       });
     
       describe('Opettajan tikettipohjan testit', function() {
-        allrolesTests.fetchTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', 1);
-        allrolesTests.updateTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', 1);
-        allrolesTests.fetchTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja', 6);
-        allrolesTests.updateTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja (vääräkurssi)', 6, superStudent);
+        allrolesTests.fetchTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', CONSTS.COURSE.DEFAULT);
+        allrolesTests.updateTicketBaseSuccessfullyTest(teacherAgent, 'opettaja', CONSTS.COURSE.DEFAULT);
+        allrolesTests.fetchTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS);
+        allrolesTests.updateTicketBaseUnsuccessfullyTest(teacherAgent, 'opettaja (vääräkurssi)', CONSTS.COURSE.NO_ACCESS, superStudent);
+      });
+
+      describe('Opettajan liitetestit', function() {
+        allrolesTests.performAllSuccesfullAttachmentTests(teacherAgent, 'opettaja', CONSTS.COURSE.DEFAULT, CONSTS.TICKET.BY_STUDENT, CONSTS.COMMENT.RESPONSE_BY_TEACHER);
+        allrolesTests.postAttachmentUnsuccesfully(teacherAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, CONSTS.COMMENT.NO_ACCESS);
+        allrolesTests.fetchAttachmentUnsuccesfully(teacherAgent, 'opettaja', CONSTS.COURSE.NO_ACCESS, CONSTS.TICKET.NO_ACCESS, CONSTS.COMMENT.NO_ACCESS, CONSTS.ATTACHMENT.NO_ACCESS);
       });
     
     
       describe('Opettajan tiketin vienti ja tuonti', function() {
     
         it('hakee tuotavat ukk-tiedot palvelimelta', function(done) {
-          teacherAgent.get('/api/kurssi/1/ukk/vienti')
+          teacherAgent.get(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/ukk/vienti`)
           .send({})
           .end((err, res) => {
             expect(res).to.have.status(200);
@@ -79,7 +88,7 @@ module.exports = {
         });
     
         it('lähettää tuodut tiketin palvelimelle', function(done) {
-          teacherAgent.post('/api/kurssi/1/ukk/vienti')
+          teacherAgent.post(`/api/kurssi/${CONSTS.COURSE.DEFAULT}/ukk/vienti`)
           .send(testobjects.exportJson)
           .end((err, res) => {
             expect(res).to.have.status(200);

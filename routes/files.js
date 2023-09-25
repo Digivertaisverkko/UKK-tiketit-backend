@@ -58,11 +58,9 @@ router.get('/minun/gdpr/kaikki/zip', function(req, res, next) {
   let userDataJson;
   return access.authenticatedUser(req)
   .then((userId) => {
-    console.log("gdpr-zip autentikoitu");
     return access.writeProfile(req, userId);
   })
   .then((handle) => {
-    console.log("gdpr-zip oikeudet tarkistettu");
     return handle.methods.exportAllUserData(handle.userid)
     .then((userData) => {
       userDataJson = userData;
@@ -73,11 +71,9 @@ router.get('/minun/gdpr/kaikki/zip', function(req, res, next) {
     return handle.methods.getAllUserAttachments(handle.userid);
   })
   .then((attachmentList) => {
-    console.log("gdpr-zip zip logiikka kutsutaan");
     return filessystem.createZipFromAttachmentList(userDataJson, attachmentList);
   })
   .then((zipPath) => {
-    console.log("gdpr-zip: zip lähetetään ladattavaksi.");
     res.download(zipPath, 'liitteet.zip');
   })
   .catch((error) => {

@@ -6,6 +6,8 @@ var request = require("request");
 const chaiHttp = require('chai-http');
 const fs = require('fs');
 
+const CONSTS = require('../testhelpers/test-const.js');
+
 
 const connection = require('../public/javascripts/connection.js');
 const db = require('../migrations/migrations.js');
@@ -31,6 +33,9 @@ describe('Kaikki testit', function() {
     const sampleData = fs.readFileSync(__dirname + "/sample_data.sql", "utf8");
     await client.query(sampleData);
     await client.release();
+
+    fs.copyFileSync('./test/Testiliite.png', process.env.ATTACHMENT_DIRECTORY + CONSTS.ATTACHMENT.NO_ACCESS);
+    fs.copyFileSync('./test/Testiliite.png', process.env.ATTACHMENT_DIRECTORY + CONSTS.ATTACHMENT.IN_FAQ)
   });
 
   const app = require('../app.js');
@@ -56,7 +61,7 @@ describe('Kaikki testit', function() {
   allrolesTests.performInvitationTests(superTeacherAgent, studentAgent, unsignedAgent);
 
   after(async function () {
-    if (process.env.TEST_KEEP_TABLES == true) {
+    if (process.env.TEST_KEEP_TABLES !== 'true') {
       await db.doMigration("000"); // tyhjennetään kanta
     }
   });

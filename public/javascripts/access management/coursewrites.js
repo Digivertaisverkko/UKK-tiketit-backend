@@ -71,7 +71,7 @@ class CourseWrites extends CourseReads {
       }
     })
     .then(() => {
-      mailer.sendMailNotificationForUpdatedFaq(ticketid, []);
+      //mailer.sendMailNotificationForUpdatedFaq(ticketid, []);
     })
   }
 
