@@ -423,11 +423,7 @@ module.exports = {
           }
         }
       }
-      return sql.tickets.getAllCommentsFromCourseSinceYesterday(courseId, []);
-    })
-    .then((commetList) => {
-      let ticketIds = arrayTools.extractAttributes(commetList, 'tiketti');
-      return sql.tickets.getAllTicketsFromList(ticketIds);
+      return sql.tickets.getAllTicketsCreatedToCourseYesterday(courseId, []);
     })
     .then((ticketList) => {
       if (ticketList.length > 0) {
