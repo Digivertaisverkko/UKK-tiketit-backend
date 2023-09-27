@@ -322,6 +322,22 @@ module.exports = {
       subject: subject,
       html: content
     };
+
+    if (process.env.TEST_LOG_EMAILS == 'true') {
+      let receiverString = '';
+      for (let i=0; i<receiverList.length; ++i) {
+        receiverString += receiverList[i];
+        if (i != receiverList.length-1) {
+          receiverString += ', ';
+        }
+      }
+      console.log('Sähköposti lähetetään: ');
+      console.log(`to: ${receiverString}`);
+      console.log(`subject: ${subject}`);
+      console.log(content.replaceAll('<br>', '\n'));
+      console.log('\n\n-----------------\n\n');
+    }
+
     transporter.sendMail(mailOptions, function(error, info){
       if (error) {
         console.log('Sähköpostin lähetyksessä virhe: ' + error);
