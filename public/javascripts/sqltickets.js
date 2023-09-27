@@ -174,6 +174,14 @@ module.exports = {
     return connection.queryAll(query, [userId]);
   },
 
+  getAllTicketsCreatedToCourseYesterday: function(courseId, profileBlackList) {
+    //TODO: Toteuta
+    const query = 'SELECT * \
+    FROM core.tiketti t \
+    WHERE t.kurssi=$1 AND t.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT t.aloittaja=ANY($2) AND t.ukk=false';
+    return connection.queryAll(query, [courseId, profileBlackList]);
+  },
+
   getAllCommentsFromCourseSinceYesterday: function(courseId, profileBlackList) {
     const query = 'SELECT * \
     FROM core.kommentti k \
