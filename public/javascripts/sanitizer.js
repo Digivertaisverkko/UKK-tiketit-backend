@@ -123,7 +123,6 @@ function checkObjectForRequiredParameters(object, keyList) {
 function checkObjectForRequirements(object, requirementsList) {
 
   for (const requirement of requirementsList) {
-
     if (requirement.value && Array.isArray(requirement.value) == false) {
       //Mahdollista myös taulukottoman arvon laittaminen value-attribuuttiin.
       requirement.value = [requirement.value];

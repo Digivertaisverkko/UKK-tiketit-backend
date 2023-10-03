@@ -20,7 +20,6 @@ class LoginMethods {
     .then((data) => {
       if (data.length == 0) {
         let storageId = auth.hash(userid + clientid, '');
-        console.log('id: ' + storageId);
         return sql.users.temporarilyStoreLtiToken(reqBody, null, '1.1', storageId)
         .then(() => {
           return { accountExists: false, storageId: storageId, hasPermission: false };
@@ -30,7 +29,6 @@ class LoginMethods {
         .then((settings) => {
           if (settings.gdpr_lupa == false) {
             let storageId = auth.hash(userid + clientid, '');
-            console.log('id: ' + storageId);
             return sql.users.temporarilyStoreLtiToken(reqBody, settings.profiili, '1.1', storageId)
             .then(() => {
               return { accountExists: true, storageId: storageId, hasPermission: false };
@@ -130,7 +128,6 @@ class LoginMethods {
   handleGdprRejection(httpRequest, storageId) {
     return sql.users.getStoredLtiToken(storageId)
     .then((tokenData) => {
-      console.dir(tokenData);
       if (tokenData.olemassa_oleva_profiili != null) {
         return sqlfuncs.removeAllDataRelatedToUser(tokenData.olemassa_oleva_profiili)
         .then(() => {

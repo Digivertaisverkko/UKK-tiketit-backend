@@ -14,6 +14,25 @@ module.exports = {
     return url;
   },
 
+  urlToFaqTicket: function(courseId, ticketId) {
+    let url = new URL(path.join('course', courseId.toString(), 
+                                'faq-view', ticketId.toString()),
+                      process.env.LTI_REDIRECT);
+    return url;
+  },
+
+  urlToRegisterationPage: function(courseId, invitationId) {
+    let url = new URL(path.join('course', courseId.toString(), 'register'), process.env.LTI_REDIRECT);
+    url.searchParams.append('invitation', invitationId);
+    return url;
+  },
+
+  urlToJoinPage: function(courseId, invitationId) {
+    let url = new URL(path.join('course', courseId.toString(), 'join'), process.env.LTI_REDIRECT);
+    url.searchParams.append('invitation', invitationId);
+    return url;
+  },
+
   redirectUrlToGdprPage: function(language, storageId, accountExists) {
     let url = new URL(path.join('data-consent'), process.env.LTI_REDIRECT);
     url.searchParams.append('lang', language);

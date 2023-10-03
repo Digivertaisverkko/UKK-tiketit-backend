@@ -99,16 +99,17 @@ module.exports = {
 
   getTicketBasesOfCourse: function(courseid) {
     const query = '\
-    SELECT id, kuvaus FROM tikettipohja \
+    SELECT id, kuvaus FROM core.tikettipohja \
     WHERE kurssi=$1';
     return connection.query(query, [courseid]);
   },
 
   getFieldsOfTicketBase: function(ticketbaseid) {
     const query = '\
-    SELECT id, otsikko, pakollinen, esitaytettava, valinnat, ohje FROM tikettipohjankentat tk \
-    INNER JOIN kenttapohja kp \
-    ON kp.id=tk.kentta \
+    SELECT id, otsikko, pakollinen, esitaytettava, valinnat, ohje \
+    FROM core.tikettipohjankentat tk \
+    INNER JOIN core.kenttapohja kp \
+      ON kp.id=tk.kentta \
     WHERE tk.tikettipohja=$1';
     return connection.queryAll(query, [ticketbaseid])
     .then((ticketBaseList) => {
@@ -125,7 +126,6 @@ module.exports = {
     const query = '\
     INSERT INTO core.kurssinosallistujat (kurssi, profiili, asema) \
     VALUES ($1, $2, $3)';
-
     return connection.queryNone(query, [courseid, userid, position]);
   },
 
@@ -161,6 +161,16 @@ module.exports = {
     WHERE ko.kurssi=$1 AND ko.asema=$2'; 
 
     return connection.queryAll(query, [courseid, 'opettaja']);
+  },
+
+  getAllParticipantsOfCourse(courseid) {
+    const query = '\
+    SELECT p.id, p.nimi, p.sposti, ko.asema FROM core.kurssinosallistujat ko \
+    INNER JOIN core.profiili p \
+    ON p.id = ko.profiili \
+    WHERE ko.kurssi=$1';
+
+    return connection.queryAll(query, [courseid]);
   },
 
   updateUserPositionInCourse: function(userid, courseid, newPosition) {
@@ -224,6 +234,14 @@ module.exports = {
       }
       return promiseChain;
     });
+  },
+
+  updateDescriptionOfTicketBase: function(courseid, description) {
+    const query = '\
+    UPDATE core.tikettipohja \
+    SET kuvaus=$1 \
+    WHERE kurssi=$2';
+    return connection.queryNone(query, [description, courseid]);
   },
 
   connectTicketBaseToField: function(ticketbaseid, fieldid) {

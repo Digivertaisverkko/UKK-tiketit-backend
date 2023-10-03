@@ -1,5 +1,6 @@
 const sql = require('../../../routes/sql.js');
 const arrayTools = require('../arrayTools.js');
+const mailer = require('../mailer.js');
 const TicketState = require('../ticketstate.js');
 const errorcodes = require('./../errorcodes.js');
 
@@ -21,13 +22,57 @@ class CourseWrites extends CourseReads {
   }
 
   createFaqTicket(courseid, creatorid, title, body, answer, fields) {
-    return sql.tickets.createTicket(courseid, creatorid, title, fields, body, true)
-    .then((ticketid) => {
-      return sql.tickets.createComment(ticketid, creatorid, answer, 5)
+    return this.createTicket(courseid, creatorid, title, body, fields, true)
+    .then((ticketResult) => {
+      return sql.tickets.createComment(ticketResult.tiketti, creatorid, answer, 5)
+      .then((commentId) => {
+        mailer.sendMailNotificationForNewTicket(ticketResult.tiketti, [creatorid]);
+        return commentId;
+      })
       .then((commentid) => {
-        return { tiketti: ticketid, kommentti: commentid };
+        return { 'tiketti': ticketResult.tiketti, 'kommentti': commentid };
       });
     });
+  }
+
+  editFaqTicket(ticketid, newTitle, newBody, newAnswer, newFields) {
+    let storedTicketData;
+    return sql.tickets.isFaqTicket(ticketid)
+    .then((isFaq) => {
+      if (isFaq) {
+        return sql.tickets.getTicket(ticketid)
+        .then((ticketData) => {
+          if (ticketData.tila === TicketState.archived) {
+            return Promise.reject(errorcodes.operationNotPossible);
+          }
+        })
+        .then(() => {
+          return sql.tickets.updateTicket(ticketid, newTitle, newFields);
+        })
+        .then(() => {
+          return sql.tickets.getComments(ticketid);
+        })
+        .then((commentList) => {
+          commentList.sort((a, b) => { 
+            if (a.aikaleima < b.aikaleima) {
+              return -1;
+            } else if (a.aikaleima > b.aikaleima) {
+              return 1;
+            }
+            return 0;
+          });
+          return sql.tickets.updateComment(commentList[0].id, newBody, null)
+          .then(() => {
+            return sql.tickets.updateComment(commentList[1].id, newAnswer, null);
+          });
+        });
+      } else {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
+    })
+    .then(() => {
+      //mailer.sendMailNotificationForUpdatedFaq(ticketid, []);
+    })
   }
 
   exportFaqsFromCourse(courseId) {
@@ -75,50 +120,43 @@ class CourseWrites extends CourseReads {
       });
     }
     
-    return Promise.resolve();
+    return promiseChain;
   }
 
-  editFaqTicket(ticketid, newTitle, newBody, newAnswer, newFields) {
-    let storedTicketData;
-    return sql.tickets.isFaqTicket(ticketid)
-    .then((isFaq) => {
-      if (isFaq) {
-        return sql.tickets.getTicket(ticketid)
-        .then((ticketData) => {
-          if (ticketData.tila === TicketState.archived) {
-            return Promise.reject(errorcodes.operationNotPossible);
-          }
-        })
-        .then(() => {
-          return sql.tickets.updateTicket(ticketid, newTitle, newFields);
-        })
-        .then(() => {
-          return sql.tickets.getComments(ticketid);
-        })
-        .then((commentList) => {
-          commentList.sort((a, b) => { 
-            if (a.aikaleima < b.aikaleima) {
-              return -1;
-            } else if (a.aikaleima > b.aikaleima) {
-              return 1;
-            }
-            return 0;
-          });
-          return sql.tickets.updateComment(commentList[0].id, newBody, null)
-          .then(() => {
-            return sql.tickets.updateComment(commentList[1].id, newAnswer, null);
-          });
+  inviteUserToCourse(courseId, email, role) {
+    return sql.users.getUserProfileWithEmail(email)
+    .then((profile) => {
+      return sql.users.createUserInvitation(courseId, email, role)
+      .then((invitationId) => {
+        mailer.sendInvitationToJoinMail(email, courseId, invitationId);
+        return Promise.resolve(invitationId);
+      })
+    })
+    .catch((error) => {
+      if (error == errorcodes.noResults) {
+        return sql.users.createUserInvitation(courseId, email, role)
+        .then((invitationId) => {
+          mailer.sendInvitationToRegisterMail(email, courseId, invitationId);
+          return Promise.resolve(invitationId);
         });
       } else {
-        return Promise.reject(errorcodes.operationNotPossible);
+        return Promise.reject(error);
       }
     })
+  }
+
+  editDescriptionOfTicketBase(courseId, description) {
+    return sql.courses.updateDescriptionOfTicketBase(courseId, description);
+  }
+
+  addFieldsToTicketBase(courseId, fields) {
+    return sql.courses.insertFieldsToTicketBase(courseId, fields);
   }
 
   replaceFieldsOfTicketBase(courseId, fields) {
     return sql.courses.removeAllFieldsFromTicketBase(courseId)
     .then(() => {
-       return sql.courses.insertFieldsToTicketBase(courseId, fields)
+       return sql.courses.insertFieldsToTicketBase(courseId, fields);
     });
   }
 

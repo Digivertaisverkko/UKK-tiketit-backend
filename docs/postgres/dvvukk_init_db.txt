@@ -2,22 +2,7 @@
 -- HUOM: Muokaa käyttäjänimiä ja tietokannan nimeä tarvittaessa!
 -- $ sudo -u postgres psql
 
-CREATE USER "[peruskäyttäjä]" WITH PASSWORD 'salasana';
-CREATE USER "[LTI-käyttäjä]" WITH PASSWORD 'salasana';
-CREATE DATABASE "dvvukk";
-
-\c dvvukk postgres
-
-DROP SCHEMA public;
-CREATE SCHEMA public;
-CREATE SCHEMA core;
-ALTER ROLE [peruskäyttäjä] SET search_path TO core;
-ALTER ROLE [LTI-käyttäjä] SET search_path TO public;
-
-GRANT ALL PRIVILEGES ON SCHEMA public TO [LTI-käyttäjä];
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO [LTI-käyttäjä];
-
-GRANT USAGE ON SCHEMA core TO [peruskäyttäjä];
-ALTER DEFAULT PRIVILEGES IN SCHEMA core GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO [peruskäyttäjä];
+CREATE USER "[käyttäjätunnus]" WITH PASSWORD '[salasana]';
+CREATE DATABASE "[tietokanta]" WITH OWNER "[käyttäjätunnus]";
 
 \q

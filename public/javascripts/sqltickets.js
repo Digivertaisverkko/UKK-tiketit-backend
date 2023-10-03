@@ -9,9 +9,12 @@ const con = connection.getConnection();
 const errorcodes = require('./errorcodes.js');
 
 const TicketState = require('./ticketstate.js');
+const { json } = require('express/lib/response.js');
+const { forEach } = require('jszip');
 
 module.exports = {
- 
+
+
   getPlainTicket: function(ticketid) {
     const query = 'SELECT aloittaja, kurssi, ukk \
     FROM core.tiketti \
@@ -26,7 +29,6 @@ module.exports = {
     WHERE id=$1';
     return connection.queryOne(query, [ticketid])
     .then((data) => {
-      //TODO: UKK:ihin pitäisi päästä käsiksi kirjautumatta.
       storedData = data;
       const query2 = '\
       SELECT profiili, asema FROM core.kurssinosallistujat \
@@ -41,6 +43,11 @@ module.exports = {
       }
     })
     .catch(() => Promise.reject(errorcodes.noPermission));
+  },
+
+  getAllAttachments: function() {
+    const query = 'SELECT * from core.liite';
+    return connection.queryAll(query, []);
   },
 
   getAllMyTickets: function(courseId, userId) {
@@ -95,13 +102,13 @@ module.exports = {
     })
   },
 
-  getTicket: function(messageId) {
+  getTicket: function(ticketId) {
     const query = '\
     SELECT id, otsikko, aikaleima, aloittaja, tila, kurssi, ukk FROM core.tiketti t \
     INNER JOIN (SELECT tiketti, tila FROM core.tiketintila WHERE tiketti=$1 ORDER BY aikaleima DESC LIMIT 1) tt \
     ON t.id = tt.tiketti \
     WHERE t.id=$1';
-    return connection.queryOne(query, [messageId]);
+    return connection.queryOne(query, [ticketId]);
   },
 
   archiveTicket: function(ticketId) {
@@ -113,7 +120,6 @@ module.exports = {
   },
 
   getFieldsOfTicket: function(ticketId) {
-    //TODO: muuta messageId:t ticketId:iksi.
     const query = '\
     SELECT pohja.id, kk.arvo, pohja.otsikko, pohja.tyyppi, pohja.ohje, pohja.esitaytettava, pohja.pakollinen, pohja.valinnat FROM core.tiketinkentat kk \
     INNER JOIN core.kenttapohja pohja \
@@ -147,7 +153,7 @@ module.exports = {
   },
 
   getComments: function(ticketId) {
-    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
+    const query = 'SELECT id, viesti, lahettaja, aikaleima, tila, muokattu FROM core.kommentti WHERE tiketti=$1 ORDER BY aikaleima';
     return connection.queryAll(query, [ticketId]);
   },
 
@@ -156,9 +162,24 @@ module.exports = {
     return connection.queryAll(query, [ticketIdList]);
   },
 
+  getCommentsWithAttachmentsFromTicketList(ticketIdList) {
+    const query = 'SELECT * FROM core.kommentti ck \
+    INNER JOIN core.liite cl ON ck.id=cl.kommentti \
+    WHERE ck.tiketti=ANY($1)';
+    return connection.queryAll(query, [ticketIdList]);
+  },
+
   getAllCommentCreatedBy: function(userId) {
-    const query = 'SELECT tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
+    const query = 'SELECT id, tiketti, lahettaja, viesti, aikaleima from core.kommentti WHERE lahettaja=$1';
     return connection.queryAll(query, [userId]);
+  },
+
+  getAllTicketsCreatedToCourseYesterday: function(courseId, profileBlackList) {
+    //TODO: Toteuta
+    const query = 'SELECT * \
+    FROM core.tiketti t \
+    WHERE t.kurssi=$1 AND t.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT t.aloittaja=ANY($2) AND t.ukk=false';
+    return connection.queryAll(query, [courseId, profileBlackList]);
   },
 
   getAllCommentsFromCourseSinceYesterday: function(courseId, profileBlackList) {
@@ -166,7 +187,7 @@ module.exports = {
     FROM core.kommentti k \
     INNER JOIN core.tiketti t \
     ON k.tiketti = t.id \
-    WHERE t.kurssi=$1 AND k.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT k.lahettaja=ANY($2)';
+    WHERE t.kurssi=$1 AND k.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT k.lahettaja=ANY($2) AND t.ukk=false';
     return connection.queryAll(query, [courseId, profileBlackList]);
   },
 
@@ -183,38 +204,7 @@ module.exports = {
     return connection.queryOne(query, [courseid, userid, title, isFaq]);
   },
 
-  createTicket: function(courseid, userid, title, fields, content, isFaq=false) {
-    const query = '\
-    INSERT INTO core.tiketti (kurssi, aloittaja, otsikko, aikaleima, ukk) \
-    VALUES ($1, $2, $3, NOW(), $4) \
-    RETURNING id';
-    return connection.queryOne(query, [courseid, userid, title, isFaq])
-    .then((sqldata) => { return sqldata.id })
-    .then((ticketid) => {
-        const query = '\
-        INSERT INTO core.tiketintila (tiketti, tila, aikaleima) \
-        VALUES ($1, 1, NOW())';
-        return connection.queryAll(query, [ticketid])
-        .then((sqldata) => { return ticketid; });
-    })
-    .then((ticketid) => {
-      return new Promise(function(resolve, reject) {
-        var promises = [];
-        fields.forEach(kvp => {
-          promises.push(module.exports.addFieldToTicket(ticketid, kvp.id, kvp.arvo));
-        });
-        Promise.all(promises)
-        .then(() => resolve(ticketid))
-        .catch(() => reject(errorcodes.somethingWentWrong));
-      });
-    })
-    .then((ticketid) => {
-      return module.exports.createComment(ticketid, userid, content, 1)
-      .then(() => ticketid );
-    });
-  },
-
-  addFieldToTicket: function(ticketid, fieldid, value) {
+  addFieldToTicket: function(ticketid, userid, fieldid, value) {
     return new Promise(function(resolve, reject) {
       if (ticketid != undefined && fieldid != undefined && value != undefined) {
         const query = '\
@@ -254,7 +244,7 @@ module.exports = {
 
   getAttachmentListForCommentList: function(commentIdList) {
     const query = '\
-    SELECT kommentti, tiedosto, nimi \
+    SELECT kommentti, tiedosto, nimi, koko \
     FROM core.liite \
     WHERE kommentti=ANY($1)';
     return connection.queryAll(query, [commentIdList]);
@@ -262,32 +252,17 @@ module.exports = {
 
   getAttachmentForComment: function(commentid, fileid) {
     const query = '\
-    SELECT kommentti, tiedosto, nimi \
+    SELECT kommentti, tiedosto, nimi, koko \
     FROM core.liite \
     WHERE kommentti=$1 AND tiedosto=$2';
-    return connection.queryAll(query, [commentid, fileid]);
+    return connection.queryOne(query, [commentid, fileid]);
   },
 
-  addAttachmentListToTicket: function(ticketid, attachmentidList) {
-    return new Promise(function(resolve, reject) {
-      var promises = [];
-      attachmentidList.forEach(attachmentid => {
-        const query = '\
-        INSERT INTO core.liite (tiketti, liite) \
-        VALUES ($1, $2)';
-        promises.push(connection.queryNone(query, [ticketid, attachmentid]));
-      });
-      return Promise.all(promises)
-      .then(() => resolve(ticketid))
-      .catch(() => reject(errorcodes.somethingWentWrong));
-    });
-  },
-
-  addAttachmentToComment: function(commentid, attachmentid, filename) {
+  addAttachmentToComment: function(commentid, attachmentid, filename, filesize) {
     const query = '\
-        INSERT INTO core.liite (kommentti, tiedosto, nimi) \
-        VALUES ($1, $2, $3)';
-    return connection.queryNone(query, [commentid, attachmentid, filename]);
+        INSERT INTO core.liite (kommentti, tiedosto, nimi, koko) \
+        VALUES ($1, $2, $3, $4)';
+    return connection.queryNone(query, [commentid, attachmentid, filename, filesize]);
   },
 
   updateTicket(ticketid, title, fieldList) {
@@ -300,7 +275,7 @@ module.exports = {
         promises.push(connection.queryNone(fieldsQuery, [field.arvo, field.id, ticketid]));
       }
       return Promise.all(promises);
-    })
+    });
   },
 
   deleteComment(commentId) {
@@ -372,6 +347,46 @@ module.exports = {
     });
   },
 
+  insertTicketFieldsToTicketIdReferences: function(array, idReferenceKey) {
+    var ids = arrayTools.extractAttributes(array, idReferenceKey);
+    return module.exports.getFieldsOfTicketList(ids)
+    .then((fieldDataList) => {
+      fieldDataList = arrayTools.removeAttributes(fieldDataList, ['tyyppi', 'ohje']);
+      return arrayTools.unionNewKeyAsArray(array, fieldDataList, idReferenceKey, 'tiketti', 'kentat');
+    });
+  },
+
+  insertTimestampsToTicketIdReferences: function(array, idReferenceKey) {
+    var ids = arrayTools.extractAttributes(array, idReferenceKey);
+    return module.exports.getLatestCommentForEachTicketInList(ids)
+    .then((commentList) => {
+      return arrayTools.unionExtractKey(array, commentList, idReferenceKey, 'tiketti', 'viimeisin', 'aika');
+    })
+  },
+
+  insertAttachmentInfoToTicketIdReferences: function(array, idReferenceKey) {
+
+    const query = 'SELECT * FROM core.kommentti ck \
+    INNER JOIN core.liite cl ON ck.id=cl.kommentti \
+    WHERE ck.tiketti=ANY($1)';
+
+    var ids = arrayTools.extractAttributes(array, idReferenceKey);
+    return module.exports.getCommentsWithAttachmentsFromTicketList(ids)
+    .then((commentList) => {
+      return arrayTools.unionExtractKey(array, commentList, idReferenceKey, 'tiketti', 'liite', 'tiedosto')
+    })
+    .then((ticketList) => {
+      ticketList.forEach((ticket) => {
+        if (ticket.liite != undefined) {
+          ticket.liite = true;
+        } else {
+          ticket.liite = false;
+        }
+      });
+      return ticketList;
+    });
+  },
+ 
   createComment: function(ticketid, userid, content, state) {
     const query = '\
     INSERT INTO core.kommentti (tiketti, lahettaja, viesti, tila, aikaleima) \
@@ -384,18 +399,58 @@ module.exports = {
   updateComment: function(commentid, content, state) {
     const query = '\
     UPDATE core.kommentti \
-    SET viesti=$1, tila=COALESCE($2, tila) \
+    SET viesti=$1, tila=COALESCE($2, tila), muokattu=NOW() \
     WHERE id=$3';
     return connection.queryNone(query, [content, state, commentid]);
   },
 
   updatePrefilledAnswer: function(userid, fieldId, value) {
-    const query = '\
-    INSERT INTO core.esitaytetytvastaukset (kentta, profiili, arvo) \
-    VALUES ($1, $2, $3) \
-    ON CONFLICT (kentta, profiili) DO \
-    UPDATE SET arvo = excluded.arvo';
-    return connection.queryNone(query, [fieldId, userid, value]);
+    const query1 = 'SELECT esitaytettava FROM core.kenttapohja WHERE id=$1';
+    return connection.queryAll(query1, [fieldId])
+    .then((fieldData) => {
+      if (fieldData[0].esitaytettava == true) {
+        const query2 = '\
+        INSERT INTO core.esitaytetytvastaukset (kentta, profiili, arvo) \
+        VALUES ($1, $2, $3) \
+        ON CONFLICT (kentta, profiili) DO \
+        UPDATE SET arvo = excluded.arvo';
+        return connection.queryNone(query2, [fieldId, userid, value]);
+      }
+    })
+  },
+
+  updatePrefilledAnswersFromList: function(userid, fieldList) {
+    let promises = [];
+    fieldList.forEach(field => {
+      promises.push(this.updatePrefilledAnswer(userid, field.id, field.arvo));
+    });
+    return Promise.all(promises);
+  },
+
+  getPrefilledAnswer: function(userid, fieldId) {
+    const query = 'SELECT kentta, arvo FROM core.esitaytetytvastaukset \
+    WHERE kentta=$1 AND profiili=$2';
+    return connection.queryOne(query, [fieldId, userid])
+    .catch((error) => {
+      if (error == errorcodes.noResults) {
+        return { kentta: fieldId, arvo: "" };
+      } else {
+        return Promise.reject(error);
+      }
+    });
+  },
+
+  getPrefilledAnswersFromFieldIdList: function(userid, fieldIdList) {
+    let promises = [];
+    fieldIdList.forEach(fieldId => {
+      promises.push(this.getPrefilledAnswer(userid, fieldId));
+    });
+    return Promise.all(promises);
+  },
+
+  removeAttachmentFromComment: function(attachmentId, commentId) {
+    const query = 'DELETE FROM core.liite WHERE kommentti=$1 AND tiedosto=$2';
+    return connection.queryNone(query, [commentId, attachmentId]);
   },
 
   removePrefilledAnswersFromUser: function(userid) {

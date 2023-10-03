@@ -4,6 +4,7 @@
 const sql = require('../../routes/sql');
 const arrayTools = require('./arrayTools.js');
 const auth = require('./auth');
+const filessystem = require('./filessystem');
 const mailer = require('./mailer');
 const TicketState = require('./ticketstate');
 
@@ -13,10 +14,19 @@ module.exports = {
     return sql.tickets.getAllStatesFromUnarchivedTickets()
     .then((ticketStates) => {
       let ids = arrayTools.extractAttributes(ticketStates, 'tiketti');
+      return sql.tickets.getAllTicketsFromList(ids);
+    })
+    .then((ticketDataList) => {
+      return ticketDataList.filter((value, index, array) => {
+        return value.ukk == false;
+      })
+    })
+    .then((ticketStates) => {
+      let ids = arrayTools.extractAttributes(ticketStates, 'id');
       return sql.tickets.getLatestCommentForEachTicketInList(ids);
     })
     .then((ticketList) => {
-      const twoWeeks = 1000*60*60*24*14;
+      const twoWeeks = 1000*60*60*24*30;
       let now = new Date();
       let oldTickets = ticketList.filter(ticket => {
         let time = new Date(ticket.aika);
@@ -28,8 +38,16 @@ module.exports = {
     });
   },
 
+  deleteGdprDumps: function() {
+    return filessystem.removeAllGdprDumps();
+  },
+
   deletePendingLtiLogins: function() {
     return sql.users.deleteAllStoredLtiTokens();
+  },
+
+  deleteUnusedAttachments: function() {
+    return filessystem.removeAllUnusedAttachments();
   },
 
   refreshCookieSecrets: function() {

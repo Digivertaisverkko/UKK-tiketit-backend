@@ -10,6 +10,7 @@ const CourseWrites = require('./coursewrites.js');
 const ProfileReads = require('./profilereads.js');
 const ProfileWrites = require('./profilewrites.js');
 const PublicMethods = require('./publicmethods.js');
+const CommonMethods = require('./commonmethods.js');
 const LoginMethods = require('./loginmethods.js');
 
 const TicketReads = require('./ticketreads.js');
@@ -17,6 +18,7 @@ const TicketWrites = require('./ticketwrites.js');
 
 
 const publicmethds = new PublicMethods();
+const commonmethods = new CommonMethods();
 const ticketreads = new TicketReads();
 const ticketwrites = new TicketWrites();
 const courselists = new CourseLists();
@@ -40,12 +42,25 @@ module.exports = {
   },
 
   publicMethods: function() {
+    return Promise.resolve()
+    .then(() => {
+      return { methods: publicmethds };
+    })
+    /*
     return new Promise(function(resolve, reject) {
-      resolve({ userid: undefined, methods: publicmethds });
+      resolve({ methods: publicmethds });
+    });
+    */
+  },
+
+  commonMethods: function(request) {
+    return auth.authenticatedUser(request)
+    .then((userId) => {
+      return { userid: userId, methods: commonmethods };
     });
   },
 
-  readTicket: function(request, ticketId) {
+  readTicket: function(request, courseId, ticketId) {
     let storedUserId;
     let storedTicketData;
     return sql.tickets.isFaqTicket(ticketId)
@@ -57,8 +72,16 @@ module.exports = {
           return sql.tickets.getPlainTicket(ticketId);
         })
         .then((ticketData) => {
+          if (ticketData.kurssi != courseId) {
+            return Promise.reject(errorcodes.operationNotPossible);
+          }
           storedTicketData = ticketData;
-          return sql.courses.roleInCourse(ticketData.kurssi, storedUserId);
+          return sql.courses.roleInCourse(ticketData.kurssi, storedUserId)
+          .catch((error) => {
+            return error == errorcodes.noResults ? 
+              Promise.reject(errorcodes.noPermission) :
+              Promise.reject(error); 
+          });
         })  
         .then((courseStatus) => {
           if (courseStatus.asema == 'opettaja' || storedTicketData.aloittaja == storedUserId) {
@@ -84,14 +107,27 @@ module.exports = {
     });
   },
 
-  writeTicket: function(request, ticketId) {
+  writeTicket: function(request, courseId, ticketId) {
     let storedUserId;
     return auth.authenticatedUser(request)
     .then((userid) => {
       storedUserId = userid;
-      return sql.tickets.getPlainTicket(ticketId);
+      return sql.courses.getUserInfoForCourse(userid, courseId)
+      .then((userData) => {
+        return sql.tickets.getPlainTicket(ticketId);
+      })
+      .catch((error) => {
+        if (error == errorcodes.noResults) {
+          return Promise.reject(errorcodes.noPermission);
+        } else {
+          return Promise.reject(error);
+        }
+      })
     })
     .then((ticketData) => {
+      if (ticketData.kurssi != courseId) {
+        return Promise.reject(errorcodes.operationNotPossible);
+      }
       if (ticketData.ukk === true) {
         return Promise.reject(errorcodes.operationNotPossible);
       } else if (ticketData.aloittaja != storedUserId) {
@@ -102,11 +138,11 @@ module.exports = {
     });
   },
 
-  writeFaq: function(request, ticketId) {
+  writeFaq: function(request, courseId, ticketId) {
     //Palauttaa saman kuin writeCourse, mutta hakee kurssi-id:n tiketistä.
     return sql.tickets.getPlainTicket(ticketId)
     .then((ticketData) => {
-      if (ticketData.ukk === false) {
+      if (ticketData.ukk === false || ticketData.kurssi != courseId) {
         return Promise.reject(errorcodes.operationNotPossible);
       } else {
         return this.writeCourse(request, ticketData.kurssi);
@@ -114,14 +150,14 @@ module.exports = {
     })
   },
 
-  writeComment: function(request, ticketId, commentId) {
+  writeComment: function(request, courseId, ticketId, commentId) {
     let storedUserId;
-    return module.exports.readTicket(request, ticketId)
+    return module.exports.readTicket(request, courseId, ticketId)
     .then((handle) => {
       storedUserId = handle.userid;
       return sql.tickets.getComment(commentId)
       .then((dataList) => {
-        return dataList.length === 0 ? Promise.reject(errorcodes.noResults) : dataList;
+        return dataList.length === 0 ? Promise.reject(errorcodes.noPermission) : dataList;
       });
     })
     .then((commentDataList) => {
@@ -146,7 +182,14 @@ module.exports = {
     return auth.authenticatedUser(request)
     .then((userid) => {
       storedUserId = userid;
-      return sql.courses.roleInCourse(courseId, userid);
+      return sql.courses.roleInCourse(courseId, userid)
+      .catch((error) => {
+        if (error == errorcodes.noResults) {
+          return Promise.reject(errorcodes.noPermission);
+        } else {
+          return error;
+        }
+      })
     })
     .then((courseStatus) => {
       if (courseStatus.asema === 'opettaja') {
@@ -165,7 +208,14 @@ module.exports = {
     return auth.authenticatedUser(request)
     .then((userid) => {
       storedUserId = userid;
-      return sql.courses.roleInCourse(courseid, userid);
+      return sql.courses.roleInCourse(courseid, userid)
+      .catch((error) => {
+        if (error == errorcodes.noResults) {
+          return Promise.reject(errorcodes.noPermission);
+        } else {
+          return Promise.reject(error);
+        }
+      })
     })
     .then(() => {
       return { userid: storedUserId, methods: coursereads };

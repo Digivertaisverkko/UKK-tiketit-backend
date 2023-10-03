@@ -1,12 +1,16 @@
 {
-  "name": "ukk-backend",
-  "version": "0.0.0",
+  "name": "tukki",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node app.js",
-    "build:ui": "rm -rf static && cd UKK-tiketit && npm ci && rm -rf dist && ng build && cp -r dist/tikettisysteemi ../static"
+    "build:ui": "cd ./UKK-tiketit && npm ci && npm run test:prod && npm run lint && rm -rf ./dist && npm run build && rm -rf ../static && mv ./dist/tukki-front ../static",
+    "build:uidev": "cd ./UKK-tiketit && rm -rf ./dist && npm run build:dev && rm -rf ../static && mv ./dist/tukki-front ../static",
+    "start": "node index.js",
+    "test": "mocha --reporter spec --exit"
   },
   "dependencies": {
+    "chai": "^4.3.7",
+    "chai-http": "^4.4.0",
     "connect-pg-simple": "^8.0.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
@@ -16,11 +20,15 @@
     "express-session": "^1.17.3",
     "http-errors": "~1.6.3",
     "ims-lti": "^3.0.2",
+    "jszip": "^3.10.1",
     "ltijs": "^5.9.0",
     "ltijs-sequelize": "^2.4.4",
+    "mocha": "^10.2.0",
     "morgan": "~1.9.1",
     "node-cron": "^3.0.2",
     "nodemailer": "^6.9.1",
-    "pg": "^8.8.0"
+    "pg": "^8.8.0",
+    "postgrator": "^7.2.0",
+    "request": "^2.88.2"
   }
 }

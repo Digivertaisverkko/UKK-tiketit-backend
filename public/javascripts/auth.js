@@ -77,13 +77,32 @@ module.exports = {
     });
   },
 
-  createAccount: function(username, password, email) {
-    return sql.users.createEmptyUser(username, email)
+  createAccount: function(username, fullname, password, email, invitationId) {
+    let storedInvitation;
+    let storedUserId;
+    return sql.users.getUserInvitation(invitationId)
+    .then((invitationData) => {
+      if (invitationData.sposti == email) {
+        storedInvitation = invitationData;
+        return sql.users.createEmptyUser(fullname, email)
+      } else {
+        return Promise.reject(errorcodes.noPermission);
+      }
+    })
     .then((newuserId) => {
+      storedUserId = newuserId;
       let salt = crypto.randomBytes(8).toString('hex');
       let hash = module.exports.hash(password, salt);
       return sql.users.createAccount(username, hash, salt, newuserId);
-    });
+    })
+    .then(() => {
+      return sql.courses.addUserToCourse(storedInvitation.kurssi,
+                                         storedUserId,
+                                         storedInvitation.rooli == 'opettaja');
+    })
+    .then(() => {
+      return sql.users.removeUserInvitation(invitationId);
+    })
   },
 
   securityCheckLti1p1: function(request) {
@@ -121,7 +140,7 @@ module.exports = {
   },
 
   ltiLoginWithToken: function(httpRequest, token) {
-    console.dir(token);
+    //console.dir(token);
     let userid = token.user;
     let contextid = token.platformContext.contextId;
     let clientid = token.clientId;

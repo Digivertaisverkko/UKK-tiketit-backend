@@ -1,0 +1,42 @@
+name: Run backend tests
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: node:latest
+    
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: database
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: npm ci
+        run: npm ci
+
+      - name: npm run test
+        env:
+          PGHOST: postgres
+          PGPORT: 5432
+          PGDATABASE: database
+          PGUSER: user
+          PGPASSWORD: password
+          COOKIE_SECRET: secret
+        run: npm run test
