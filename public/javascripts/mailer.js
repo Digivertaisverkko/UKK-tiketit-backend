@@ -50,7 +50,7 @@ module.exports = {
       });
 
       let receiverIdList = arrayTools.extractAttributes(receiverList, 'id');
-      return { recipients: receiverIdList, ticket: storedTicketData, course: storedCourseData };
+      return { recipients: receiverIdList, ticket: storedTicketData, course: storedCourseData, creator: storedCreator };
     })
 
   },
@@ -97,8 +97,8 @@ module.exports = {
 
         let subject = 'TUKKI viesti - message: ' + storedCourseName;
         let message = '<h1>' + storedCourseName + '</h1> \
-        <p>Kysymykseen <b>' + storedTicketTitle + '</b> on tullut viesti:<br>\
-        Question <b>' + storedTicketTitle + '</b> has received a comment:</b></p> \
+        <p>' + storedCreator.nimi + ' on lisännyt viestin kysymykseen <b>' + storedTicketTitle + '</b>:<br>\
+        ' + storedCreator.nimi + ' has added a comment to question <b>' + storedTicketTitle + '</b>:</p> \
         <p>' + content + '</p><hr> \
         <p>Voit käydä vastaamassa siihen osoitteessa:<br>\
         You may answer it in the following address:<br>\
@@ -150,8 +150,8 @@ module.exports = {
 
         let subject = 'TUKKI Uusi kysymys - New question: ' + storedNotificationData.course.nimi;
         let message = '<h1>' + storedNotificationData.course.nimi + '</h1> \
-        <p>Tukissa on uusi kysymys:<br>\
-        Tukki has a new question:</p> \
+        <p>Tukissa on uusi kysymys käyttäjältä ' + storedNotificationData.creator.nimi + ':<br>\
+        Tukki has a new question from ' + storedNotificationData.creator.nimi + ':</p> \
         <h2>' + storedNotificationData.ticket.otsikko + '</h2>\
         <p>' + commentDataList[0].viesti + '</p><hr> \
         <p>Voit käydä vastaamassa siihen osoitteessa:<br>\
