@@ -374,7 +374,7 @@ module.exports = {
     })
     .then((ticketList) => {
       return ticketList.filter((value, index, array) => {
-        return value.aloittaja == profileId;
+        return value.aloittaja == profileId || value.ukk == true;
       })
     })
     .then((ticketList) => {
@@ -388,8 +388,6 @@ module.exports = {
             content = content + newRow;
           }
         }
-
-        //TODO: Opiskelijoiden sähköpostikoosteissa ei ole koskaan uusia UKK:ita, koska opiskelija ei ole koskaan UKK:n aloittaja ks. edeltävä then.
         content += "<h3>Uusia usein kysyttyjä kysymyksiä:<br>Frequently asked questions</h3>"
 
         for (ticket of ticketList) {
