@@ -374,7 +374,7 @@ module.exports = {
     })
     .then((ticketList) => {
       return ticketList.filter((value, index, array) => {
-        return value.aloittaja == profileId;
+        return value.aloittaja == profileId || value.ukk == true;
       })
     })
     .then((ticketList) => {
@@ -388,7 +388,6 @@ module.exports = {
             content = content + newRow;
           }
         }
-
         content += "<h3>Uusia usein kysyttyjä kysymyksiä:<br>Frequently asked questions</h3>"
 
         for (ticket of ticketList) {
@@ -420,14 +419,17 @@ module.exports = {
     let rowCount = 0;
     let content = '';
 
-    return sql.courses.getCourseInfo(courseId)
+    return sql.courses.isCourseActive(courseId)
+    .then((isActive) => {
+      return sql.courses.getCourseInfo(courseId);
+    })
     .then((courseData) => {
       content = content + title.replace('[Kurssi]', courseData.nimi);
       return sql.tickets.getAllTickets(courseId);
     })
     .then((ticketList) => {
       ticketList = ticketList.filter((value, index, array) => {
-        return value.tila == TicketState.sent || value.tila == TicketState.read;
+        return (value.tila == TicketState.sent || value.tila == TicketState.read);
       })
       if (ticketList.length > 0) {
         content += ingress1;
@@ -461,8 +463,10 @@ module.exports = {
       }
       return { contentCount: contentCount, rowCount: rowCount,
                message: message };
+    })
+    .catch(() => {
+      return oldContent;
     });
-
   }
 
 }

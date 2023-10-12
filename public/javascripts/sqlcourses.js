@@ -1,4 +1,4 @@
-const { countReset } = require('console');
+const { countReset, error } = require('console');
 const crypto = require('crypto');
 const { Pool, Client } = require('pg');
 
@@ -24,6 +24,23 @@ module.exports = {
     const query = 'SELECT id, nimi FROM core.kurssi WHERE id=$1';
     return connection.queryOne(query, [courseId]);
   },
+
+  isCourseActive: function(courseId) {
+    const query = 'SELECT kurssi \
+    FROM core.tiketti t INNER JOIN core.kommentti k \
+    ON t.id = k.tiketti \
+    WHERE t.kurssi = $1 AND t.aikaleima >= NOW() - INTERVAL \'14 days\'';
+    return connection.queryAll(query, [courseId])
+    .then((courseIdList) => {
+      if (courseIdList.length > 0) {
+        return Promise.resolve(true);
+      } else {
+        return Promise.reject();
+      }
+    }); 
+
+  },
+
 
   getLtiCourseInfo: function(ltiClientId, ltiCourseId) {
     const query = 'SELECT k.id, k.nimi \
