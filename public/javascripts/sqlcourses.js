@@ -29,7 +29,7 @@ module.exports = {
     const query = 'SELECT kurssi \
     FROM core.tiketti t INNER JOIN core.kommentti k \
     ON t.id = k.tiketti \
-    WHERE t.kurssi = $1 AND t.aikaleima >= NOW() - INTERVAL \'14 days\'';
+    WHERE t.kurssi = $1 AND k.aikaleima >= NOW() - INTERVAL \'14 days\'';
     return connection.queryAll(query, [courseId])
     .then((courseIdList) => {
       if (courseIdList.length > 0) {

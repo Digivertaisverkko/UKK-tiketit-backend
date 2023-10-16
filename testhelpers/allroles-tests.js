@@ -26,9 +26,6 @@ module.exports = {
           expect(res.body).to.include.keys(['login-url', 'login-id']);
           expect(res).to.have.status(200);
           loginid = res.body['login-id'];
-
-          console.log('Kirjaudu sisään: ' + username + ' ' + password);
-          
           
           agent.post('/api/omalogin')
           .set('ktunnus', username)

@@ -56,7 +56,6 @@ router.post('/gdpr-lupa-ok/', function(req, res, next) {
     res.send({ success: true, kurssi: data.courseId });
   })
   .catch((error) => {
-    console.log('error: ' + error);
     errorFactory.createError(req, res, error);
   });
 });
