@@ -366,7 +366,7 @@ module.exports = {
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
       content = content + title.replace('[Kurssi]', courseData.nimi);
-      return sql.tickets.getAllCommentsFromCourseSinceYesterday(courseId, [profileId])
+      return sql.tickets.getAllCommentsFromCourseSinceYesterdayWithFaqs(courseId, [profileId])
     })
     .then((commentList) => {
       let ticketIds = arrayTools.extractAttributes(commentList, 'tiketti');
@@ -407,6 +407,9 @@ module.exports = {
         message += content;
       }
       return { contentCount: contentCount, rowCount: rowCount, message: message };
+    })
+    .catch(() => {
+      return oldContent;
     })
   },
 
@@ -465,6 +468,7 @@ module.exports = {
                message: message };
     })
     .catch(() => {
+      console.log('Opettajan sähköpostin luonnissa virhe ' + profileId + ' ' + courseId);
       return oldContent;
     });
   }
