@@ -109,7 +109,7 @@ module.exports = {
     //TODO: Toteuta oikea client secret -hallintamekanismi tietokantaan.
     return new Promise(function(resolve, reject) {
 
-      console.log(request.body);
+      //console.log(request.body);
 
       let consumerKey = request.body.oauth_consumer_key;
       if (consumerKey !== process.env.TEMP_CLIENT_KEY) {

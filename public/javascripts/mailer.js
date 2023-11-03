@@ -50,7 +50,7 @@ module.exports = {
       });
 
       let receiverIdList = arrayTools.extractAttributes(receiverList, 'id');
-      return { recipients: receiverIdList, ticket: storedTicketData, course: storedCourseData };
+      return { recipients: receiverIdList, ticket: storedTicketData, course: storedCourseData, creator: storedCreator };
     })
 
   },
@@ -97,8 +97,8 @@ module.exports = {
 
         let subject = 'TUKKI viesti - message: ' + storedCourseName;
         let message = '<h1>' + storedCourseName + '</h1> \
-        <p>Kysymykseen <b>' + storedTicketTitle + '</b> on tullut viesti:<br>\
-        Question <b>' + storedTicketTitle + '</b> has received a comment:</b></p> \
+        <p>' + storedCreator.nimi + ' on lisännyt viestin kysymykseen <b>' + storedTicketTitle + '</b>:<br>\
+        ' + storedCreator.nimi + ' has added a comment to question <b>' + storedTicketTitle + '</b>:</p> \
         <p>' + content + '</p><hr> \
         <p>Voit käydä vastaamassa siihen osoitteessa:<br>\
         You may answer it in the following address:<br>\
@@ -150,8 +150,8 @@ module.exports = {
 
         let subject = 'TUKKI Uusi kysymys - New question: ' + storedNotificationData.course.nimi;
         let message = '<h1>' + storedNotificationData.course.nimi + '</h1> \
-        <p>Tukissa on uusi kysymys:<br>\
-        Tukki has a new question:</p> \
+        <p>Tukissa on uusi kysymys käyttäjältä ' + storedNotificationData.creator.nimi + ':<br>\
+        Tukki has a new question from ' + storedNotificationData.creator.nimi + ':</p> \
         <h2>' + storedNotificationData.ticket.otsikko + '</h2>\
         <p>' + commentDataList[0].viesti + '</p><hr> \
         <p>Voit käydä vastaamassa siihen osoitteessa:<br>\
@@ -366,7 +366,7 @@ module.exports = {
     return sql.courses.getCourseInfo(courseId)
     .then((courseData) => {
       content = content + title.replace('[Kurssi]', courseData.nimi);
-      return sql.tickets.getAllCommentsFromCourseSinceYesterday(courseId, [profileId])
+      return sql.tickets.getAllCommentsFromCourseSinceYesterdayWithFaqs(courseId, [profileId])
     })
     .then((commentList) => {
       let ticketIds = arrayTools.extractAttributes(commentList, 'tiketti');
@@ -374,7 +374,7 @@ module.exports = {
     })
     .then((ticketList) => {
       return ticketList.filter((value, index, array) => {
-        return value.aloittaja == profileId;
+        return value.aloittaja == profileId || value.ukk == true;
       })
     })
     .then((ticketList) => {
@@ -388,7 +388,6 @@ module.exports = {
             content = content + newRow;
           }
         }
-
         content += "<h3>Uusia usein kysyttyjä kysymyksiä:<br>Frequently asked questions</h3>"
 
         for (ticket of ticketList) {
@@ -409,6 +408,9 @@ module.exports = {
       }
       return { contentCount: contentCount, rowCount: rowCount, message: message };
     })
+    .catch(() => {
+      return oldContent;
+    })
   },
 
   createTeacherAggregateForCourse: function(courseId, profileId, oldContent) {
@@ -420,14 +422,17 @@ module.exports = {
     let rowCount = 0;
     let content = '';
 
-    return sql.courses.getCourseInfo(courseId)
+    return sql.courses.isCourseActive(courseId)
+    .then((isActive) => {
+      return sql.courses.getCourseInfo(courseId);
+    })
     .then((courseData) => {
       content = content + title.replace('[Kurssi]', courseData.nimi);
       return sql.tickets.getAllTickets(courseId);
     })
     .then((ticketList) => {
       ticketList = ticketList.filter((value, index, array) => {
-        return value.tila == TicketState.sent || value.tila == TicketState.read;
+        return (value.tila == TicketState.sent || value.tila == TicketState.read);
       })
       if (ticketList.length > 0) {
         content += ingress1;
@@ -461,8 +466,11 @@ module.exports = {
       }
       return { contentCount: contentCount, rowCount: rowCount,
                message: message };
+    })
+    .catch(() => {
+      console.log('Opettajan sähköpostin luonnissa virhe ' + profileId + ' ' + courseId);
+      return oldContent;
     });
-
   }
 
 }

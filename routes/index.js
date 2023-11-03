@@ -113,6 +113,7 @@ router.post('/luotili/', function(req, res, next) {
   });
 });
 
+/*
 router.post('/testi-cron/', function(req, res, next) {
   //timedJobs.archiveOldTickets();
   //timedJobs.deletePendingLtiLogins();
@@ -121,6 +122,7 @@ router.post('/testi-cron/', function(req, res, next) {
     res.send({ success: true });
   })
   .catch((error) => {
+    console.log('ERROR ' + error);
     errorFactory.createError(res, error);
   })
 })
@@ -181,6 +183,7 @@ router.get('/hash/:password', function(req, res) {
 
   res.send(array);
 });
+*/
 
 
 router.get('/minun/', function(req, res, next) {

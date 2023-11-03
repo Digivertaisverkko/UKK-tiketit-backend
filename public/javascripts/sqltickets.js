@@ -182,12 +182,12 @@ module.exports = {
     return connection.queryAll(query, [courseId, profileBlackList]);
   },
 
-  getAllCommentsFromCourseSinceYesterday: function(courseId, profileBlackList) {
+  getAllCommentsFromCourseSinceYesterdayWithFaqs: function(courseId, profileBlackList) {
     const query = 'SELECT * \
     FROM core.kommentti k \
     INNER JOIN core.tiketti t \
     ON k.tiketti = t.id \
-    WHERE t.kurssi=$1 AND k.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT k.lahettaja=ANY($2) AND t.ukk=false';
+    WHERE t.kurssi=$1 AND k.aikaleima>= NOW() - INTERVAL \'24 hours\' AND NOT k.lahettaja=ANY($2)';
     return connection.queryAll(query, [courseId, profileBlackList]);
   },
 
