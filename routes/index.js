@@ -117,16 +117,17 @@ router.post('/luotili/', function(req, res, next) {
 router.post('/testi-cron/', function(req, res, next) {
   //timedJobs.archiveOldTickets();
   //timedJobs.deletePendingLtiLogins();
-  timedJobs.sendAggregateEmails()
-  .then(() => {
-    res.send({ success: true });
+  timedJobs.deleteInactiveUsers()
+  .then((data) => {
+    res.send( data );
   })
   .catch((error) => {
     console.log('ERROR ' + error);
-    errorFactory.createError(res, error);
+    errorFactory.createError(req, res, error);
   })
 })
-
+*/
+/*
 router.get('/testi/', function(req, res, next) {
   sanitizer.test(req.body, [
     {key: 'piip', min: 0, value: 'terve!'},

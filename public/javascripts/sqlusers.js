@@ -3,6 +3,7 @@ const { Pool, Client } = require('pg');
 
 const connection = require('./connection.js');
 const errorcodes = require('./errorcodes.js');
+const { connect } = require('http2');
 const con = connection.getConnection();
 
 module.exports = {
@@ -138,6 +139,22 @@ module.exports = {
         return { lti_login: false, perus: true };
       }
     })
+  },
+
+  getAllInactiveUserIds: function() {
+    const query = "\
+    SELECT id \
+    FROM core.profiili \
+    WHERE id != 0 AND id NOT IN (\
+      SELECT DISTINCT lahettaja \
+      FROM core.kommentti k \
+      WHERE k.aikaleima > now() - interval '3 years' \
+    )";
+
+    return connection.queryAll(query, [])
+    .then((inactiveIds) => {
+      return inactiveIds;
+    });
   },
 
   removeLoginAttempt: function(frontcode) {

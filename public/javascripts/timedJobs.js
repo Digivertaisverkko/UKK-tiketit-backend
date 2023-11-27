@@ -1,12 +1,14 @@
 
 
 
+const { forEach } = require('jszip');
 const sql = require('../../routes/sql');
 const arrayTools = require('./arrayTools.js');
 const auth = require('./auth');
 const filessystem = require('./filessystem');
 const mailer = require('./mailer');
 const TicketState = require('./ticketstate');
+const sqlfuncs = require('./sqlfuncs.js');
 
 module.exports = {
 
@@ -62,6 +64,17 @@ module.exports = {
 
   sendAggregateEmails: function() {
     return mailer.sendAggregateMails();
+  },
+
+  deleteInactiveUsers: function() {
+    return sql.users.getAllInactiveUserIds()
+    .then((inactiveIds) => {
+      let promise = Promise.resolve();
+      inactiveIds.forEach(element => {
+        promise.then(() => { return sqlfuncs.removeAllDataRelatedToUser(element.id)})
+        .catch((error) => { console.error('Käyttäjän automaattinen poistaminen epäonnistui.');}) //catch, jotta yhden käyttäjän virhe ei estä muita poistumasta.
+      });
+    })
   }
 
 }
