@@ -53,7 +53,7 @@ let sessionSettings = {
   resave: false,
   store: sessionStoreManager,
   saveUninitialized: false,
-  //proxy: true,
+  proxy: true,
   rolling: true,
   cookie: { httpOnly: true, sameSite: 'lax', maxAge: day * 14 }
 };

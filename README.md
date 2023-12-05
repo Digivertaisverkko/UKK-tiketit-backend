@@ -38,6 +38,10 @@ FRONTEND_DIRECTORY=[Polku kansioon, jossa on käännetyt frontin tiedostot (olet
 PGSSLMODE=[vaaditaan tuotantokäytössä, Azuressa arvo 'require']
 SMTP_USERNAME=[käytetyn SMTP palvelun käyttäjänimi]
 SMTP_PASSWORD=[käytetyn SMTP palvelun salasana]
+SEND_EMAIL_NOTIFICATIONS=[Lähettääkö palvelin ollenkaan sähköposti-ilmoituksia, tai alustaako edes node-maileria. true, jos lähettää, muuten ei. Mahdollistaa testit.]
+EMAIL_FROM_=[Mistä osoitteesta sähköposti-ilmoitukset lähetetään.]
+SMTP_HOST=[node-mailerin alustukseen käytettävä SMPT-palvelimen osoite]
+SMTP_PORT=[node-mailerin alustukseen käytettävä SMTP-palvelimen portti]
 TEST_KEEP_TABLES=[kehityskäyttöön tarkoitettu lippu. Määrittää nollaako automaattitestit testitietokannan testien jälkeen vai ei.]
 ```
 

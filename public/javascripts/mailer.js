@@ -7,13 +7,19 @@ const arrayTools = require('./arrayTools.js');
 const nodemailer = require('nodemailer');
 const TicketState = require('./ticketstate.js');
 const redirect = require('./redirect.js');
-const transporter = nodemailer.createTransport({
+/*const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
     user: process.env.SMTP_USERNAME,
     pass: process.env.SMTP_PASSWORD
   }
-});
+});*/
+if (process.env.SEND_EMAIL_NOTIFICATIONS === 'true') {
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT
+  });
+}
 
 
 
@@ -310,6 +316,10 @@ module.exports = {
   },
 
   sendMail: function(receiverList, subject, content) {
+    if (process.env.SEND_EMAIL_NOTIFICATIONS !== 'true') {
+      return;
+    }
+
     if (Array.isArray(receiverList) == false) {
       receiverList = [receiverList];
     } else if (receiverList.length < 1) {
@@ -317,7 +327,7 @@ module.exports = {
     }
 
     const mailOptions = {
-      from: process.env.SMTP_USERNAME,
+      from: process.env.EMAIL_FROM,
       bcc: receiverList,
       subject: subject,
       html: content
