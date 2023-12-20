@@ -14,7 +14,7 @@ const redirect = require('./redirect.js');
     pass: process.env.SMTP_PASSWORD
   }
 });*/
-const transporter = null;
+let transporter = null;
 if (process.env.SEND_EMAIL_NOTIFICATIONS === 'true') {
   transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -349,13 +349,15 @@ module.exports = {
       console.log('\n\n-----------------\n\n');
     }
 
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log('Sähköpostin lähetyksessä virhe: ' + error);
-      } else {
-        console.log('Sähköposti lähetettiin: ' + info.response);
-      }
-    });
+    if (transporter != null) {
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log('Sähköpostin lähetyksessä virhe: ' + error);
+        } else {
+          console.log('Sähköposti lähetettiin: ' + info.response);
+        }
+      });
+    }
   },
 
   sendMailToUserList: function(userIdList, subject, content) {
