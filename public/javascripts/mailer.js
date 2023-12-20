@@ -14,8 +14,9 @@ const redirect = require('./redirect.js');
     pass: process.env.SMTP_PASSWORD
   }
 });*/
+const transporter = null;
 if (process.env.SEND_EMAIL_NOTIFICATIONS === 'true') {
-  const transporter = nodemailer.createTransport({
+  transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT
   });
