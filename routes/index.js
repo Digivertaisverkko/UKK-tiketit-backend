@@ -115,11 +115,18 @@ router.post('/luotili/', function(req, res, next) {
 
 /*
 router.post('/testi-cron/', function(req, res, next) {
+  
   //timedJobs.archiveOldTickets();
   //timedJobs.deletePendingLtiLogins();
-  timedJobs.deleteInactiveUsers()
+
+  var deletedIds = [];
+  sql.users.getAllInactiveUserIds()
+  .then((ids) => {
+    deletedIds = ids;
+    return timedJobs.deleteInactiveUsers();
+  })
   .then((data) => {
-    res.send( data );
+    res.send( {tieto: deletedIds} );
   })
   .catch((error) => {
     console.log('ERROR ' + error);
@@ -127,6 +134,7 @@ router.post('/testi-cron/', function(req, res, next) {
   })
 })
 */
+
 /*
 router.get('/testi/', function(req, res, next) {
   sanitizer.test(req.body, [

@@ -146,9 +146,9 @@ module.exports = {
     SELECT id \
     FROM core.profiili \
     WHERE id != 0 AND id NOT IN (\
-      SELECT DISTINCT lahettaja \
-      FROM core.kommentti k \
-      WHERE k.aikaleima > now() - interval '3 years' \
+      SELECT DISTINCT profiili \
+      FROM core.sessio s \
+      WHERE s.vanhenee > now() - interval '3 years' \
     )";
 
     return connection.queryAll(query, [])
