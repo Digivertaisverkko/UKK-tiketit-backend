@@ -71,10 +71,6 @@ module.exports = {
     .then(() => {
       return module.exports.createTicketBase(instruction, storedcourseid);
     })
-    .then((ticketbaseid) => {
-      return module.exports.connectTicketBaseToField(ticketbaseid, 1)
-      .then(() => module.exports.connectTicketBaseToField(ticketbaseid, 2));
-    })
     .then(() => {
       return storedcourseid;
     });
