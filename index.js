@@ -87,7 +87,7 @@ db.doMigration()
     timedJobs.sendAggregateEmails();
     timedJobs.deleteGdprDumps();
     timedJobs.deleteUnusedAttachments();
-    timedJobs.deleteInactiveUsers();
+    //timedJobs.deleteInactiveUsers();
     app.updateCookieSecret();
   });
 
