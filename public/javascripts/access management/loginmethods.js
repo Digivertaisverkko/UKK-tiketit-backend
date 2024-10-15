@@ -150,8 +150,8 @@ class LoginMethods {
       return sql.courses.getLtiCourseInfo(clientId, contextId);
     })
     .then((courseDataList) => {
-      return sql.users.deleteStoredLtiToken(storageId)
-      .then(() => {
+      //return sql.users.deleteStoredLtiToken(storageId)
+      //.then(() => {
         let courseExists;
         let courseId;
         if (courseDataList && courseDataList.length > 0) {
@@ -162,7 +162,7 @@ class LoginMethods {
           courseId = null;
         }
         return { courseExists: courseExists, courseId: courseId };
-      })
+      //})
     });
   }
 
